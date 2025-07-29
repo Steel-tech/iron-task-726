@@ -39,7 +39,13 @@ Professional Construction Documentation System built by ironworkers, for ironwor
 - **Remote Monitoring**: Reduce site visits while staying informed
 - **Custom Views**: Grid, list, or compact layouts
 
-### 🔐 Enterprise Security
+### 🔐 Enhanced Authentication & Security
+- **Smart Login Experience**: Password visibility toggle, auto-focus progression, Enter key navigation
+- **CAPTCHA Protection**: Mathematical challenge after 3 failed login attempts
+- **Device Remember**: Trusted device functionality with email auto-fill
+- **Session Management**: Automatic extension warnings with countdown timer
+- **Accessibility First**: Full screen reader support, ARIA labels, keyboard navigation
+- **Progressive Loading**: Enhanced feedback with step-by-step status updates
 - **Role-Based Access**: Admin, Project Manager, Foreman, Worker roles
 - **Project Permissions**: Control who sees what
 - **Secure Sharing**: Time-limited gallery links
@@ -114,6 +120,34 @@ Email: foreman@fsw-denver.com
 Password: Test1234!
 ```
 
+## 🔐 Enhanced Login Experience
+
+The Iron Task login system has been enhanced with advanced security and accessibility features:
+
+### 🎯 **Smart Login Features**
+- **Password Visibility Toggle**: Click the eye icon to show/hide your password
+- **Auto-Focus Navigation**: Email field focuses on load, Tab/Enter moves between fields
+- **Keyboard Shortcuts**: Press Enter in email to move to password, Enter in password to submit
+- **Remember Device**: Check "Remember this device" to auto-fill email on trusted devices
+
+### 🛡️ **Security Protection**
+- **CAPTCHA Challenge**: Simple math problem appears after 3 failed login attempts
+- **Session Warnings**: Get notified 5 minutes before your session expires
+- **Progressive Loading**: Clear feedback during authentication process
+- **Secure Token Management**: Automatic token refresh and family rotation
+
+### ♿ **Accessibility Features**
+- **Screen Reader Support**: Full ARIA labels and semantic markup
+- **Keyboard Navigation**: Complete keyboard accessibility
+- **High Contrast**: Readable with assistive technologies
+- **Error Announcements**: Clear error messages with live regions
+
+### 🏗️ **Construction-Themed Design**
+- **Safety Orange**: Primary action color matching construction standards
+- **Steel Blue**: Secondary accent color for professional appearance
+- **Animated Elements**: Construction icons (cranes, welding torches, sparks)
+- **Industry Context**: OSHA compliance badges and construction statistics
+
 ## 📁 Project Structure
 
 ```
@@ -127,10 +161,13 @@ FSW-Iron-Track/
 │   └── tests/             # API tests
 ├── web/                    # Frontend Next.js application
 │   ├── app/               # App Router pages
+│   │   └── login/        # Enhanced login page with advanced features
 │   ├── components/        # React components
 │   │   ├── ui/           # Base UI components
-│   │   └── icons/        # Custom steel icons
+│   │   ├── icons/        # Custom steel icons
+│   │   └── SessionWarning.tsx # Session expiration management
 │   ├── contexts/          # React contexts
+│   │   └── AuthContext.tsx # Enhanced auth with session monitoring
 │   ├── hooks/             # Custom hooks
 │   └── lib/               # Utilities
 ├── database/              # Database initialization
@@ -214,10 +251,13 @@ cd web && npm test
 
 ### Authentication
 - `POST /api/auth/register` - Create new account
-- `POST /api/auth/login` - Login with email/password
-- `POST /api/auth/refresh` - Refresh access token
-- `POST /api/auth/logout` - Clear refresh token
+- `POST /api/auth/login` - Enhanced login with CAPTCHA protection and device tracking
+- `POST /api/auth/refresh` - Refresh access token with automatic rotation
+- `POST /api/auth/logout` - Clear refresh token and invalidate sessions
 - `GET /api/auth/me` - Get current user profile
+- `GET /api/auth/sessions` - List active user sessions
+- `DELETE /api/auth/sessions/:id` - Revoke specific session
+- `POST /api/auth/revoke-all-sessions` - Revoke all user sessions
 
 ### Projects
 - `GET /api/projects` - List all projects
