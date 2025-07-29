@@ -85,8 +85,8 @@ Professional Construction Documentation System built by ironworkers, for ironwor
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Steel-tech/FSW-Iron-Track.git
-   cd FSW-Iron-Track
+   git clone https://github.com/Steel-tech/iron-task-726.git
+   cd iron-task-726
    ```
 
 2. **Start with Docker**
@@ -151,7 +151,7 @@ The Iron Task login system has been enhanced with advanced security and accessib
 ## 📁 Project Structure
 
 ```
-FSW-Iron-Track/
+iron-task-726/
 ├── api/                    # Backend API service
 │   ├── prisma/            # Database schema and migrations
 │   ├── src/               # Source code
