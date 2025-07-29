@@ -1,0 +1,778 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["jsonProtocol"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id             String           @id @default(uuid())
+  name           String           @unique
+  users          User[]
+  projects       Project[]
+  tags           Tag[]
+  labels         Label[]
+  savedFilters   SavedFilter[]
+  reportTemplates ReportTemplate[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+enum UserRole {
+  ADMIN
+  PROJECT_MANAGER
+  FOREMAN
+  WORKER
+  STEEL_ERECTOR
+  WELDER
+  SAFETY_INSPECTOR
+  VIEWER
+}
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  ARCHIVED
+}
+
+enum ActivityType {
+  ERECTION
+  FABRICATION
+  DELIVERY
+  WELDING
+  BOLTING
+  PLUMBING
+  DECKING
+  SAFETY
+  OTHER
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  password     String
+  name         String
+  role         UserRole
+  companyId    String
+  unionMember  Boolean  @default(false)
+  phoneNumber  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  company         Company          @relation(fields: [companyId], references: [id])
+  media           Media[]
+  mediaViews      MediaView[]
+  annotations     Annotation[]
+  activities      Activity[]
+  projectMembers  ProjectMember[]
+  galleries       Gallery[]
+  comments        Comment[]
+  reactions       Reaction[]
+  notifications   Notification[]
+  teamChats       TeamChat[]
+  createdTags     Tag[]
+  createdLabels   Label[]
+  taggedMedia     MediaTag[]
+  assignedLabels  ProjectLabel[]
+  savedFilters    SavedFilter[]
+  starredProjects StarredProject[]
+  starringUsers   StarredUser[]    @relation("StarringUser")
+  starredByUsers  StarredUser[]    @relation("StarredUser")
+  feedPreferences FeedPreferences?
+  feedEvents      FeedEvent[]
+  aiReports       AIReport[]
+  reportShares    ReportShare[]
+  formsData         FormsData[]
+  refreshTokens     RefreshToken[]
+  pushSubscriptions PushSubscription[]
+}
+
+model Project {
+  id         String        @id @default(uuid())
+  jobNumber  String        @unique
+  name       String
+  location   String
+  address    String?
+  status     ProjectStatus @default(ACTIVE)
+  companyId  String
+  metadata   Json?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  
+  company    Company         @relation(fields: [companyId], references: [id])
+  media      Media[]
+  activities Activity[]
+  members    ProjectMember[]
+  galleries  Gallery[]
+  timeline   ProjectTimeline?
+  teamChats  TeamChat[]
+  labels     ProjectLabel[]
+  starredBy  StarredProject[]
+  feedEvents FeedEvent[]
+  aiReports  AIReport[]
+  formsData  FormsData[]
+}
+
+model ProjectMember {
+  projectId  String
+  userId     String
+  role       String?
+  assignedAt DateTime @default(now())
+  
+  project Project @relation(fields: [projectId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  
+  @@id([projectId, userId])
+  @@index([userId])
+}
+
+model Media {
+  id           String       @id @default(uuid())
+  projectId    String
+  userId       String
+  fileUrl      String       // S3/MinIO URL
+  thumbnailUrl String?      // For videos
+  mediaType    MediaType    
+  
+  // File metadata
+  fileSize     Int          // In bytes
+  width        Int?         // For images/videos
+  height       Int?         // For images/videos
+  duration     Int?         // For videos (in seconds)
+  
+  // Location data
+  latitude     Float?
+  longitude    Float?
+  address      String?
+  
+  // Business data
+  tags         String[]
+  timestamp    DateTime     @default(now())
+  activityType ActivityType
+  location     String?      // Building location (e.g., "Bay 3, Level 2")
+  notes        String?
+  metadata     Json?        // EXIF data, device info, video codec, etc.
+  
+  // Dual camera support
+  isPictureInPicture Boolean  @default(false)
+  frontCameraUrl     String?  // For PiP videos
+  backCameraUrl      String?  // For PiP videos
+  
+  // Processing status
+  status       MediaStatus  @default(PROCESSING)
+  processedAt  DateTime?
+  
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  
+  project     Project      @relation(fields: [projectId], references: [id])
+  user        User         @relation(fields: [userId], references: [id])
+  annotations Annotation[]
+  views       MediaView[]
+  galleryItems GalleryItem[]
+  comments    Comment[]
+  mediaTags   MediaTag[]
+  
+  @@index([projectId, timestamp])
+  @@index([userId])
+  @@index([activityType])
+  @@index([status])
+  @@map("media")
+}
+
+enum MediaType {
+  PHOTO
+  VIDEO
+  DUAL_VIDEO
+}
+
+enum MediaStatus {
+  UPLOADING
+  PROCESSING
+  READY
+  FAILED
+}
+
+model MediaView {
+  id        String   @id @default(uuid())
+  mediaId   String
+  userId    String
+  viewedAt  DateTime @default(now())
+  
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([mediaId, userId])
+  @@index([mediaId])
+  @@index([userId])
+}
+
+model Annotation {
+  id        String   @id @default(uuid())
+  mediaId   String
+  userId    String
+  data      Json     // Stores drawing data, text, measurements, etc.
+  createdAt DateTime @default(now())
+  
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id])
+  
+  @@index([mediaId])
+  @@index([userId])
+}
+
+model Activity {
+  id        String       @id @default(uuid())
+  projectId String
+  userId    String
+  type      ActivityType
+  description String
+  mediaIds  String[]     // Array of related media IDs
+  timestamp DateTime     @default(now())
+  
+  project Project @relation(fields: [projectId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  
+  @@index([projectId, timestamp])
+  @@index([userId])
+}
+
+// Gallery Models for sharing collections
+model Gallery {
+  id          String         @id @default(uuid())
+  projectId   String
+  createdById String
+  name        String
+  description String?
+  shareToken  String         @unique @default(cuid())
+  isPublic    Boolean        @default(false)
+  password    String?        // Optional password protection
+  expiresAt   DateTime?      // Optional expiration
+  
+  // Branding
+  brandLogo   String?        // URL to custom logo
+  brandColor  String?        // Hex color for theming
+  watermark   Boolean        @default(true)
+  
+  // Analytics
+  viewCount   Int            @default(0)
+  
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  
+  project     Project        @relation(fields: [projectId], references: [id])
+  createdBy   User           @relation(fields: [createdById], references: [id])
+  items       GalleryItem[]
+  views       GalleryView[]
+  
+  @@index([projectId])
+  @@index([createdById])
+  @@index([shareToken])
+}
+
+model GalleryItem {
+  id        String   @id @default(uuid())
+  galleryId String
+  mediaId   String
+  order     Int      @default(0)
+  caption   String?
+  
+  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  media   Media   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  
+  @@unique([galleryId, mediaId])
+  @@index([galleryId, order])
+}
+
+model GalleryView {
+  id         String   @id @default(uuid())
+  galleryId  String
+  viewerIp   String   // Track unique viewers by IP
+  viewerInfo Json?    // User agent, referrer, etc.
+  viewedAt   DateTime @default(now())
+  
+  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  
+  @@index([galleryId, viewedAt])
+}
+
+// Timeline Models
+model ProjectTimeline {
+  id           String    @id @default(uuid())
+  projectId    String    @unique
+  shareToken   String    @unique @default(cuid())
+  isPublic     Boolean   @default(false)
+  password     String?   // Optional password protection
+  
+  // Display settings
+  showAllMedia Boolean   @default(true)  // Show all project media or filtered
+  mediaTypes   String[]  @default(["PHOTO", "VIDEO"]) // Which media types to show
+  activityTypes String[] // Which activity types to show (empty = all)
+  
+  // Branding
+  brandLogo    String?   // URL to custom logo
+  brandColor   String?   // Hex color for theming
+  title        String?   // Custom timeline title
+  description  String?   // Custom description
+  
+  // Analytics
+  viewCount    Int       @default(0)
+  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  project      Project   @relation(fields: [projectId], references: [id])
+  views        TimelineView[]
+  
+  @@index([shareToken])
+}
+
+model TimelineView {
+  id         String          @id @default(uuid())
+  timelineId String
+  viewerIp   String          // Track unique viewers by IP
+  viewerInfo Json?           // User agent, referrer, etc.
+  viewedAt   DateTime        @default(now())
+  
+  timeline ProjectTimeline @relation(fields: [timelineId], references: [id], onDelete: Cascade)
+  
+  @@index([timelineId, viewedAt])
+}
+
+// Communication Models
+model Comment {
+  id             String    @id @default(uuid())
+  content        String
+  originalLang   String    @default("en")
+  translations   Json?     // Store translations as JSON
+  mediaId        String
+  userId         String
+  parentId       String?   // For threaded comments
+  mentions       String[]  // Array of mentioned user IDs
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  media     Media       @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent    Comment?    @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[]   @relation("CommentReplies")
+  reactions Reaction[]
+  
+  @@index([mediaId])
+  @@index([userId])
+  @@index([parentId])
+}
+
+model Reaction {
+  id        String   @id @default(uuid())
+  type      String   // 'like', 'thumbsup', 'thumbsdown', 'question', 'check'
+  commentId String
+  userId    String
+  createdAt DateTime @default(now())
+  
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([commentId, userId, type])
+  @@index([commentId])
+  @@index([userId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  type      String   // 'mention', 'comment', 'reply', 'reaction', 'project_update'
+  title     String
+  message   String
+  data      Json?    // Additional data like mediaId, commentId, etc.
+  userId    String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+}
+
+model PushSubscription {
+  id         String   @id @default(uuid())
+  userId     String
+  endpoint   String   @db.Text
+  p256dh     String
+  auth       String
+  deviceName String   @default("Unknown Device")
+  createdAt  DateTime @default(now())
+  lastUsed   DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, endpoint])
+  @@index([userId])
+  @@index([lastUsed])
+}
+
+model TeamChat {
+  id           String   @id @default(uuid())
+  projectId    String
+  userId       String
+  message      String
+  originalLang String   @default("en")
+  translations Json?
+  mentions     String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([projectId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// Tag System Models
+model Tag {
+  id          String      @id @default(uuid())
+  name        String
+  slug        String      // URL-friendly version
+  color       String      @default("#3B82F6") // Hex color
+  description String?
+  companyId   String
+  createdById String
+  
+  // Tag categories for organization
+  category    String?     // e.g., "Material", "Room Type", "Status", "Trade"
+  isSystem    Boolean     @default(false) // System tags can't be deleted
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  company     Company     @relation(fields: [companyId], references: [id])
+  createdBy   User        @relation(fields: [createdById], references: [id])
+  mediaTags   MediaTag[]
+  
+  @@unique([companyId, slug])
+  @@index([companyId, category])
+  @@index([name])
+}
+
+model Label {
+  id          String      @id @default(uuid())
+  name        String
+  slug        String      // URL-friendly version
+  color       String      @default("#10B981") // Hex color
+  description String?
+  companyId   String
+  createdById String
+  
+  // Label types for projects
+  type        String      // e.g., "project_type", "project_status", "budget_range"
+  icon        String?     // Icon identifier
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  company     Company     @relation(fields: [companyId], references: [id])
+  createdBy   User        @relation(fields: [createdById], references: [id])
+  projects    ProjectLabel[]
+  
+  @@unique([companyId, slug])
+  @@index([companyId, type])
+  @@index([name])
+}
+
+// Many-to-many relationship for media tags
+model MediaTag {
+  id         String   @id @default(uuid())
+  mediaId    String
+  tagId      String
+  taggedById String
+  taggedAt   DateTime @default(now())
+  
+  media      Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  taggedBy   User     @relation(fields: [taggedById], references: [id])
+  
+  @@unique([mediaId, tagId])
+  @@index([mediaId])
+  @@index([tagId])
+  @@index([taggedAt])
+}
+
+// Many-to-many relationship for project labels
+model ProjectLabel {
+  id         String   @id @default(uuid())
+  projectId  String
+  labelId    String
+  assignedById String
+  assignedAt DateTime @default(now())
+  
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  label      Label    @relation(fields: [labelId], references: [id], onDelete: Cascade)
+  assignedBy User     @relation(fields: [assignedById], references: [id])
+  
+  @@unique([projectId, labelId])
+  @@index([projectId])
+  @@index([labelId])
+}
+
+// Saved search filters for custom catalogs
+model SavedFilter {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  companyId   String
+  createdById String
+  
+  // Filter criteria stored as JSON
+  filters     Json     // { tags: [], labels: [], dateRange: {}, mediaTypes: [], etc. }
+  
+  // Display settings
+  isPublic    Boolean  @default(false) // Available to all company users
+  shareToken  String   @unique @default(cuid()) // For external sharing
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  company     Company  @relation(fields: [companyId], references: [id])
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  
+  @@index([companyId])
+  @@index([createdById])
+  @@index([shareToken])
+}
+
+// Project starring and feed preferences
+model StarredProject {
+  id         String   @id @default(uuid())
+  userId     String
+  projectId  String
+  starredAt  DateTime @default(now())
+  
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, projectId])
+  @@index([userId])
+  @@index([projectId])
+  @@index([starredAt])
+}
+
+model StarredUser {
+  id          String   @id @default(uuid())
+  userId      String   // The user doing the starring
+  starredId   String   // The user being starred
+  starredAt   DateTime @default(now())
+  
+  user        User     @relation("StarringUser", fields: [userId], references: [id], onDelete: Cascade)
+  starredUser User     @relation("StarredUser", fields: [starredId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, starredId])
+  @@index([userId])
+  @@index([starredId])
+}
+
+model FeedPreferences {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  
+  // Feed ordering preferences
+  projectOrder     String[] // Array of project IDs in custom order
+  showStarredFirst Boolean  @default(true)
+  
+  // Feed filtering preferences
+  hideInactive     Boolean  @default(false)
+  hiddenProjects   String[] // Array of project IDs to hide
+  
+  // Feed display preferences
+  viewMode         String   @default("grid") // grid, list, compact
+  itemsPerPage     Int      @default(20)
+  autoRefresh      Boolean  @default(true)
+  refreshInterval  Int      @default(30) // seconds
+  
+  // Notification preferences
+  emailNotifications Boolean @default(true)
+  pushNotifications  Boolean @default(true)
+  notificationTypes  Json?   // Object with notification type preferences
+  feedSettings       Json?   // Additional feed settings
+  
+  updatedAt        DateTime @updatedAt
+  
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+}
+
+// Project activity feed events
+model FeedEvent {
+  id           String      @id @default(uuid())
+  projectId    String
+  userId       String
+  eventType    String      // media_uploaded, comment_added, tag_applied, member_added, etc.
+  entityType   String      // media, comment, tag, user, etc.
+  entityId     String      // ID of the related entity
+  metadata     Json?       // Additional event data
+  createdAt    DateTime    @default(now())
+  
+  project      Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user         User        @relation(fields: [userId], references: [id])
+  
+  @@index([projectId, createdAt])
+  @@index([userId])
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+// AI Report Generation
+enum ReportType {
+  PROGRESS_RECAP  // Comprehensive project progress report
+  SUMMARY         // Quick summary for group of photos
+  DAILY_LOG       // Daily activity log with todo list
+}
+
+enum ReportStatus {
+  PENDING
+  GENERATING
+  COMPLETED
+  FAILED
+}
+
+model AIReport {
+  id           String       @id @default(uuid())
+  projectId    String
+  userId       String
+  reportType   ReportType
+  status       ReportStatus @default(PENDING)
+  
+  // Report configuration
+  title        String
+  dateRange    Json?        // { start: Date, end: Date }
+  mediaIds     String[]     // Selected media for the report
+  sections     Json?        // Custom sections for progress recap
+  
+  // Generated content
+  content      Json?        // The generated report content
+  summary      String?      // Brief summary
+  todoItems    Json?        // For daily logs
+  
+  // File storage
+  pdfUrl       String?      // Generated PDF URL
+  shareToken   String       @unique @default(cuid())
+  
+  // Metadata
+  generatedAt  DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id])
+  shares       ReportShare[]
+  
+  @@index([projectId])
+  @@index([userId])
+  @@index([reportType])
+  @@index([shareToken])
+  @@index([createdAt])
+}
+
+model ReportShare {
+  id          String   @id @default(uuid())
+  reportId    String
+  sharedById  String
+  
+  // Share settings
+  recipientEmail String?
+  recipientPhone String?
+  expiresAt      DateTime?
+  viewCount      Int      @default(0)
+  lastViewedAt   DateTime?
+  
+  // Share method
+  method         String   // email, sms, link
+  
+  createdAt      DateTime @default(now())
+  
+  report         AIReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  sharedBy       User     @relation(fields: [sharedById], references: [id])
+  
+  @@index([reportId])
+  @@index([sharedById])
+  @@index([createdAt])
+}
+
+// Report templates for customization
+model ReportTemplate {
+  id          String   @id @default(uuid())
+  companyId   String
+  name        String
+  reportType  ReportType
+  
+  // Template configuration
+  sections    Json     // Sections to include
+  styling     Json?    // Custom styling options
+  logoUrl     String?  // Company logo
+  
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  company     Company  @relation(fields: [companyId], references: [id])
+  
+  @@index([companyId])
+  @@index([reportType])
+}
+
+// Forms data storage
+model FormsData {
+  id          String   @id @default(uuid())
+  projectId   String   // Associated project
+  userId      String
+  formType    String   // e.g., "FSW_IRON_TASK", "DAILY_TIMESHEET", etc.
+  data        Json     // JSON blob containing all form data
+  submittedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  project     Project  @relation(fields: [projectId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+  
+  @@index([projectId])
+  @@index([userId])
+  @@index([formType])
+  @@index([submittedAt])
+}
+
+// Refresh Token Management
+model RefreshToken {
+  id          String   @id @default(uuid())
+  token       String   @unique
+  userId      String
+  
+  // Token metadata
+  family      String   @default(uuid()) // Token family for rotation tracking
+  issuedAt    DateTime @default(now())
+  expiresAt   DateTime
+  rotatedAt   DateTime? // When this token was rotated (replaced)
+  
+  // Security tracking
+  ipAddress   String?
+  userAgent   String?
+  
+  // Revocation
+  revokedAt   DateTime?
+  revokedReason String? // 'logout', 'rotation', 'suspicious', 'manual'
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([token])
+  @@index([family])
+  @@index([expiresAt])
+  @@index([revokedAt])
+}

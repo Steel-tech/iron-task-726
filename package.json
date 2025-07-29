@@ -1,0 +1,25 @@
+{
+  "name": "fsw-iron-task",
+  "version": "1.0.0",
+  "description": "Professional Construction Documentation System built by ironworkers, for ironworkers. Document your projects, ensure safety compliance, and track progress with the most trusted platform in steel construction.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Steel-tech/FSW-Iron-Track.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Steel-tech/FSW-Iron-Track/issues"
+  },
+  "homepage": "https://github.com/Steel-tech/FSW-Iron-Track#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.5",
+    "dotenv": "^17.2.0"
+  }
+}

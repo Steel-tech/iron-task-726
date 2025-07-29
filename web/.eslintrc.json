@@ -1,0 +1,10 @@
+{
+  "root": true,
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    "no-redeclare": "off",
+    "import/no-duplicates": "off",
+    "prefer-const": "error",
+    "no-var": "error"
+  }
+}

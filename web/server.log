@@ -1,0 +1,72 @@
+
+> fsw-iron-task-web@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.30
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1094ms
+ ○ Compiling /register ...
+ ✓ Compiled /register in 3.1s (847 modules)
+ GET /register 200 in 3318ms
+ ✓ Compiled in 289ms (384 modules)
+ ✓ Compiled / in 316ms (831 modules)
+ GET / 200 in 399ms
+ ✓ Compiled /demo in 208ms (853 modules)
+ GET /demo 200 in 249ms
+ ✓ Compiled /login in 279ms (861 modules)
+ GET /login 200 in 338ms
+ GET /register 200 in 35ms
+ GET / 200 in 33ms
+ ✓ Compiled in 571ms (863 modules)
+ ✓ Compiled in 439ms (863 modules)
+ ✓ Compiled in 424ms (863 modules)
+ ✓ Compiled in 432ms (867 modules)
+ ✓ Compiled in 301ms (867 modules)
+ ✓ Compiled in 3.9s (867 modules)
+ ✓ Compiled in 471ms (867 modules)
+ ✓ Compiled in 310ms (867 modules)
+ ✓ Compiled in 276ms (867 modules)
+ ✓ Compiled in 289ms (867 modules)
+ ✓ Compiled in 251ms (867 modules)
+ ⨯ ./app/login/page.tsx
+Error: 
+  [31mx[0m Expression expected
+     ,-[[36;1;4m/home/ictorarcia/iron-task-726/web/app/login/page.tsx[0m:122:1]
+ [2m122[0m |   }
+ [2m123[0m | 
+ [2m124[0m |   return (
+ [2m125[0m |     <>
+     : [31;1m     ^[0m
+ [2m126[0m |       <style jsx global>{`
+ [2m127[0m |         .sr-only {
+ [2m128[0m |           position: absolute;
+     `----
+
+  [31mx[0m Expected ',', got 'className'
+     ,-[[36;1;4m/home/ictorarcia/iron-task-726/web/app/login/page.tsx[0m:136:1]
+ [2m136[0m |           border: 0;
+ [2m137[0m |         }
+ [2m138[0m |       `}</style>
+ [2m139[0m |       <div className="min-h-screen flex" style={{ backgroundColor: '#0a0a0a' }}>
+     : [31;1m           ^^^^^^^^^[0m
+ [2m140[0m |       {/* Left side - Branding */}
+ [2m141[0m |       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden diamond-plate">
+ [2m142[0m |         <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/60 to-transparent" />
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/login/page.tsx
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 1552ms (1099 modules)
+ GET /login 200 in 355ms
+ GET /register 200 in 375ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/home/ictorarcia/iron-task-726/web/.next/cache/webpack/client-development-fallback/0.pack.gz_' -> '/home/ictorarcia/iron-task-726/web/.next/cache/webpack/client-development-fallback/0.pack.gz'
+ ✓ Compiled in 278ms (595 modules)
+ ✓ Compiled in 486ms (1091 modules)
+ ✓ Compiled in 228ms (1091 modules)
