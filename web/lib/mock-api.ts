@@ -100,6 +100,76 @@ class MockAPIService {
     // Mock logout - just remove token from localStorage
   }
 
+  // Mock project endpoints
+  async getProjectCreationData(token: string) {
+    await new Promise(resolve => setTimeout(resolve, 300))
+    
+    const user = await this.getMe(token)
+    
+    return {
+      canCreate: ['admin', 'pm'].includes(user.role),
+      companies: [
+        { id: 'mock_company_1', name: 'Flawless Steel Welding (FSW)' },
+        { id: 'mock_company_2', name: 'Denver Construction Co.' }
+      ]
+    }
+  }
+
+  async createProject(token: string, projectData: any) {
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    const user = await this.getMe(token)
+    
+    if (!['admin', 'pm'].includes(user.role)) {
+      throw new Error('Insufficient permissions to create projects')
+    }
+
+    // Mock project creation
+    const projectId = `mock_project_${Date.now()}`
+    
+    return {
+      id: projectId,
+      ...projectData,
+      createdAt: new Date().toISOString(),
+      createdBy: user.id
+    }
+  }
+
+  async getProjects(token: string) {
+    await new Promise(resolve => setTimeout(resolve, 400))
+    
+    // Mock projects data
+    return [
+      {
+        id: 'mock_project_1',
+        name: 'Downtown Office Tower',
+        description: 'Steel framework construction for 25-story office building',
+        location: '1234 Main St, Denver, CO',
+        status: 'ACTIVE',
+        createdAt: '2024-01-15T08:00:00Z',
+        _count: { photos: 156 }
+      },
+      {
+        id: 'mock_project_2', 
+        name: 'Industrial Warehouse Complex',
+        description: 'Large warehouse with overhead crane systems',
+        location: '5678 Industrial Blvd, Denver, CO',
+        status: 'PLANNING',
+        createdAt: '2024-02-01T09:30:00Z',
+        _count: { photos: 42 }
+      },
+      {
+        id: 'mock_project_3',
+        name: 'Bridge Repair Project',
+        description: 'Structural steel repairs on highway overpass',
+        location: 'I-25 & Colfax Ave, Denver, CO',
+        status: 'COMPLETED',
+        createdAt: '2023-11-20T07:15:00Z',
+        _count: { photos: 89 }
+      }
+    ]
+  }
+
   isApiDown(): boolean {
     return this.isEnabled
   }

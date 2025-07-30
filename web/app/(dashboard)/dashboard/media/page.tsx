@@ -31,8 +31,11 @@ import {
   Hash,
   Palette
 } from 'lucide-react'
-import { MediaGalleryIcon, WeldingTorchIcon } from '@/components/icons/SteelConstructionIcons'
+import { MediaGalleryIcon, WeldingTorchIcon, PencilRulerIcon } from '@/components/icons/SteelConstructionIcons'
 import VideoGalleryViewer from '@/components/VideoGalleryViewer'
+import VideoPlayer from '@/components/VideoPlayer'
+import VideoPlayerErrorDemo from '@/components/VideoPlayerErrorDemo'
+import PhotoAnnotator from '@/components/PhotoAnnotator'
 import MediaTagger from '@/components/MediaTagger'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
@@ -123,13 +126,104 @@ const PRESET_COLORS = [
   '#6B7280', // Gray
 ]
 
+// Demo media data for video components demo
+const demoMedia = [
+  {
+    id: '1',
+    fileUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    thumbnailUrl: 'https://via.placeholder.com/300x200?text=Video+1',
+    mediaType: 'VIDEO' as const,
+    timestamp: new Date().toISOString(),
+    activityType: 'ERECTION',
+    location: 'Bay 3, Level 2',
+    notes: 'Steel beam installation progress',
+    tags: ['welding', 'beam', 'safety'],
+    fileSize: 5242880,
+    width: 1920,
+    height: 1080,
+    duration: 60,
+    project: {
+      id: '1',
+      name: 'Downtown Tower'
+    },
+    user: {
+      id: '1',
+      name: 'John Steel'
+    }
+  },
+  {
+    id: '2',
+    fileUrl: 'https://via.placeholder.com/1920x1080?text=Construction+Photo+1',
+    thumbnailUrl: 'https://via.placeholder.com/300x200?text=Photo+1',
+    mediaType: 'PHOTO' as const,
+    timestamp: new Date().toISOString(),
+    activityType: 'FABRICATION',
+    location: 'Shop Floor',
+    notes: 'Fabrication progress',
+    tags: ['fabrication', 'steel'],
+    fileSize: 2097152,
+    width: 1920,
+    height: 1080,
+    project: {
+      id: '1',
+      name: 'Downtown Tower'
+    },
+    user: {
+      id: '2',
+      name: 'Mike Welder'
+    }
+  },
+  {
+    id: '3',
+    fileUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    thumbnailUrl: 'https://via.placeholder.com/300x200?text=Video+2',
+    mediaType: 'VIDEO' as const,
+    timestamp: new Date().toISOString(),
+    activityType: 'SAFETY',
+    location: 'Site Entrance',
+    notes: 'Safety inspection video',
+    tags: ['safety', 'inspection'],
+    fileSize: 10485760,
+    width: 1920,
+    height: 1080,
+    duration: 120,
+    project: {
+      id: '2',
+      name: 'Bridge Project'
+    },
+    user: {
+      id: '3',
+      name: 'Sarah Safety'
+    }
+  }
+]
+
+// Demo images for annotator
+const demoImages = [
+  {
+    id: '1',
+    url: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=2000',
+    title: 'Steel Beam Installation - Level 3'
+  },
+  {
+    id: '2',
+    url: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=2000',
+    title: 'Construction Site Overview'
+  },
+  {
+    id: '3',
+    url: 'https://images.unsplash.com/photo-1590736969955-71cc94901144?q=80&w=2000',
+    title: 'Welding Process Documentation'
+  }
+]
+
 export default function MediaPage() {
   const { user } = useAuth()
   const searchParams = useSearchParams()
   const projectId = searchParams.get('project')
   
   // Tab state
-  const [activeTab, setActiveTab] = useState<'gallery' | 'tags'>('gallery')
+  const [activeTab, setActiveTab] = useState<'gallery' | 'tags' | 'video-demo' | 'annotator'>('gallery')
   
   // Media state
   const [media, setMedia] = useState<Media[]>([])
@@ -139,6 +233,12 @@ export default function MediaPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null)
   const [editingMediaTags, setEditingMediaTags] = useState<Media | null>(null)
+  const [showDemoGallery, setShowDemoGallery] = useState(false)
+  
+  // Annotator state
+  const [selectedImage, setSelectedImage] = useState<any>(demoImages[0])
+  const [savedAnnotations, setSavedAnnotations] = useState<any[]>([])
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false)
   
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -177,9 +277,10 @@ export default function MediaPage() {
     fetchProjects()
     if (activeTab === 'gallery') {
       fetchMedia()
-    } else {
+    } else if (activeTab === 'tags') {
       fetchTags()
     }
+    // video-demo tab doesn't need to fetch data as it uses static demo data
   }, [page, selectedProject, activeTab, selectedTagCategory])
 
   const fetchProjects = async () => {
@@ -378,6 +479,16 @@ export default function MediaPage() {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const handleAnnotationSave = (annotations: any[], imageDataUrl: string) => {
+    setSavedAnnotations(annotations)
+    setShowSaveSuccess(true)
+    setTimeout(() => setShowSaveSuccess(false), 3000)
+    
+    // In a real app, you would save to API here
+    console.log('Saved annotations:', annotations)
+    console.log('Annotated image data URL length:', imageDataUrl.length)
   }
 
   const groupedTags = tags.reduce((acc, tag) => {
@@ -856,7 +967,276 @@ export default function MediaPage() {
     </>
   )
 
-  if (isLoading && activeTab === 'gallery') {
+  const renderVideoDemoView = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-semibold text-white">Video Components Demo</h2>
+        <Button onClick={() => setShowDemoGallery(true)} className="bg-safety-orange hover:bg-orange-700">
+          <Grid className="h-4 w-4 mr-2" />
+          Open Gallery Viewer
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Standard Video Player */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-white">Standard Video Player</h3>
+          <div className="brushed-metal rounded-lg shadow-lg p-4">
+            <VideoPlayer
+              src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+              poster="https://via.placeholder.com/800x450?text=Video+Poster"
+              title="Steel Beam Installation - Bay 3"
+              className="w-full aspect-video"
+            />
+            <div className="mt-4 text-sm text-gray-400">
+              <p className="text-white mb-2">Features:</p>
+              <ul className="list-disc list-inside mt-1">
+                <li>Custom controls with safety orange theme</li>
+                <li>Playback speed control</li>
+                <li>Volume control with mute</li>
+                <li>Full screen support</li>
+                <li>Skip forward/backward 10 seconds</li>
+                <li>Download and share buttons</li>
+                <li>Progress bar with buffering indicator</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Picture-in-Picture Video Player */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-white">Dual Camera (Picture-in-Picture)</h3>
+          <div className="brushed-metal rounded-lg shadow-lg p-4">
+            <VideoPlayer
+              src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+              secondarySrc="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+              isPictureInPicture={true}
+              title="Welding Process - Front & Back View"
+              className="w-full aspect-video"
+            />
+            <div className="mt-4 text-sm text-gray-400">
+              <p className="text-white mb-2">Features:</p>
+              <ul className="list-disc list-inside mt-1">
+                <li>Synchronized dual video playback</li>
+                <li>Click PiP window to change position</li>
+                <li>Both videos stay in sync during seek</li>
+                <li>Perfect for safety documentation</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Auto-play Video */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-white">Auto-play Loop Video</h3>
+          <div className="brushed-metal rounded-lg shadow-lg p-4">
+            <VideoPlayer
+              src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+              autoPlay={true}
+              muted={true}
+              loop={true}
+              showDownload={false}
+              showShare={false}
+              title="Safety Demonstration Loop"
+              className="w-full aspect-video"
+            />
+            <div className="mt-4 text-sm text-gray-400">
+              <p className="text-white mb-2">Perfect for:</p>
+              <ul className="list-disc list-inside mt-1">
+                <li>Safety training videos on repeat</li>
+                <li>Site entrance displays</li>
+                <li>Training room presentations</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Video with Error Handling */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-white">Error Handling Demo</h3>
+          <div className="brushed-metal rounded-lg shadow-lg p-4">
+            <VideoPlayerErrorDemo />
+            <div className="mt-4 text-sm text-gray-400">
+              <p className="text-white mb-2">Error Handling Features:</p>
+              <ul className="list-disc list-inside mt-1 space-y-1">
+                <li>Graceful error state with icon and message</li>
+                <li>Error callback for custom handling</li>
+                <li>Maintains aspect ratio even on error</li>
+                <li>Clear user feedback about the issue</li>
+                <li>Toggle between error and success states</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Instructions */}
+      <div className="brushed-metal rounded-lg shadow-lg p-6">
+        <h3 className="text-xl font-semibold mb-4 text-white">Video Gallery Viewer Features</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-medium mb-2 text-white">Navigation</h4>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• Arrow keys to navigate between items</li>
+              <li>• Click thumbnails at bottom to jump to specific media</li>
+              <li>• Swipe gestures on touch devices</li>
+              <li>• Escape key to close</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2 text-white">Video Controls</h4>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• Space bar to play/pause</li>
+              <li>• M key to mute/unmute</li>
+              <li>• F key for fullscreen</li>
+              <li>• I key to toggle info panel</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2 text-white">Features</h4>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• Mixed photo and video support</li>
+              <li>• Detailed metadata display</li>
+              <li>• Download individual items</li>
+              <li>• Share functionality</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium mb-2 text-white">Mobile Support</h4>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• Touch-friendly controls</li>
+              <li>• Responsive layout</li>
+              <li>• Auto-hide controls</li>
+              <li>• Pinch to zoom on photos</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderAnnotatorView = () => (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-semibold text-white">Photo Annotator Demo</h2>
+      </div>
+
+      {/* Info Box */}
+      <div className="brushed-metal rounded-lg shadow-lg p-6">
+        <h3 className="text-xl font-semibold text-white mb-4">Annotation Features</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+          <div>
+            <h4 className="font-medium text-white mb-2">Drawing Tools</h4>
+            <ul className="space-y-1 text-gray-400">
+              <li>• Arrows for pointing out issues</li>
+              <li>• Circles to highlight areas</li>
+              <li>• Rectangles for boxing sections</li>
+              <li>• Text annotations</li>
+              <li>• Measurement lines with labels</li>
+              <li>• Company logo placement</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium text-white mb-2">Safety Colors</h4>
+            <ul className="space-y-1 text-gray-400">
+              <li>• Safety Orange for warnings</li>
+              <li>• Arc Yellow for attention</li>
+              <li>• AISC Blue for info</li>
+              <li>• Safety Green for approved</li>
+              <li>• Alert Red for critical</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium text-white mb-2">Features</h4>
+            <ul className="space-y-1 text-gray-400">
+              <li>• Undo/Redo support</li>
+              <li>• Adjustable line thickness</li>
+              <li>• Save annotated images</li>
+              <li>• Download to device</li>
+              <li>• Clear all annotations</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Image Selection */}
+      <div className="brushed-metal rounded-lg shadow-lg p-4">
+        <h3 className="text-lg font-medium text-white mb-4">Select Demo Image</h3>
+        <div className="flex gap-4">
+          {demoImages.map((image) => (
+            <button
+              key={image.id}
+              onClick={() => setSelectedImage(image)}
+              className={`relative overflow-hidden rounded-lg transition-all ${
+                selectedImage.id === image.id 
+                  ? 'ring-2 ring-safety-orange scale-105' 
+                  : 'opacity-70 hover:opacity-100'
+              }`}
+            >
+              <img
+                src={image.url}
+                alt={image.title}
+                className="w-32 h-24 object-cover"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1 truncate">
+                {image.title}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Success Message */}
+      {showSaveSuccess && (
+        <div className="rounded-md bg-green-900/20 border border-green-800 p-4">
+          <div className="flex items-center gap-2">
+            <Plus className="h-5 w-5 text-green-500" />
+            <p className="text-sm text-green-400">
+              Annotations saved successfully! {savedAnnotations.length} annotation{savedAnnotations.length !== 1 ? 's' : ''} added.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Photo Annotator */}
+      <div className="brushed-metal rounded-lg shadow-lg p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-medium text-white">{selectedImage.title}</h3>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.location.reload()}
+          >
+            <X className="h-4 w-4 mr-2" />
+            Reset Demo
+          </Button>
+        </div>
+        
+        <PhotoAnnotator
+          imageUrl={selectedImage.url}
+          onSave={handleAnnotationSave}
+          autoEditMode={false}
+        />
+      </div>
+
+      {/* Instructions */}
+      <div className="brushed-metal rounded-lg shadow-lg p-6">
+        <h3 className="text-lg font-medium text-white mb-4">Try It Out!</h3>
+        <div className="space-y-3 text-sm text-gray-400">
+          <p>1. Select a tool from the toolbar above the image</p>
+          <p>2. Choose your annotation color (safety orange is pre-selected)</p>
+          <p>3. Click and drag on the image to create annotations</p>
+          <p>4. For text annotations, click where you want the text and type</p>
+          <p>5. Use the measurement tool to show dimensions</p>
+          <p>6. Add your company logo with the hard hat icon</p>
+          <p>7. Save your annotated image or download it directly</p>
+        </div>
+      </div>
+    </div>
+  )
+
+  if (isLoading && (activeTab === 'gallery' || activeTab === 'tags')) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-12 w-12 text-primary animate-spin" />
@@ -923,11 +1303,37 @@ export default function MediaPage() {
               Tag Management
             </div>
           </button>
+          <button
+            onClick={() => setActiveTab('video-demo')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+              activeTab === 'video-demo'
+                ? 'border-safety-orange text-safety-orange'
+                : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Video className="h-5 w-5" />
+              Video Components Demo
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('annotator')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+              activeTab === 'annotator'
+                ? 'border-safety-orange text-safety-orange'
+                : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <PencilRulerIcon className="h-5 w-5" />
+              Photo Annotator
+            </div>
+          </button>
         </nav>
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'gallery' ? renderGalleryView() : renderTagsView()}
+      {activeTab === 'gallery' ? renderGalleryView() : activeTab === 'tags' ? renderTagsView() : activeTab === 'video-demo' ? renderVideoDemoView() : renderAnnotatorView()}
 
       {/* Media Gallery Viewer */}
       {selectedMedia && (
@@ -940,6 +1346,17 @@ export default function MediaPage() {
           showInfo={true}
           allowDownload={true}
           allowShare={true}
+        />
+      )}
+
+      {/* Demo Gallery Viewer */}
+      {showDemoGallery && (
+        <VideoGalleryViewer
+          media={demoMedia}
+          initialIndex={0}
+          onClose={() => setShowDemoGallery(false)}
+          title="Construction Progress Gallery"
+          subtitle="Mixed media gallery with photos and videos"
         />
       )}
 

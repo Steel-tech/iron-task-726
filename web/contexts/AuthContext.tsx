@@ -44,7 +44,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const setupSessionWarning = (token: string) => {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
+      // Validate JWT token format
+      if (!token || typeof token !== 'string') {
+        console.warn('Invalid token provided to setupSessionWarning')
+        return
+      }
+      
+      const tokenParts = token.split('.')
+      if (tokenParts.length !== 3) {
+        console.warn('Invalid JWT token format')
+        return
+      }
+      
+      // Decode the base64 payload safely
+      let decodedPayload: string
+      try {
+        decodedPayload = atob(tokenParts[1])
+      } catch (decodeError) {
+        console.warn('Failed to decode JWT token payload:', decodeError)
+        return
+      }
+      
+      const payload = JSON.parse(decodedPayload)
+      if (!payload.exp) {
+        console.warn('Token payload missing exp field')
+        return
+      }
+      
       const expiresAt = payload.exp * 1000
       const now = Date.now()
       const timeUntilWarning = expiresAt - now - (5 * 60 * 1000) // 5 minutes before expiry

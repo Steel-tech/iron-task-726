@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios'
 import { mockAPI } from './mock-api'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://172.18.129.73:3001'
 
 // Track if API is available
 let apiAvailable = true
@@ -63,6 +63,31 @@ api.interceptors.response.use(
     })
     const originalRequest = error.config as any
 
+    // Handle project endpoints with mock fallback
+    if ((error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK' || !apiAvailable) && originalRequest.url) {
+      const token = localStorage.getItem('accessToken')
+      
+      // Handle specific project endpoints
+      if (originalRequest.url === '/projects/new' && originalRequest.method === 'get' && token) {
+        console.log('🔧 Using mock API for project creation data')
+        const mockData = await mockAPI.getProjectCreationData(token)
+        return { data: mockData, status: 200, statusText: 'OK', headers: {}, config: originalRequest }
+      }
+      
+      if (originalRequest.url === '/projects' && originalRequest.method === 'get' && token) {
+        console.log('🔧 Using mock API for projects list')
+        const mockData = await mockAPI.getProjects(token)
+        return { data: mockData, status: 200, statusText: 'OK', headers: {}, config: originalRequest }
+      }
+      
+      if (originalRequest.url === '/projects' && originalRequest.method === 'post' && token) {
+        console.log('🔧 Using mock API for project creation')
+        const mockData = await mockAPI.createProject(token, originalRequest.data)
+        localStorage.setItem('mockMode', 'true')
+        return { data: mockData, status: 201, statusText: 'Created', headers: {}, config: originalRequest }
+      }
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -79,7 +104,7 @@ api.interceptors.response.use(
       isRefreshing = true
 
       try {
-        const response = await api.post('/auth/refresh')
+        const response = await api.post('/api/auth/refresh')
         const { accessToken } = response.data
         localStorage.setItem('accessToken', accessToken)
         api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
@@ -129,8 +154,8 @@ export const authApi = {
     console.time('login-debug')
     
     try {
-      console.log('📡 Making API call to:', `${API_BASE_URL}/auth/login`)
-      const response = await api.post<LoginResponse>('/auth/login', credentials)
+      console.log('📡 Making API call to:', `${API_BASE_URL}/api/auth/login`)
+      const response = await api.post<LoginResponse>('/api/auth/login', credentials)
       console.log('✅ API response received:', response.status)
       localStorage.setItem('accessToken', response.data.accessToken)
       apiAvailable = true
@@ -172,7 +197,7 @@ export const authApi = {
   },
 
   register: async (credentials: RegisterCredentials): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>('/auth/register', credentials)
+    const response = await api.post<LoginResponse>('/api/auth/register', credentials)
     localStorage.setItem('accessToken', response.data.accessToken)
     return response.data
   },
@@ -182,7 +207,7 @@ export const authApi = {
       if (localStorage.getItem('mockMode') === 'true') {
         await mockAPI.logout()
       } else {
-        await api.post('/auth/logout')
+        await api.post('/api/auth/logout')
       }
     } catch (error) {
       console.error('Logout error:', error)
@@ -193,28 +218,28 @@ export const authApi = {
   },
 
   refresh: async (): Promise<string> => {
-    const response = await api.post('/auth/refresh')
+    const response = await api.post('/api/auth/refresh')
     const { accessToken } = response.data
     localStorage.setItem('accessToken', accessToken)
     return accessToken
   },
 
   getSessions: async () => {
-    const response = await api.get('/auth/sessions')
+    const response = await api.get('/api/auth/sessions')
     return response.data.sessions
   },
 
   revokeSession: async (sessionId: string) => {
-    await api.delete(`/auth/sessions/${sessionId}`)
+    await api.delete(`/api/auth/sessions/${sessionId}`)
   },
 
   revokeAllSessions: async () => {
-    await api.post('/auth/revoke-all-sessions')
+    await api.post('/api/auth/revoke-all-sessions')
   },
 
   getMe: async () => {
     try {
-      const response = await api.get('/auth/me')
+      const response = await api.get('/api/auth/me')
       return response.data
     } catch (error: any) {
       // If in mock mode or API unavailable, use mock data

@@ -1,8 +1,8 @@
-# FSW Iron Task 🏗️
+# Iron Task 726 🏗️
 
 Professional Construction Documentation System built by ironworkers, for ironworkers. Document your projects, ensure safety compliance, and track progress with the most trusted platform in steel construction.
 
-![FSW Iron Task](https://img.shields.io/badge/Built%20for-Steel%20Construction-orange)
+![Iron Task 726](https://img.shields.io/badge/Built%20for-Steel%20Construction-orange)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Enabled-blue)
 ![Real-time](https://img.shields.io/badge/Real--time-WebSocket-green)
@@ -335,7 +335,7 @@ NEXT_PUBLIC_WS_URL=ws://localhost:3001
 
 ## 📄 License
 
-This project is proprietary software for FSW Iron Task.
+This project is proprietary software for Iron Task 726.
 
 ## 🆘 Support
 
@@ -349,4 +349,4 @@ For support, email support@fsw-denver.com or contact your project administrator.
 
 ---
 
-**FSW Iron Task** - Where Steel Meets Technology 🏗️⚡
+**Iron Task 726** - Where Steel Meets Technology 🏗️⚡

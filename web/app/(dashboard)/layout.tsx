@@ -130,12 +130,6 @@ export default function DashboardLayout({
         href: '/dashboard/team', 
         icon: IronworkersTeamIcon,
         hoverIcon: CraneHookAnimationIcon
-      },
-      { 
-        name: 'Labels', 
-        href: '/dashboard/labels', 
-        icon: IBeamCraneIcon,
-        hoverIcon: BoltRotationIcon
       }
     )
   }
@@ -159,27 +153,15 @@ export default function DashboardLayout({
   if (process.env.NODE_ENV === 'development') {
     navigation.push(
       { 
-        name: 'Annotator', 
-        href: '/dashboard/annotator-demo', 
-        icon: PencilRulerIcon,
+        name: 'Forms Demo', 
+        href: '/dashboard/forms-demo', 
+        icon: SettingsIconWrapper,
         hoverIcon: SparkAnimationIcon
       },
       { 
         name: 'Communication', 
         href: '/dashboard/communication-demo', 
         icon: SettingsIconWrapper,
-        hoverIcon: SparkAnimationIcon
-      },
-      { 
-        name: 'Video Demo', 
-        href: '/dashboard/video-demo', 
-        icon: MediaGalleryIcon,
-        hoverIcon: SparkAnimationIcon
-      },
-      { 
-        name: 'Style Demo', 
-        href: '/dashboard/style-demo', 
-        icon: WeldingTorchIcon,
         hoverIcon: SparkAnimationIcon
       }
     )
@@ -310,6 +292,11 @@ export default function DashboardLayout({
               {user.role.replace('_', ' ')}
             </h1>
             <div className="ml-auto flex items-center gap-4">
+              {typeof window !== 'undefined' && localStorage.getItem('mockMode') === 'true' && (
+                <div className="bg-yellow-900/20 border border-yellow-800 rounded-lg px-3 py-1">
+                  <span className="text-yellow-400 text-xs font-medium">DEMO MODE</span>
+                </div>
+              )}
               <NotificationBell />
               <span className="text-sm text-gray-400">
                 {new Date().toLocaleDateString('en-US', { 
