@@ -16,9 +16,16 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
   
-  // Performance optimizations
-  swcMinify: true,
+  // Performance optimizations  
   compress: true,
+  
+  // WSL development support
+  allowedDevOrigins: [
+    '172.18.129.73:3002',
+    '172.18.129.73:3003',
+    'localhost:3002',
+    'localhost:3003'
+  ],
   
   // Image optimization
   images: {

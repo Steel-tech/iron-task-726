@@ -13,6 +13,7 @@ import {
   CraneHookAnimationIcon
 } from '@/components/icons/SteelConstructionIcons'
 import { Shield, Mail, Lock, AlertTriangle, Loader2, CheckCircle, Eye, EyeOff } from 'lucide-react'
+import ClientOnly from '@/components/ClientOnly'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -230,13 +231,14 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <form className="space-y-6" onSubmit={handleSubmit} aria-label="Login form">
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                    Email Address
-                  </label>
-                  <div className="relative">
+            <ClientOnly fallback={<div className="space-y-6"><div className="space-y-4"><div className="h-16 bg-gray-800 rounded-lg animate-pulse"></div><div className="h-16 bg-gray-800 rounded-lg animate-pulse"></div></div></div>}>
+              <form className="space-y-6" onSubmit={handleSubmit} aria-label="Login form">
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                      Email Address
+                    </label>
+                    <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <Mail className="h-5 w-5 text-gray-500" />
                     </div>
@@ -417,6 +419,7 @@ export default function LoginPage() {
                 </div>
               </div>
             </form>
+            </ClientOnly>
 
             <hr className="weld-seam" />
 
@@ -440,7 +443,6 @@ export default function LoginPage() {
             </div>
 
           </div>
-
           <p className="text-center text-xs text-gray-500">
             © 2024 Iron Task • Denver, CO
           </p>

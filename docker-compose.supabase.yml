@@ -1,0 +1,68 @@
+version: '3.8'
+
+# This compose file is for development with Supabase
+# It removes the local PostgreSQL and uses Supabase instead
+
+services:
+  # Redis for queue management (still needed locally)
+  redis:
+    image: redis:7-alpine
+    container_name: fsw-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - fsw-network
+
+  # Node.js API (connected to Supabase)
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: fsw-api
+    environment:
+      NODE_ENV: development
+      # Supabase connection - update these values
+      DATABASE_URL: ${SUPABASE_DATABASE_URL}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      # Redis (local)
+      REDIS_URL: redis://redis:6379
+      # JWT (can still use local JWT or Supabase Auth)
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+    depends_on:
+      - redis
+    networks:
+      - fsw-network
+    command: npm run dev
+
+  # Next.js Web Application
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: fsw-web
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001/api
+      NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - api
+    networks:
+      - fsw-network
+    command: npm run dev
+
+networks:
+  fsw-network:
+    driver: bridge

@@ -7,7 +7,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://172.18.129.73:30
 let apiAvailable = true
 
 export const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: `${API_BASE_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -104,7 +104,7 @@ api.interceptors.response.use(
       isRefreshing = true
 
       try {
-        const response = await api.post('/api/auth/refresh')
+        const response = await api.post('/auth/refresh')
         const { accessToken } = response.data
         localStorage.setItem('accessToken', accessToken)
         api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
@@ -155,7 +155,7 @@ export const authApi = {
     
     try {
       console.log('📡 Making API call to:', `${API_BASE_URL}/api/auth/login`)
-      const response = await api.post<LoginResponse>('/api/auth/login', credentials)
+      const response = await api.post<LoginResponse>('/auth/login', credentials)
       console.log('✅ API response received:', response.status)
       localStorage.setItem('accessToken', response.data.accessToken)
       apiAvailable = true
@@ -197,7 +197,7 @@ export const authApi = {
   },
 
   register: async (credentials: RegisterCredentials): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>('/api/auth/register', credentials)
+    const response = await api.post<LoginResponse>('/auth/register', credentials)
     localStorage.setItem('accessToken', response.data.accessToken)
     return response.data
   },
@@ -207,7 +207,7 @@ export const authApi = {
       if (localStorage.getItem('mockMode') === 'true') {
         await mockAPI.logout()
       } else {
-        await api.post('/api/auth/logout')
+        await api.post('/auth/logout')
       }
     } catch (error) {
       console.error('Logout error:', error)
@@ -218,28 +218,28 @@ export const authApi = {
   },
 
   refresh: async (): Promise<string> => {
-    const response = await api.post('/api/auth/refresh')
+    const response = await api.post('/auth/refresh')
     const { accessToken } = response.data
     localStorage.setItem('accessToken', accessToken)
     return accessToken
   },
 
   getSessions: async () => {
-    const response = await api.get('/api/auth/sessions')
+    const response = await api.get('/auth/sessions')
     return response.data.sessions
   },
 
   revokeSession: async (sessionId: string) => {
-    await api.delete(`/api/auth/sessions/${sessionId}`)
+    await api.delete(`/auth/sessions/${sessionId}`)
   },
 
   revokeAllSessions: async () => {
-    await api.post('/api/auth/revoke-all-sessions')
+    await api.post('/auth/revoke-all-sessions')
   },
 
   getMe: async () => {
     try {
-      const response = await api.get('/api/auth/me')
+      const response = await api.get('/auth/me')
       return response.data
     } catch (error: any) {
       // If in mock mode or API unavailable, use mock data

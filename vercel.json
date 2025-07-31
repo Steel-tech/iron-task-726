@@ -1,0 +1,12 @@
+{
+  "buildCommand": "cd web && npm run build",
+  "outputDirectory": "web/.next",
+  "installCommand": "cd web && npm install",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "functions": {
+    "web/app/api/auth/[...nextauth]/route.ts": {
+      "maxDuration": 10
+    }
+  }
+}

@@ -55,14 +55,16 @@ fastify.register(cors, {
         cb(new Error('Not allowed by CORS'), false);
       }
     } else {
-      // Development: allow localhost and any origin for testing
-      const developmentOrigins = [
-        'http://localhost:3000',
-        'http://localhost:3001', 
-        'http://127.0.0.1:3000',
-        'http://127.0.0.1:3001'
-      ];
-      if (!origin || developmentOrigins.includes(origin) || env.CORS_ORIGIN === 'true') {
+      // Development: use CORS_ORIGIN env variable or allow common development origins
+      const developmentOrigins = env.CORS_ORIGIN 
+        ? env.CORS_ORIGIN.split(',').map(o => o.trim())
+        : [
+            'http://localhost:3000',
+            'http://localhost:3001', 
+            'http://127.0.0.1:3000',
+            'http://127.0.0.1:3001'
+          ];
+      if (!origin || developmentOrigins.includes(origin)) {
         cb(null, true);
       } else {
         cb(new Error('Not allowed by CORS'), false);

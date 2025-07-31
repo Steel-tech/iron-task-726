@@ -70,3 +70,73 @@ Import trace for requested module:
  ✓ Compiled in 278ms (595 modules)
  ✓ Compiled in 486ms (1091 modules)
  ✓ Compiled in 228ms (1091 modules)
+ GET / 200 in 149ms
+ ⚠ Cross origin request detected from 172.18.129.73 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 529ms (1092 modules)
+ GET /register 404 in 57ms
+ GET /_next/static/css/app/layout.css?v=1753829590816 404 in 37ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 33ms
+ GET /_next/static/chunks/main-app.js?v=1753829590816 404 in 34ms
+ GET /_next/static/chunks/app/layout.js 404 in 34ms
+ GET /login 404 in 24ms
+ GET /_next/static/css/app/layout.css?v=1753829597716 404 in 34ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 32ms
+ GET /_next/static/chunks/main-app.js?v=1753829597716 404 in 35ms
+ GET /_next/static/chunks/app/layout.js 404 in 32ms
+   Reload env: .env.local
+ ✓ Compiled in 356ms (1089 modules)
+   Reload env: .env.local
+ ✓ Compiled in 158ms (1089 modules)
+Killed
+   Reload env: .env.local
+ ✓ Compiled in 532ms (1089 modules)
+   Reload env: .env.local
+ ✓ Compiled in 208ms (1089 modules)
+ HEAD / 200 in 147ms
+ GET / 200 in 67ms
+ GET / 200 in 55ms
+ ✓ Compiled /_not-found in 305ms (1092 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /_next/static/webpack/9d7b116f06891361.webpack.hot-update.json 404 in 249ms
+ GET /dashborad 404 in 389ms
+   Reload env: .env.local
+ ✓ Compiled in 412ms (1089 modules)
+ ✓ Compiled /_not-found in 166ms (1092 modules)
+ GET /dashborad 404 in 65ms
+ ✓ Compiled in 755ms (1092 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/home/ictorarcia/iron-task-726/web/.next/cache/webpack/client-development/1.pack.gz_' -> '/home/ictorarcia/iron-task-726/web/.next/cache/webpack/client-development/1.pack.gz'
+   Reload env: .env.local
+ ✓ Compiled in 267ms (1089 modules)
+ ✓ Compiled /_not-found in 233ms (1092 modules)
+ GET /dashborad 404 in 62ms
+ ✓ Compiled in 332ms (1092 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/home/ictorarcia/iron-task-726/web/.next/cache/webpack/server-development/0.pack.gz_' -> '/home/ictorarcia/iron-task-726/web/.next/cache/webpack/server-development/0.pack.gz'
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack failed from /home/ictorarcia/iron-task-726/web/.next/cache/webpack/client-development-fallback.pack.gz: Error: invalid block type
+<w> [webpack.cache.PackFileCacheStrategy] Restoring pack failed from /home/ictorarcia/iron-task-726/web/.next/cache/webpack/client-development-fallback.pack.gz: Error: invalid block type
+ ⨯ ./node_modules/next/dist/lib/require-instrumentation-client.js:11:1
+Module not found: Can't resolve 'private-next-instrumentation-client'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/next/dist/client/page-bootstrap.js
+./node_modules/next/dist/client/next-dev.js
+ ⨯ ./node_modules/next/dist/lib/require-instrumentation-client.js:11:1
+Module not found: Can't resolve 'private-next-instrumentation-client'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/next/dist/client/page-bootstrap.js
+./node_modules/next/dist/client/next-dev.js
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/home/ictorarcia/iron-task-726/web/node_modules/next/dist/server/future'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving 'next/dist/server/future/helpers/interception-routes' in /home/ictorarcia/iron-task-726/web/node_modules/next/dist/build for build dependencies doesn't lead to expected result '/home/ictorarcia/iron-task-726/web/node_modules/next/dist/server/future/helpers/interception-routes.js', but to 'Error: Can't resolve 'next/dist/server/future/helpers/interception-routes' in '/home/ictorarcia/iron-task-726/web/node_modules/next/dist/build'' instead. Resolving dependencies are ignored for this path.
+<w>  at unknown 4 next/dist/server/future/helpers/interception-routes
+<w>  at file dependencies /home/ictorarcia/iron-task-726/web/node_modules/next/dist/build/utils.js
+<w>  at file /home/ictorarcia/iron-task-726/web/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /home/ictorarcia/iron-task-726/web/node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js
+<w>  at file /home/ictorarcia/iron-task-726/web/node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js
+<w>  at resolve commonjs /home/ictorarcia/iron-task-726/web/node_modules/next/dist/build/webpack/loaders/next-app-loader/index.js
+ ⚠ Found a change in next.config.js. Restarting the server to apply the changes...

@@ -128,14 +128,14 @@ async function routes(fastify, options) {
       });
 
       if (!user) {
-        request.logger.auth('Login failed - user not found', { email });
+        console.log('Login failed - user not found', { email });
         return reply.code(401).send({ error: 'Invalid credentials' });
       }
 
       // Verify password
       const validPassword = await bcrypt.compare(password, user.password);
       if (!validPassword) {
-        request.logger.auth('Login failed - invalid password', { 
+        console.log('Login failed - invalid password', { 
           email,
           userId: user.id 
         });

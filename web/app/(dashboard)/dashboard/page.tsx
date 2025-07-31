@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/Button'
+import Calendar from '@/components/Calendar'
 import Link from 'next/link'
 import {
   Camera,
@@ -122,69 +123,80 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Recent Activity */}
-      <div className="brushed-metal rounded-lg shadow-lg">
-        <div className="px-6 py-4 border-b border-gray-700">
-          <h2 className="text-lg font-semibold flex items-center gap-2 text-white">
-            <Clock className="h-5 w-5 text-safety-orange" />
-            Recent Activity
-          </h2>
-        </div>
-        <div className="p-6">
-          {stats?.recentPhotos && stats.recentPhotos.length > 0 ? (
-            <div className="space-y-4">
-              {stats.recentPhotos.slice(0, 5).map((photo) => (
-                <div
-                  key={photo.id}
-                  className="flex items-center justify-between py-3 border-b last:border-0"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="bg-gray-100 p-2 rounded">
-                      <Camera className="h-4 w-4 text-gray-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-white">{photo.fileName}</p>
+      {/* Main Content Grid - Calendar and Activities */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Left Column - Activities and Quick Actions */}
+        <div className="xl:col-span-2 space-y-6">
+          {/* Recent Activity */}
+          <div className="brushed-metal rounded-lg shadow-lg">
+            <div className="px-6 py-4 border-b border-gray-700">
+              <h2 className="text-lg font-semibold flex items-center gap-2 text-white">
+                <Clock className="h-5 w-5 text-safety-orange" />
+                Recent Activity
+              </h2>
+            </div>
+            <div className="p-6">
+              {stats?.recentPhotos && stats.recentPhotos.length > 0 ? (
+                <div className="space-y-4">
+                  {stats.recentPhotos.slice(0, 5).map((photo) => (
+                    <div
+                      key={photo.id}
+                      className="flex items-center justify-between py-3 border-b last:border-0"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="bg-gray-100 p-2 rounded">
+                          <Camera className="h-4 w-4 text-gray-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-white">{photo.fileName}</p>
+                          <p className="text-sm text-gray-400">
+                            {photo.project.name} • by {photo.user.name}
+                          </p>
+                        </div>
+                      </div>
                       <p className="text-sm text-gray-400">
-                        {photo.project.name} • by {photo.user.name}
+                        {new Date(photo.uploadedAt).toLocaleDateString()}
                       </p>
                     </div>
-                  </div>
-                  <p className="text-sm text-gray-400">
-                    {new Date(photo.uploadedAt).toLocaleDateString()}
-                  </p>
+                  ))}
                 </div>
-              ))}
+              ) : (
+                <p className="text-center text-muted-foreground py-8">
+                  No recent activity
+                </p>
+              )}
             </div>
-          ) : (
-            <p className="text-center text-muted-foreground py-8">
-              No recent activity
-            </p>
-          )}
-        </div>
-      </div>
+          </div>
 
-      {/* Quick Actions */}
-      <div className="brushed-metal rounded-lg shadow-lg p-6">
-        <h2 className="text-lg font-semibold mb-4 text-white">Quick Actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Link href="/dashboard/upload">
-            <Button variant="outline" className="w-full justify-start">
-              <Upload className="h-4 w-4 mr-2" />
-              Upload New Photos
-            </Button>
-          </Link>
-          <Link href="/dashboard/projects/new">
-            <Button variant="outline" className="w-full justify-start">
-              <FolderOpen className="h-4 w-4 mr-2" />
-              Create New Project
-            </Button>
-          </Link>
-          <Link href="/dashboard/photos">
-            <Button variant="outline" className="w-full justify-start">
-              <Image className="h-4 w-4 mr-2" />
-              Browse All Photos
-            </Button>
-          </Link>
+          {/* Quick Actions */}
+          <div className="brushed-metal rounded-lg shadow-lg p-6">
+            <h2 className="text-lg font-semibold mb-4 text-white">Quick Actions</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Link href="/dashboard/upload">
+                <Button variant="outline" className="w-full justify-start">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload New Photos
+                </Button>
+              </Link>
+              <Link href="/dashboard/projects/new">
+                <Button variant="outline" className="w-full justify-start">
+                  <FolderOpen className="h-4 w-4 mr-2" />
+                  Create New Project
+                </Button>
+              </Link>
+              <Link href="/dashboard/photos">
+                <Button variant="outline" className="w-full justify-start">
+                  <Image className="h-4 w-4 mr-2" />
+                  Browse All Photos
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column - Calendar */}
+        <div className="xl:col-span-1">
+          <Calendar />
         </div>
       </div>
     </div>
