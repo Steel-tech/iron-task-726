@@ -132,7 +132,7 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
   const [timesheetData, setTimesheetData] = useState<TimesheetData>({
     date: '',
     foreman: '',
-    employees: Array(14).fill(null).map(() => ({
+    employees: Array(5).fill(null).map(() => ({
       name: '',
       startTime: '',
       lunch: false,
@@ -143,6 +143,9 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
     })),
     issues: ''
   })
+
+  // State to track number of visible employees
+  const [visibleEmployees, setVisibleEmployees] = useState(5)
 
   // State for Weather & Conditions
   const [weatherData, setWeatherData] = useState<WeatherData>({
@@ -261,7 +264,13 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
   const calculateHours = (start: string, lunch: boolean, stop: string): string => {
     if (start && stop) {
       const startTime = new Date(`2000-01-01T${start}`)
-      const stopTime = new Date(`2000-01-01T${stop}`)
+      let stopTime = new Date(`2000-01-01T${stop}`)
+      
+      // Handle overnight shifts - if stop time is earlier than start time, assume next day
+      if (stopTime <= startTime) {
+        stopTime = new Date(`2000-01-02T${stop}`)
+      }
+      
       const diffMs = stopTime.getTime() - startTime.getTime()
       const diffHours = diffMs / (1000 * 60 * 60)
       const lunchDeduction = lunch ? 0.5 : 0
@@ -283,6 +292,29 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
     }
     
     setTimesheetData({ ...timesheetData, employees: newEmployees })
+  }
+
+  const addEmployee = () => {
+    const newEmployee = {
+      name: '',
+      startTime: '',
+      lunch: false,
+      stopTime: '',
+      extraWork: '',
+      total: '',
+      jobNumber: ''
+    }
+    setTimesheetData({
+      ...timesheetData,
+      employees: [...timesheetData.employees, newEmployee]
+    })
+  }
+
+  const removeEmployee = (index: number) => {
+    if (timesheetData.employees.length > 1) {
+      const newEmployees = timesheetData.employees.filter((_, i) => i !== index)
+      setTimesheetData({ ...timesheetData, employees: newEmployees })
+    }
   }
 
   const saveData = async () => {
@@ -407,10 +439,11 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                     <th className="border border-gray-600 px-4 py-2 text-gray-300">Extra Work</th>
                     <th className="border border-gray-600 px-4 py-2 text-gray-300">Total</th>
                     <th className="border border-gray-600 px-4 py-2 text-gray-300">Job #</th>
+                    <th className="border border-gray-600 px-4 py-2 text-gray-300">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {timesheetData.employees.slice(0, 5).map((employee, index) => (
+                  {timesheetData.employees.map((employee, index) => (
                     <tr key={index}>
                       <td className="border border-gray-600 px-2 py-1">
                         <input
@@ -463,10 +496,31 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                           className="w-full px-2 py-1 bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
                       </td>
+                      <td className="border border-gray-600 px-2 py-1 text-center">
+                        <button
+                          type="button"
+                          onClick={() => removeEmployee(index)}
+                          disabled={timesheetData.employees.length <= 1}
+                          className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-xs"
+                        >
+                          Remove
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                onClick={addEmployee}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2"
+              >
+                <Users className="w-4 h-4" />
+                Add Employee
+              </button>
             </div>
 
             <div className="mt-6">

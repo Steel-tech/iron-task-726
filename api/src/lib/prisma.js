@@ -239,6 +239,31 @@ if (isMockMode) {
           projects.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         }
         
+        // Handle include clauses for complex queries
+        if (query.include) {
+          projects = projects.map(project => {
+            const enrichedProject = { ...project };
+            
+            // Handle _count include
+            if (query.include._count) {
+              enrichedProject._count = {};
+              if (query.include._count.select?.media) {
+                // Count media items for this project
+                const mediaCount = Array.from(mockMedia.values())
+                  .filter(m => m.projectId === project.id).length;
+                enrichedProject._count.media = mediaCount;
+              }
+            }
+            
+            // Handle labels include (mock empty for now)
+            if (query.include.labels) {
+              enrichedProject.labels = [];
+            }
+            
+            return enrichedProject;
+          });
+        }
+        
         return projects;
       },
       count: async (query = {}) => {

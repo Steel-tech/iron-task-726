@@ -1233,7 +1233,167 @@
       "lastAccessed": "2025-07-31T15:57:10.072Z",
       "lastVerified": "2025-07-31T15:57:10.072Z",
       "status": "fresh"
+    },
+    {
+      "id": "mem_1754004347001_osohmk1iw",
+      "content": "User reported that auto-calculation for total hours is not working. Need to investigate the calculation logic in the codebase.",
+      "type": "general",
+      "tags": [
+        "general",
+        "bug",
+        "calculation",
+        "hours",
+        "auto-calculation"
+      ],
+      "timestamp": "2025-07-31T23:25:47.001Z",
+      "context": "Starting debugging task for hours calculation feature",
+      "accessCount": 0,
+      "lastAccessed": "2025-07-31T23:25:47.001Z",
+      "lastVerified": "2025-07-31T23:25:47.001Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1754004380702_g09tx7c1b",
+      "content": "Found the hours calculation logic in FSWIronTask.tsx:264-289. The calculateHours function works correctly and is triggered in updateEmployee when startTime, lunch, or stopTime fields change. The logic calculates time difference and deducts 0.5 hours for lunch if checked.",
+      "type": "code",
+      "tags": [
+        "code",
+        "hours-calculation",
+        "timesheet",
+        "analysis"
+      ],
+      "timestamp": "2025-07-31T23:26:20.702Z",
+      "context": "Analyzed the timesheet calculation system",
+      "accessCount": 0,
+      "lastAccessed": "2025-07-31T23:26:20.702Z",
+      "lastVerified": "2025-07-31T23:26:20.702Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1754004466537_xfhxtllh4",
+      "content": "Analysis of hours calculation: The calculateHours function at line 264-274 in FSWIronTask.tsx calculates time difference in milliseconds, converts to hours, and deducts lunch time. The logic appears correct, but need to test edge cases and verify the calculation is triggered properly on all input changes.",
+      "type": "code",
+      "tags": [
+        "code",
+        "calculation-analysis",
+        "debugging",
+        "timesheet"
+      ],
+      "timestamp": "2025-07-31T23:27:46.537Z",
+      "context": "Detailed analysis of calculation logic",
+      "accessCount": 0,
+      "lastAccessed": "2025-07-31T23:27:46.537Z",
+      "lastVerified": "2025-07-31T23:27:46.537Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1754004550555_kqdnm5snx",
+      "content": "Identified the likely issue with hours calculation: Cross-midnight shifts are not handled properly. When stop time is earlier than start time (e.g., 10 PM to 6 AM), the calculation returns negative hours. Need to fix calculateHours function to detect overnight shifts and add 24 hours to the stop time calculation.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "bug-fix",
+        "cross-midnight",
+        "hours-calculation",
+        "overnight-shifts"
+      ],
+      "timestamp": "2025-07-31T23:29:10.555Z",
+      "context": "Root cause analysis of hours calculation bug",
+      "accessCount": 0,
+      "lastAccessed": "2025-07-31T23:29:10.555Z",
+      "lastVerified": "2025-07-31T23:29:10.555Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1754004593180_8b07x4m7y",
+      "content": "Fixed the hours auto-calculation issue in FSWIronTask.tsx. The problem was cross-midnight shifts producing negative hours. Added logic to detect when stop time <= start time and assume it's the next day by using '2000-01-02T' for the stop date. The fix now properly handles overnight construction shifts.",
+      "type": "troubleshooting",
+      "tags": [
+        "troubleshooting",
+        "bug-fix-completed",
+        "overnight-shifts",
+        "hours-calculation",
+        "FSWIronTask"
+      ],
+      "timestamp": "2025-07-31T23:29:53.180Z",
+      "context": "Bug fix completed successfully",
+      "accessCount": 0,
+      "lastAccessed": "2025-07-31T23:29:53.180Z",
+      "lastVerified": "2025-07-31T23:29:53.180Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1754004957779_i2l1lyimi",
+      "content": "User wants to keep the FSW Iron Task construction documentation app running for continuous development. Need to set up development environment with both API and web servers running.",
+      "type": "config",
+      "tags": [
+        "config",
+        "api",
+        "development",
+        "setup",
+        "fsw-iron-task"
+      ],
+      "timestamp": "2025-07-31T23:35:57.779Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-07-31T23:35:57.779Z",
+      "lastVerified": "2025-07-31T23:35:57.779Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1754005048923_ukev6jxp2",
+      "content": "FSW Iron Task development setup: API runs on port 3001 with `npm run dev`, Web runs on port 3000 with `npm run dev`. Both have watch mode and hot reloading. Use separate terminals for each service or use ./start.sh for Docker-based development.",
+      "type": "config",
+      "tags": [
+        "config",
+        "api",
+        "development",
+        "setup",
+        "fsw-iron-task",
+        "ports"
+      ],
+      "timestamp": "2025-07-31T23:37:28.923Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-07-31T23:37:28.923Z",
+      "lastVerified": "2025-07-31T23:37:28.923Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1754006236721_e299nqd5g",
+      "content": "User wants to deploy FSW Iron Task live for team feedback during development. Need to research current deployment options and create a plan for live deployment with authentication.",
+      "type": "general",
+      "tags": [
+        "general",
+        "deployment",
+        "authentication",
+        "live",
+        "feedback",
+        "fsw-iron-task"
+      ],
+      "timestamp": "2025-07-31T23:57:16.721Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-07-31T23:57:16.721Z",
+      "lastVerified": "2025-07-31T23:57:16.721Z",
+      "status": "fresh"
+    },
+    {
+      "id": "mem_1754006299451_dkkuxz4fu",
+      "content": "Starting live deployment of FSW Iron Task to Vercel. User wants team access for feedback during development. Plan: Deploy API and web separately, configure production environment variables, test authentication, and share access with team.",
+      "type": "config",
+      "tags": [
+        "config",
+        "deployment",
+        "api",
+        "authentication",
+        "vercel",
+        "production",
+        "fsw-iron-task"
+      ],
+      "timestamp": "2025-07-31T23:58:19.451Z",
+      "accessCount": 0,
+      "lastAccessed": "2025-07-31T23:58:19.451Z",
+      "lastVerified": "2025-07-31T23:58:19.451Z",
+      "status": "fresh"
     }
   ],
-  "lastUpdated": "2025-07-31T15:57:10.072Z"
+  "lastUpdated": "2025-07-31T23:58:19.451Z"
 }
