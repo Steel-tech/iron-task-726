@@ -88,8 +88,8 @@ export function SessionWarning({ onExtend, onLogout }: SessionWarningProps) {
 
         <div className="space-y-3">
           <p className="text-sm text-gray-300">
-            For your security, we'll automatically log you out when your session expires. 
-            Click "Stay Signed In" to extend your session.
+            For your security, we&apos;ll automatically log you out when your session expires. 
+            Click &quot;Stay Signed In&quot; to extend your session.
           </p>
 
           <div className="flex items-center gap-2 text-xs text-gray-500">

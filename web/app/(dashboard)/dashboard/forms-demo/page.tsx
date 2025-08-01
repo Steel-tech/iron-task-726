@@ -76,7 +76,7 @@ export default function FormsDemoPage() {
                   <h3 className="text-blue-400 font-semibold mb-2">Demo Environment</h3>
                   <p className="text-blue-300 text-sm">
                     This is a testing environment where you can review all forms, test functionality, 
-                    and identify any needed modifications. Changes made here won't affect real project data.
+                    and identify any needed modifications. Changes made here won&apos;t affect real project data.
                   </p>
                 </div>
               </div>
@@ -211,7 +211,7 @@ export default function FormsDemoPage() {
             <div className="brushed-metal rounded-lg shadow-lg p-6">
               <h2 className="text-xl font-semibold text-white mb-4">Potential Additional Forms</h2>
               <p className="text-gray-400 mb-4">
-                Based on FSW's operations, you might want to consider adding these forms:
+                Based on FSW&apos;s operations, you might want to consider adding these forms:
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
