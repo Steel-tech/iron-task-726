@@ -113,7 +113,7 @@ export default function FSWHarnessInspection({ projectId, onSave }: FSWHarnessIn
     }
   }
 
-  const calculateOverallStatus = () => {
+  const calculateOverallStatus = (): 'pass' | 'fail' | null => {
     const allItems = [...formData.visualInspection, ...formData.functionalInspection]
     const hasFailures = allItems.some(item => item.status === 'fail')
     const allChecked = allItems.every(item => item.status !== null)
