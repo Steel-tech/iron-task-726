@@ -29,11 +29,11 @@ fastify.get('/', async (request, reply) => {
   };
 });
 
-// Production user data
+// Demo user data - use environment variables for security
 const DEMO_USER = {
   id: '1',
-  email: 'test@example.com',
-  name: 'Test User',
+  email: process.env.DEMO_USER_EMAIL || 'demo@fsw.local',
+  name: process.env.DEMO_USER_NAME || 'Demo User',
   role: 'ADMIN',
   company: { id: 'fsw-denver', name: 'FSW Denver' }
 };
@@ -59,7 +59,9 @@ const DEMO_PROJECTS = [
 fastify.post('/api/auth/login', async (request, reply) => {
   const { email, password } = request.body;
   
-  if (email === 'test@example.com' && password === 'Test123@') {
+  const demoPassword = process.env.DEMO_USER_PASSWORD || 'DemoPassword123!';
+  
+  if (email === DEMO_USER.email && password === demoPassword) {
     const token = Buffer.from(JSON.stringify({ 
       id: DEMO_USER.id, 
       email: DEMO_USER.email, 

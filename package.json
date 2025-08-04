@@ -4,7 +4,10 @@
   "description": "Professional Construction Documentation System built by ironworkers, for ironworkers. Document your projects, ensure safety compliance, and track progress with the most trusted platform in steel construction.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cd api && npm start",
+    "build": "cd api && npm run build",
+    "dev": "cd api && npm run dev",
+    "test": "cd api && npm test"
   },
   "repository": {
     "type": "git",

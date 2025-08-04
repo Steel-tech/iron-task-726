@@ -49,4 +49,7 @@ module.exports = {
   
   // API versioning
   API_VERSION: 'v1',
+  
+  // Default company ID - should be overridden by environment variable
+  DEFAULT_COMPANY_ID: process.env.DEFAULT_COMPANY_ID || 'fsw-default-company',
 };

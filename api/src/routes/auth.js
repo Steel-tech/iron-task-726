@@ -1,11 +1,11 @@
 const bcrypt = require('bcrypt');
-const prisma = require('../lib/prisma');
 const constants = require('../config/constants');
 const { validate } = require('../middleware/validation');
 const authSchemas = require('../schemas/auth');
 const { authRateLimit } = require('../middleware/rateLimit');
 const TokenService = require('../services/tokenService');
-const { AuthenticationError, NotFoundError } = require('../utils/errors');
+const { UserService } = require('../services/database');
+const { AuthenticationError, NotFoundError, ValidationError } = require('../utils/errors');
 
 // Helper to extract client info
 function getClientInfo(request) {
@@ -26,38 +26,18 @@ async function routes(fastify, options) {
     const { email, password, name, role, companyId, unionMember, phoneNumber } = request.body;
 
     try {
-      // Check if user already exists
-      const existingUser = await prisma.user.findUnique({
-        where: { email }
-      });
-
-      if (existingUser) {
-        return reply.code(409).send({ error: 'User already exists' });
-      }
-
       // Hash password
       const hashedPassword = await bcrypt.hash(password, constants.BCRYPT_ROUNDS);
 
-      // Create user
-      const user = await prisma.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          name,
-          role: role || 'WORKER',
-          companyId: companyId || 'fsw-default-company',
-          unionMember: unionMember || false,
-          phoneNumber
-        },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          role: true,
-          companyId: true,
-          unionMember: true,
-          createdAt: true
-        }
+      // Create user using service
+      const user = await UserService.create({
+        email,
+        password: hashedPassword,
+        name,
+        role: role || 'WORKER',
+        companyId: companyId || constants.DEFAULT_COMPANY_ID,
+        unionMember: unionMember || false,
+        phoneNumber
       });
 
       // Generate access token
@@ -92,6 +72,9 @@ async function routes(fastify, options) {
         accessToken
       });
     } catch (error) {
+      if (error instanceof ValidationError) {
+        return reply.code(409).send({ error: error.message });
+      }
       fastify.log.error(error);
       return reply.code(500).send({ error: 'Failed to create user' });
     }
@@ -114,18 +97,8 @@ async function routes(fastify, options) {
       // Log login attempt
       (request.logger?.info || console.log)('Login attempt', { email });
 
-      // Find user
-      const user = await prisma.user.findUnique({
-        where: { email },
-        include: {
-          company: {
-            select: {
-              id: true,
-              name: true
-            }
-          }
-        }
-      });
+      // Find user with password
+      const user = await UserService.findWithPassword(email);
 
       if (!user) {
         console.log('Login failed - user not found', { email });

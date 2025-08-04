@@ -2,7 +2,7 @@
   "name": "iron-task-api",
   "version": "1.0.0",
   "description": "API for Iron Task construction documentation system",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node production-server.js",
@@ -25,6 +25,7 @@
     "typecheck": "echo 'TypeScript not configured for this project'",
     "security:audit": "npm audit --audit-level=moderate",
     "prestart": "npm run prisma:generate",
+    "postinstall": "npm run prisma:generate",
     "doctor": "npm doctor && npm audit"
   },
   "dependencies": {
