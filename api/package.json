@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "start": "node src/index.js",
+    "start": "node production-server.js",
     "build": "npm run prisma:generate",
     "build:production": "npm ci --production && npm run prisma:generate && npm run test:ci",
     "test": "jest",
@@ -42,7 +42,6 @@
     "@sendgrid/mail": "^8.1.5",
     "@supabase/supabase-js": "^2.39.0",
     "axios": "^1.6.2",
-    "bcrypt": "^5.1.1",
     "bull": "^4.11.5",
     "date-fns": "^4.1.0",
     "dotenv": "^16.3.1",
@@ -60,6 +59,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",
+    "bcrypt": "^6.0.0",
     "jest": "^29.7.0",
     "nodemon": "^3.0.2",
     "prisma": "^5.7.0",

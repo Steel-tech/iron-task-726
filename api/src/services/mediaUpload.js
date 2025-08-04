@@ -367,7 +367,7 @@ class MediaUploadService {
           height: videoStream.height,
           bitrate: metadata.format.bit_rate,
           codec: videoStream.codec_name,
-          fps: eval(videoStream.r_frame_rate) || 0
+          fps: parseFloat(videoStream.r_frame_rate) || 0
         });
       });
     });

@@ -20,7 +20,7 @@ if (isMockMode) {
   mockUsers.set('test@example.com', {
     id: 'mock-user-1',
     email: 'test@example.com',
-    password: '$2b$12$wSTuJLH/sm.xc3yxt7/7muv37K7WadWWLDrJsk9m8ePkHlWIv4nOC', // Test123@
+    password: process.env.MOCK_ADMIN_PASSWORD_HASH || '$2b$12$wSTuJLH/sm.xc3yxt7/7muv37K7WadWWLDrJsk9m8ePkHlWIv4nOC', // Use env var or fallback
     name: 'Test User',
     role: 'ADMIN',
     companyId: 'fsw-default-company',

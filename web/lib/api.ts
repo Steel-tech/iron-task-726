@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios'
 import { mockAPI } from './mock-api'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://172.18.129.73:3001'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 // Track if API is available
 let apiAvailable = true
@@ -151,12 +151,14 @@ export interface RegisterCredentials {
 export const authApi = {
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
     console.log('🚀 Starting login process...')
+    console.log('📡 Making API call to:', `${API_BASE_URL}/api/auth/login`)
+    console.log('🔧 API Available Status:', apiAvailable)
     console.time('login-debug')
     
     try {
-      console.log('📡 Making API call to:', `${API_BASE_URL}/api/auth/login`)
+      console.log('📡 Sending request with credentials:', { email: credentials.email, password: '***' })
       const response = await api.post<LoginResponse>('/auth/login', credentials)
-      console.log('✅ API response received:', response.status)
+      console.log('✅ API response received:', response.status, response.data)
       localStorage.setItem('accessToken', response.data.accessToken)
       apiAvailable = true
       console.timeEnd('login-debug')

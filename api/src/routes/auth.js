@@ -135,9 +135,9 @@ async function routes(fastify, options) {
       // Verify password
       const validPassword = await bcrypt.compare(password, user.password);
       if (!validPassword) {
-        console.log('Login failed - invalid password', { 
-          email,
-          userId: user.id 
+        console.log('Login failed - invalid credentials', { 
+          email: email.substring(0, 3) + '***',
+          timestamp: new Date().toISOString()
         });
         return reply.code(401).send({ error: 'Invalid credentials' });
       }
