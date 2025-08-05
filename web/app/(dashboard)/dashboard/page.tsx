@@ -3,6 +3,10 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/Button'
 import Calendar from '@/components/Calendar'
+import LiveTeamDashboard from '@/components/LiveTeamDashboard'
+import ProgressAnalyticsDashboard from '@/components/ProgressAnalyticsDashboard'
+import TeamChatPanel from '@/components/TeamChatPanel'
+import SafetyComplianceDashboard from '@/components/SafetyComplianceDashboard'
 import Link from 'next/link'
 import {
   Camera,
@@ -12,6 +16,10 @@ import {
   TrendingUp,
   Upload,
   Users,
+  BarChart3,
+  MessageSquare,
+  Activity,
+  Shield
 } from 'lucide-react'
 import { api } from '@/lib/api'
 
@@ -90,6 +98,8 @@ export default function DashboardPage() {
     },
   ]
 
+  const [activeTab, setActiveTab] = useState<'overview' | 'team' | 'analytics' | 'safety' | 'chat'>('overview')
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -123,82 +133,183 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Main Content Grid - Calendar and Activities */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Left Column - Activities and Quick Actions */}
-        <div className="xl:col-span-2 space-y-6">
-          {/* Recent Activity */}
-          <div className="brushed-metal rounded-lg shadow-lg">
-            <div className="px-6 py-4 border-b border-gray-700">
-              <h2 className="text-lg font-semibold flex items-center gap-2 text-white">
-                <Clock className="h-5 w-5 text-safety-orange" />
-                Recent Activity
-              </h2>
+      {/* Enhanced Dashboard Tabs */}
+      <div className="brushed-metal rounded-lg shadow-lg">
+        <div className="flex border-b border-gray-700">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`px-6 py-4 font-medium transition-colors ${
+              activeTab === 'overview'
+                ? 'text-safety-orange border-b-2 border-safety-orange'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Overview
             </div>
-            <div className="p-6">
-              {stats?.recentPhotos && stats.recentPhotos.length > 0 ? (
-                <div className="space-y-4">
-                  {stats.recentPhotos.slice(0, 5).map((photo) => (
-                    <div
-                      key={photo.id}
-                      className="flex items-center justify-between py-3 border-b last:border-0"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="bg-gray-100 p-2 rounded">
-                          <Camera className="h-4 w-4 text-gray-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-white">{photo.fileName}</p>
-                          <p className="text-sm text-gray-400">
-                            {photo.project.name} • by {photo.user.name}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-400">
-                        {new Date(photo.uploadedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-muted-foreground py-8">
-                  No recent activity
-                </p>
-              )}
+          </button>
+          <button
+            onClick={() => setActiveTab('team')}
+            className={`px-6 py-4 font-medium transition-colors ${
+              activeTab === 'team'
+                ? 'text-safety-orange border-b-2 border-safety-orange'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Live Team
             </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="brushed-metal rounded-lg shadow-lg p-6">
-            <h2 className="text-lg font-semibold mb-4 text-white">Quick Actions</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Link href="/dashboard/upload">
-                <Button variant="outline" className="w-full justify-start">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload New Photos
-                </Button>
-              </Link>
-              <Link href="/dashboard/projects/new">
-                <Button variant="outline" className="w-full justify-start">
-                  <FolderOpen className="h-4 w-4 mr-2" />
-                  Create New Project
-                </Button>
-              </Link>
-              <Link href="/dashboard/photos">
-                <Button variant="outline" className="w-full justify-start">
-                  <Image className="h-4 w-4 mr-2" />
-                  Browse All Photos
-                </Button>
-              </Link>
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`px-6 py-4 font-medium transition-colors ${
+              activeTab === 'analytics'
+                ? 'text-safety-orange border-b-2 border-safety-orange'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Analytics
             </div>
-          </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('safety')}
+            className={`px-6 py-4 font-medium transition-colors ${
+              activeTab === 'safety'
+                ? 'text-safety-orange border-b-2 border-safety-orange'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Safety
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('chat')}
+            className={`px-6 py-4 font-medium transition-colors ${
+              activeTab === 'chat'
+                ? 'text-safety-orange border-b-2 border-safety-orange'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Team Chat
+            </div>
+          </button>
         </div>
 
-        {/* Right Column - Calendar */}
-        <div className="xl:col-span-1">
-          <Calendar />
+        <div className="p-6">
+          {activeTab === 'overview' && (
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              {/* Left Column - Activities and Quick Actions */}
+              <div className="xl:col-span-2 space-y-6">
+                {/* Recent Activity */}
+                <div className="bg-gray-800/50 rounded-lg border border-gray-700">
+                  <div className="px-6 py-4 border-b border-gray-700">
+                    <h2 className="text-lg font-semibold flex items-center gap-2 text-white">
+                      <Clock className="h-5 w-5 text-safety-orange" />
+                      Recent Activity
+                    </h2>
+                  </div>
+                  <div className="p-6">
+                    {stats?.recentPhotos && stats.recentPhotos.length > 0 ? (
+                      <div className="space-y-4">
+                        {stats.recentPhotos.slice(0, 5).map((photo) => (
+                          <div
+                            key={photo.id}
+                            className="flex items-center justify-between py-3 border-b border-gray-700 last:border-0"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="bg-gray-100 p-2 rounded">
+                                <Camera className="h-4 w-4 text-gray-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-white">{photo.fileName}</p>
+                                <p className="text-sm text-gray-400">
+                                  {photo.project.name} • by {photo.user.name}
+                                </p>
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-400">
+                              {new Date(photo.uploadedAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-center text-gray-400 py-8">
+                        No recent activity
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="bg-gray-800/50 rounded-lg border border-gray-700 p-6">
+                  <h2 className="text-lg font-semibold mb-4 text-white">Quick Actions</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Link href="/dashboard/upload">
+                      <Button variant="outline" className="w-full justify-start">
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload New Photos
+                      </Button>
+                    </Link>
+                    <Link href="/dashboard/projects/new">
+                      <Button variant="outline" className="w-full justify-start">
+                        <FolderOpen className="h-4 w-4 mr-2" />
+                        Create New Project
+                      </Button>
+                    </Link>
+                    <Link href="/dashboard/photos">
+                      <Button variant="outline" className="w-full justify-start">
+                        <Image className="h-4 w-4 mr-2" />
+                        Browse All Photos
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column - Calendar */}
+              <div className="xl:col-span-1">
+                <Calendar />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'team' && (
+            <LiveTeamDashboard />
+          )}
+
+          {activeTab === 'analytics' && (
+            <ProgressAnalyticsDashboard />
+          )}
+
+          {activeTab === 'safety' && (
+            <SafetyComplianceDashboard />
+          )}
+
+          {activeTab === 'chat' && (
+            <div className="text-center py-8">
+              <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+              <p className="text-gray-400 mb-4">Team chat opens in a floating panel</p>
+              <p className="text-sm text-gray-500">Look for the chat button in the bottom-right corner</p>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Floating Team Chat Panel */}
+      <TeamChatPanel
+        currentUserId="user_1"
+        currentUserName="Current User"
+        currentUserRole="FOREMAN"
+      />
     </div>
   )
 }

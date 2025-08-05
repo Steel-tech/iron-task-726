@@ -274,6 +274,37 @@ fastify.register(require('./routes/push-subscriptions'), { prefix: '/api/push' }
 // User preferences
 fastify.register(require('./routes/user-preferences'), { prefix: '/api/users' });
 
+// Root endpoint
+fastify.get('/', async (request, reply) => {
+  return { 
+    name: 'FSW Iron Task API',
+    version: '1.0.0',
+    description: 'Construction Documentation & Safety Management System',
+    status: 'operational', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    features: [
+      'Real-time team collaboration',
+      'Safety incident tracking', 
+      'Compliance reporting',
+      'Media management',
+      'Project analytics'
+    ],
+    endpoints: {
+      health: '/health',
+      api_info: '/api',
+      authentication: '/api/auth',
+      media: '/api/media',
+      projects: '/api/projects', 
+      users: '/api/users',
+      dashboard: '/api/dashboard',
+      reports: '/api/reports',
+      forms: '/api/forms'
+    },
+    documentation: 'https://github.com/your-org/iron-task/blob/main/README.md'
+  };
+});
+
 // Health check
 fastify.get('/health', async (request, reply) => {
   return { status: 'ok', timestamp: new Date().toISOString() };

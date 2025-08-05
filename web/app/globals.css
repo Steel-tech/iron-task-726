@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile Touch Optimizations */
+@import '../styles/mobile-touch.css';
+
 @layer base {
   :root {
     /* Steel construction color theme */
