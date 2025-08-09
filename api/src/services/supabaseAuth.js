@@ -147,8 +147,9 @@ class SupabaseAuthService {
    */
   async requestPasswordReset(email) {
     try {
+      const baseUrl = process.env.FRONTEND_URL || process.env.PUBLIC_URL || (process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',')[0].trim() : undefined) || (process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:3000');
       const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/reset-password`
+        redirectTo: `${baseUrl}/auth/reset-password`
       });
 
       if (error) throw error;

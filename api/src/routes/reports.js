@@ -259,7 +259,8 @@ module.exports = async function reportRoutes(fastify, options) {
       })
 
       // Generate shareable link
-      const shareUrl = `${process.env.FRONTEND_URL}/shared/reports/${report.shareToken}`
+      const shareUrlBase = (process.env.FRONTEND_URL || process.env.PUBLIC_URL || (process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:3000'))
+      const shareUrl = `${shareUrlBase}/shared/reports/${report.shareToken}`
 
       // Send notification based on method
       if (data.method === 'email' && data.recipientEmail) {

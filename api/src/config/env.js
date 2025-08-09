@@ -23,6 +23,7 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().optional(),
   APP_URL: z.string().url().optional(),
   FRONTEND_URL: z.string().url().optional(),
+  PUBLIC_URL: z.string().url().optional(),
   
   // Email Configuration
   EMAIL_PROVIDER: z.enum(['smtp', 'sendgrid']).optional(),
@@ -102,10 +103,20 @@ function validateEnv() {
         throw new Error('Complete VAPID configuration (PUBLIC_KEY, PRIVATE_KEY, SUBJECT) required for push notifications');
       }
       
+      // Ensure FRONTEND_URL exists in production
+      if (!env.FRONTEND_URL && !env.PUBLIC_URL) {
+        throw new Error('FRONTEND_URL (or PUBLIC_URL) must be set in production');
+      }
+      
       // Database security
       if (env.DATABASE_URL.includes('localhost') || env.DATABASE_URL.includes('127.0.0.1')) {
         throw new Error('DATABASE_URL should not use localhost in production');
       }
+    }
+    
+    // Derive base frontend URL fallback
+    if (!process.env.PUBLIC_URL && env.FRONTEND_URL) {
+      process.env.PUBLIC_URL = env.FRONTEND_URL;
     }
     
     return env;

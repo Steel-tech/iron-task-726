@@ -1,7 +1,8 @@
-// Load test environment variables
-require('dotenv').config({ path: '.env.test' });
+// Load test environment variables early
+require('dotenv').config({ path: '.env.test' })
 
 // Suppress console logs during tests
+/* global jest */
 global.console = {
   ...console,
   log: jest.fn(),
@@ -9,4 +10,4 @@ global.console = {
   warn: jest.fn(),
   info: jest.fn(),
   debug: jest.fn(),
-};
+}

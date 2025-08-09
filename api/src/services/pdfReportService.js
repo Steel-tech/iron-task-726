@@ -2,6 +2,7 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 const { format } = require('date-fns');
+const QRCode = require('qrcode');
 const prisma = require('../lib/prisma');
 const { logger } = require('../utils/logger');
 
@@ -21,6 +22,11 @@ class PDFReportService {
   async generatePDF(report, options = {}) {
     return new Promise(async (resolve, reject) => {
       try {
+        // Load custom template if specified
+        let template = null;
+        if (options.templateId) {
+          template = await this.getTemplate(options.templateId);
+        }
         // Create PDF document
         const doc = new PDFDocument({
           size: 'letter',
@@ -60,27 +66,30 @@ class PDFReportService {
           where: { id: report.userId }
         });
 
-        // Add header
-        this.addHeader(doc, project, report);
+        // Use template-based generation if template is provided
+        if (template) {
+          await this.generateFromTemplate(doc, template, report, project, user);
+        } else {
+          // Standard generation
+          await this.addHeader(doc, project, report);
+          this.addProjectInfo(doc, project, report);
 
-        // Add project info section
-        this.addProjectInfo(doc, project, report);
-
-        // Add content based on report type
-        switch (report.reportType) {
-          case 'PROGRESS_RECAP':
-            await this.addProgressRecapContent(doc, report, project);
-            break;
-          case 'SUMMARY':
-            await this.addSummaryContent(doc, report, project);
-            break;
-          case 'DAILY_LOG':
-            await this.addDailyLogContent(doc, report, project);
-            break;
+          // Add content based on report type
+          switch (report.reportType) {
+            case 'PROGRESS_RECAP':
+              await this.addProgressRecapContent(doc, report, project);
+              break;
+            case 'SUMMARY':
+              await this.addSummaryContent(doc, report, project);
+              break;
+            case 'DAILY_LOG':
+              await this.addDailyLogContent(doc, report, project);
+              break;
+          }
         }
 
-        // Add footer on each page
-        this.addFooter(doc, project);
+        // Add footer on each page with QR codes
+        await this.addFooter(doc, project, report);
 
         // Finalize PDF
         doc.end();
@@ -92,26 +101,77 @@ class PDFReportService {
   }
 
   /**
-   * Add header to PDF
+   * Generate QR code as base64 data URL
    */
-  addHeader(doc, project, report) {
+  async generateQRCode(text, options = {}) {
+    try {
+      const qrOptions = {
+        type: 'png',
+        quality: 0.92,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        },
+        width: options.size || 100,
+        ...options
+      };
+      
+      return await QRCode.toDataURL(text, qrOptions);
+    } catch (error) {
+      logger.error('Failed to generate QR code:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Add header to PDF with QR code
+   */
+  async addHeader(doc, project, report) {
     // Company logo placeholder
     doc.rect(this.margin, this.margin, 80, 40).stroke();
     doc.fontSize(10).text('LOGO', this.margin + 30, this.margin + 15);
 
     // Company name and report title
     doc.fontSize(20)
-       .text(project.company.name, 150, this.margin, { width: 400, align: 'center' });
+       .text(project.company.name, 150, this.margin, { width: 300, align: 'center' });
     
     doc.fontSize(16)
-       .text(report.title, 150, this.margin + 25, { width: 400, align: 'center' });
+       .text(report.title, 150, this.margin + 25, { width: 300, align: 'center' });
+
+    // Generate QR code for digital access
+    const reportUrl = `${process.env.FRONTEND_URL || 'https://fsw-iron-task.vercel.app'}/reports/${report.shareToken || report.id}`;
+    const qrCodeDataUrl = await this.generateQRCode(reportUrl, { size: 80 });
+    
+    if (qrCodeDataUrl) {
+      try {
+        // Convert base64 to buffer
+        const qrBuffer = Buffer.from(qrCodeDataUrl.split(',')[1], 'base64');
+        
+        // Add QR code to top right
+        doc.image(qrBuffer, this.pageWidth - this.margin - 80, this.margin, {
+          fit: [80, 80],
+          align: 'center'
+        });
+        
+        // Add QR code label
+        doc.fontSize(8)
+           .text('Scan for Digital Report', this.pageWidth - this.margin - 80, this.margin + 85, {
+             width: 80,
+             align: 'center'
+           });
+      } catch (qrError) {
+        logger.error('Failed to add QR code to PDF:', qrError);
+        // Continue without QR code
+      }
+    }
 
     // Line separator
-    doc.moveTo(this.margin, this.margin + 60)
-       .lineTo(this.pageWidth - this.margin, this.margin + 60)
+    doc.moveTo(this.margin, this.margin + 100)
+       .lineTo(this.pageWidth - this.margin, this.margin + 100)
        .stroke();
 
-    doc.moveDown(3);
+    doc.y = this.margin + 110;
   }
 
   /**
@@ -362,9 +422,9 @@ class PDFReportService {
   }
 
   /**
-   * Add footer to all pages
+   * Add footer to all pages with QR code on last page
    */
-  addFooter(doc, project) {
+  async addFooter(doc, project, report) {
     const pageCount = doc.bufferedPageRange().count;
     
     for (let i = 0; i < pageCount; i++) {
@@ -384,12 +444,38 @@ class PDFReportService {
         { width: 200, align: 'left' }
       );
       
+      // Page number
       doc.text(
         `Page ${i + 1} of ${pageCount}`,
         this.pageWidth - 150,
         this.pageHeight - 50,
         { width: 100, align: 'right' }
       );
+
+      // Add small QR code to last page footer for easy access
+      if (i === pageCount - 1) {
+        const reportUrl = `${process.env.FRONTEND_URL || 'https://fsw-iron-task.vercel.app'}/reports/${report.shareToken || report.id}`;
+        const qrCodeDataUrl = await this.generateQRCode(reportUrl, { size: 40 });
+        
+        if (qrCodeDataUrl) {
+          try {
+            const qrBuffer = Buffer.from(qrCodeDataUrl.split(',')[1], 'base64');
+            
+            // Small QR code in footer
+            doc.image(qrBuffer, this.pageWidth - this.margin - 40, this.pageHeight - 40, {
+              fit: [30, 30]
+            });
+            
+            doc.fontSize(6)
+               .text('Digital Access', this.pageWidth - this.margin - 40, this.pageHeight - 8, {
+                 width: 30,
+                 align: 'center'
+               });
+          } catch (error) {
+            // Silently continue without footer QR code
+          }
+        }
+      }
     }
   }
 
@@ -439,6 +525,238 @@ class PDFReportService {
     await fs.promises.writeFile(filepath, buffer);
     
     return filepath;
+  }
+
+  // ================================
+  // CUSTOM TEMPLATE SYSTEM
+  // ================================
+
+  /**
+   * Get template by ID
+   */
+  async getTemplate(templateId) {
+    try {
+      const template = await prisma.reportTemplate.findUnique({
+        where: { id: templateId },
+        include: {
+          company: true
+        }
+      });
+      return template;
+    } catch (error) {
+      logger.error('Failed to get template:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Generate PDF from custom template
+   */
+  async generateFromTemplate(doc, template, report, project, user) {
+    const templateConfig = template.templateConfig || {};
+    const sections = templateConfig.sections || [];
+
+    // Apply template styling
+    if (templateConfig.colors) {
+      // Store colors for later use
+      this.templateColors = templateConfig.colors;
+    }
+
+    // Generate header based on template config
+    if (templateConfig.header) {
+      await this.addTemplateHeader(doc, template, project, report, templateConfig.header);
+    } else {
+      await this.addHeader(doc, project, report);
+    }
+
+    // Add sections based on template configuration
+    for (const section of sections) {
+      await this.addTemplateSection(doc, section, report, project, user);
+    }
+  }
+
+  /**
+   * Add template-based header
+   */
+  async addTemplateHeader(doc, template, project, report, headerConfig) {
+    const showLogo = headerConfig.showLogo !== false;
+    const showQR = headerConfig.showQR !== false;
+    const titleStyle = headerConfig.titleStyle || {};
+
+    if (showLogo) {
+      // Company logo placeholder
+      doc.rect(this.margin, this.margin, 80, 40).stroke();
+      doc.fontSize(10).text('LOGO', this.margin + 30, this.margin + 15);
+    }
+
+    // Title with custom styling
+    const titleSize = titleStyle.fontSize || 20;
+    const titleColor = titleStyle.color || '#000000';
+    
+    doc.fontSize(titleSize)
+       .fillColor(titleColor)
+       .text(headerConfig.title || report.title, 150, this.margin, { 
+         width: showQR ? 300 : 400, 
+         align: titleStyle.align || 'center' 
+       });
+
+    // Subtitle
+    if (headerConfig.showSubtitle !== false) {
+      doc.fontSize(titleSize - 4)
+         .text(project.company.name, 150, this.margin + 25, { 
+           width: showQR ? 300 : 400, 
+           align: 'center' 
+         });
+    }
+
+    // QR Code
+    if (showQR) {
+      const reportUrl = `${process.env.FRONTEND_URL || 'https://fsw-iron-task.vercel.app'}/reports/${report.shareToken || report.id}`;
+      const qrCodeDataUrl = await this.generateQRCode(reportUrl, { size: 80 });
+      
+      if (qrCodeDataUrl) {
+        try {
+          const qrBuffer = Buffer.from(qrCodeDataUrl.split(',')[1], 'base64');
+          doc.image(qrBuffer, this.pageWidth - this.margin - 80, this.margin, {
+            fit: [80, 80],
+            align: 'center'
+          });
+          
+          doc.fontSize(8)
+             .fillColor('#666666')
+             .text('Scan for Digital Report', this.pageWidth - this.margin - 80, this.margin + 85, {
+               width: 80,
+               align: 'center'
+             });
+        } catch (error) {
+          logger.error('Failed to add template QR code:', error);
+        }
+      }
+    }
+
+    // Header separator
+    const separatorY = this.margin + (headerConfig.height || 100);
+    doc.moveTo(this.margin, separatorY)
+       .lineTo(this.pageWidth - this.margin, separatorY)
+       .strokeColor(headerConfig.borderColor || '#000000')
+       .stroke();
+
+    doc.y = separatorY + 10;
+  }
+
+  /**
+   * Add template section
+   */
+  async addTemplateSection(doc, sectionConfig, report, project, user) {
+    const { type, title, showTitle = true, style = {} } = sectionConfig;
+
+    // Add section title
+    if (showTitle && title) {
+      const titleSize = style.titleSize || 14;
+      const titleColor = style.titleColor || '#000000';
+      
+      doc.fontSize(titleSize)
+         .fillColor(titleColor)
+         .font('Helvetica-Bold')
+         .text(title, this.margin, doc.y);
+      
+      doc.moveDown(0.5);
+    }
+
+    // Add section content based on type
+    switch (type) {
+      case 'project_info':
+        this.addProjectInfo(doc, project, report);
+        break;
+      case 'media_gallery':
+        await this.addMediaSection(doc, report);
+        break;
+      case 'summary':
+        await this.addSummaryContent(doc, report, project);
+        break;
+      case 'progress':
+        await this.addProgressRecapContent(doc, report, project);
+        break;
+      case 'daily_log':
+        await this.addDailyLogContent(doc, report, project);
+        break;
+      case 'custom_text':
+        this.addCustomTextSection(doc, sectionConfig, report, project);
+        break;
+      case 'signature_block':
+        this.addSignatureBlock(doc, sectionConfig);
+        break;
+      default:
+        break;
+    }
+
+    doc.moveDown(1);
+  }
+
+  /**
+   * Add custom text section
+   */
+  addCustomTextSection(doc, sectionConfig, report, project) {
+    const { content, style = {} } = sectionConfig;
+    
+    if (!content) return;
+
+    const fontSize = style.fontSize || 10;
+    const textColor = style.color || '#000000';
+    const alignment = style.align || 'left';
+
+    // Replace template variables
+    const processedContent = content
+      .replace(/\{\{project\.name\}\}/g, project.name)
+      .replace(/\{\{project\.location\}\}/g, project.location)
+      .replace(/\{\{company\.name\}\}/g, project.company.name)
+      .replace(/\{\{report\.title\}\}/g, report.title)
+      .replace(/\{\{date\}\}/g, format(new Date(), 'MM/dd/yyyy'));
+
+    doc.fontSize(fontSize)
+       .fillColor(textColor)
+       .font('Helvetica')
+       .text(processedContent, this.margin, doc.y, {
+         width: this.pageWidth - (2 * this.margin),
+         align: alignment
+       });
+  }
+
+  /**
+   * Add signature block
+   */
+  addSignatureBlock(doc, sectionConfig) {
+    const { signatures = [], style = {} } = sectionConfig;
+    const blockHeight = style.height || 60;
+    const signatureWidth = (this.pageWidth - (2 * this.margin) - (signatures.length - 1) * 20) / signatures.length;
+
+    let x = this.margin;
+    
+    for (const signature of signatures) {
+      // Signature line
+      doc.moveTo(x, doc.y + blockHeight - 20)
+         .lineTo(x + signatureWidth, doc.y + blockHeight - 20)
+         .stroke();
+      
+      // Signature label
+      doc.fontSize(8)
+         .text(signature.label || 'Signature', x, doc.y + blockHeight - 15, {
+           width: signatureWidth,
+           align: 'center'
+         });
+      
+      // Date line
+      if (signature.includeDate !== false) {
+        doc.text('Date: _______________', x, doc.y + 5, {
+          width: signatureWidth,
+          align: 'center'
+        });
+      }
+      
+      x += signatureWidth + 20;
+    }
+
+    doc.y += blockHeight + 20;
   }
 }
 

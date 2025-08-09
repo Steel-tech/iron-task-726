@@ -95,3 +95,29 @@ curl -X POST https://your-deployment.vercel.app/api/auth/login \
 4. Set up monitoring and alerts
 
 For detailed instructions, see `VERCEL_DEPLOYMENT.md`
+
+# Vercel API Deployment Checklist
+
+Set these environment variables in your Vercel API project:
+
+Required:
+- NODE_ENV=production
+- DATABASE_URL=postgresql://... (prefer pooled: port 6543 with pgbouncer=true&connection_limit=1)
+- JWT_SECRET=(64+ chars)
+- COOKIE_SECRET=(32+ chars)
+- CORS_ORIGIN=https://your-frontend.vercel.app[,https://your-custom-domain.com]
+- SUPABASE_URL=https://your-ref.supabase.co
+- SUPABASE_SERVICE_ROLE_KEY=eyJ...
+- SUPABASE_ANON_KEY=eyJ...
+- FRONTEND_URL=https://your-frontend.vercel.app
+
+Optional:
+- PUBLIC_URL=defaults to FRONTEND_URL
+- REDIS_URL=redis://...
+- AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_BUCKET_NAME, AWS_REGION, S3_ENDPOINT
+- EMAIL_PROVIDER (smtp|sendgrid) + SMTP_* or SENDGRID_API_KEY, SMTP_FROM
+- VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT
+
+Notes:
+- Do not include /api in NEXT_PUBLIC_API_URL. The web app appends /api internally.
+- Ensure CORS_ORIGIN does not include localhost in production.

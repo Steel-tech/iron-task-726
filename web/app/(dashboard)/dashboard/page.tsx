@@ -22,6 +22,7 @@ import {
   Shield
 } from 'lucide-react'
 import { api } from '@/lib/api'
+import { useWebSocket } from '@/hooks/useWebSocket'
 
 interface DashboardStats {
   totalProjects: number
@@ -43,6 +44,10 @@ interface DashboardStats {
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [onlineUsers, setOnlineUsers] = useState<any[]>([])
+  const [recentActivities, setRecentActivities] = useState<any[]>([])
+  
+  const { connected, updatePresence, on, off } = useWebSocket()
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -56,8 +61,56 @@ export default function DashboardPage() {
       }
     }
 
+    const fetchRecentActivities = async () => {
+      try {
+        const response = await api.get('/users/activity/recent?limit=10')
+        setRecentActivities(response.data.activities)
+      } catch (error) {
+        console.error('Failed to fetch recent activities:', error)
+      }
+    }
+
     fetchStats()
+    fetchRecentActivities()
   }, [])
+
+  // Update presence when connected
+  useEffect(() => {
+    if (connected) {
+      updatePresence({ 
+        currentPage: 'Dashboard',
+        activity: 'Viewing project overview',
+        status: 'ONLINE'
+      })
+      
+      // Listen for presence updates
+      const handlePresenceUpdate = (update: any) => {
+        setOnlineUsers(prev => {
+          const updated = [...prev]
+          const existingIndex = updated.findIndex(u => u.userId === update.userId)
+          if (existingIndex >= 0) {
+            updated[existingIndex] = update
+          } else if (update.status === 'ONLINE') {
+            updated.push(update)
+          }
+          return updated.filter(u => u.status === 'ONLINE')
+        })
+      }
+
+      // Listen for new activities
+      const handleActivityCreated = (activity: any) => {
+        setRecentActivities(prev => [activity, ...prev.slice(0, 9)])
+      }
+
+      on('user_presence_updated', handlePresenceUpdate)
+      on('activity_created', handleActivityCreated)
+      
+      return () => {
+        off('user_presence_updated', handlePresenceUpdate)
+        off('activity_created', handleActivityCreated)
+      }
+    }
+  }, [connected, updatePresence, on, off])
 
   if (isLoading) {
     return (
@@ -98,12 +151,31 @@ export default function DashboardPage() {
     },
   ]
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'team' | 'analytics' | 'safety' | 'chat'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'team' | 'analytics' | 'safety' | 'activity' | 'chat'>('overview')
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+        <div className="flex items-center space-x-4">
+          <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+          {/* Team Presence Indicator */}
+          {connected && (
+            <div className="flex items-center space-x-2 bg-gray-800/50 rounded-lg px-3 py-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm text-gray-300">
+                {onlineUsers.length} team members online
+              </span>
+              {onlineUsers.slice(0, 3).map((user, i) => (
+                <div key={i} className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs text-white">
+                  {user.userName?.charAt(0) || '?'}
+                </div>
+              ))}
+              {onlineUsers.length > 3 && (
+                <span className="text-xs text-gray-400">+{onlineUsers.length - 3}</span>
+              )}
+            </div>
+          )}
+        </div>
         <Link href="/dashboard/upload">
           <Button>
             <Upload className="h-4 w-4 mr-2" />
@@ -186,6 +258,19 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
               Safety
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('activity')}
+            className={`px-6 py-4 font-medium transition-colors ${
+              activeTab === 'activity'
+                ? 'text-safety-orange border-b-2 border-safety-orange'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Live Activity
             </div>
           </button>
           <button
@@ -292,6 +377,108 @@ export default function DashboardPage() {
 
           {activeTab === 'safety' && (
             <SafetyComplianceDashboard />
+          )}
+
+          {activeTab === 'activity' && (
+            <div className="space-y-6">
+              {/* Activity Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-gray-800/50 rounded-lg border border-gray-700 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 text-sm">Total Activities</span>
+                    <Activity className="h-4 w-4 text-safety-orange" />
+                  </div>
+                  <div className="text-2xl font-bold text-white mt-2">{recentActivities.length}</div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg border border-gray-700 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 text-sm">Media Uploads</span>
+                    <Image className="h-4 w-4 text-green-500" />
+                  </div>
+                  <div className="text-2xl font-bold text-white mt-2">
+                    {recentActivities.filter(a => a.activityType === 'MEDIA_UPLOAD').length}
+                  </div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg border border-gray-700 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 text-sm">Comments</span>
+                    <MessageSquare className="h-4 w-4 text-blue-500" />
+                  </div>
+                  <div className="text-2xl font-bold text-white mt-2">
+                    {recentActivities.filter(a => a.activityType === 'COMMENT').length}
+                  </div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg border border-gray-700 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 text-sm">Online Now</span>
+                    <Users className="h-4 w-4 text-green-500" />
+                  </div>
+                  <div className="text-2xl font-bold text-white mt-2">{onlineUsers.length}</div>
+                </div>
+              </div>
+
+              {/* Live Activity Feed */}
+              <div className="bg-gray-800/50 rounded-lg border border-gray-700">
+                <div className="px-6 py-4 border-b border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                      <Activity className="h-5 w-5 text-safety-orange" />
+                      Live Activity Feed
+                    </h2>
+                    {connected && (
+                      <div className="flex items-center gap-2 text-green-500 text-sm">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        Live
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  {recentActivities.length > 0 ? (
+                    <div className="divide-y divide-gray-700">
+                      {recentActivities.map((activity, index) => (
+                        <div key={activity.id || index} className="p-4 hover:bg-gray-700/50">
+                          <div className="flex items-start gap-3">
+                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                              {activity.user?.name?.charAt(0) || '?'}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-white">{activity.user?.name || 'Unknown User'}</span>
+                                <span className="text-xs text-gray-500 bg-gray-700 px-2 py-1 rounded">
+                                  {activity.user?.role || 'WORKER'}
+                                </span>
+                                <span className="text-xs text-gray-400">
+                                  {activity.project?.name}
+                                </span>
+                              </div>
+                              <p className="text-gray-300 text-sm mt-1">
+                                {activity.description}
+                              </p>
+                              <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                                <span>{new Date(activity.createdAt).toLocaleTimeString()}</span>
+                                {activity.media && (
+                                  <span className="flex items-center gap-1">
+                                    <Image className="h-3 w-3" />
+                                    {activity.media.mediaType}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center">
+                      <Activity className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                      <p className="text-gray-400 mb-2">No recent activities</p>
+                      <p className="text-sm text-gray-500">Activities will appear here as team members work on projects</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           )}
 
           {activeTab === 'chat' && (

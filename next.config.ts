@@ -1,5 +1,26 @@
 import type { NextConfig } from 'next'
 
+const isProd = process.env.NODE_ENV === 'production'
+
+const cspDirectives = [
+  "default-src 'self'",
+  // Scripts: relaxed in dev for HMR, stricter in prod
+  isProd
+    ? "script-src 'self'"
+    : "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+  // Styles: allow inline styles unless you adopt nonces/hashes
+  "style-src 'self' 'unsafe-inline'",
+  // Images and fonts
+  "img-src 'self' data: https:",
+  "font-src 'self' data:",
+  // Connections: include ws/wss for dev tooling and streaming
+  "connect-src 'self' https: ws: wss:",
+  // Framing and navigation
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join('; ')
+
 const nextConfig: NextConfig = {
   turbopack: {
     rules: {
@@ -46,7 +67,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+            value: cspDirectives,
           },
         ],
       },

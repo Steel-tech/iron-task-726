@@ -1,5 +1,5 @@
 
-> fsw-iron-task-api@1.0.0 dev
+> iron-task-api@1.0.0 dev
 > nodemon src/index.js
 
 [33m[nodemon] 3.1.10[39m
@@ -7,16 +7,16 @@
 [33m[nodemon] watching path(s): *.*[39m
 [33m[nodemon] watching extensions: js,mjs,cjs,json[39m
 [32m[nodemon] starting `node src/index.js`[39m
-6:05:30 PM WARN  Push notifications not configured - missing VAPID keys
+6:55:20 PM WARN  Push notifications not configured - missing VAPID keys
   {
   "environment": "development",
   "service": "fsw-api",
   "version": "1.0.0"
 }
-6:05:30 PM ERROR  Failed to start server
+6:55:21 PM ERROR  Failed to start server
   {
-  "error": "Can't reach database server at `db.fjoscpvmmcvbgnwxsysp.supabase.co:6543`\n\nPlease make sure your database server is running at `db.fjoscpvmmcvbgnwxsysp.supabase.co:6543`.",
-  "stack": "PrismaClientInitializationError: Can't reach database server at `db.fjoscpvmmcvbgnwxsysp.supabase.co:6543`\n\nPlease make sure your database server is running at `db.fjoscpvmmcvbgnwxsysp.supabase.co:6543`.\n    at t (/home/ictorarcia/projects/fsw-iron-task/api/node_modules/@prisma/client/runtime/library.js:112:2488)\n    at async start (/home/ictorarcia/projects/fsw-iron-task/api/src/index.js:264:5)",
+  "error": "Error querying the database: FATAL: Tenant or user not found",
+  "stack": "PrismaClientInitializationError: Error querying the database: FATAL: Tenant or user not found\n    at t (/home/ictorarcia/iron-task-726/api/node_modules/@prisma/client/runtime/library.js:112:2488)\n    at async start (/home/ictorarcia/iron-task-726/api/src/index.js:334:5)",
   "environment": "development",
   "service": "fsw-api",
   "version": "1.0.0"

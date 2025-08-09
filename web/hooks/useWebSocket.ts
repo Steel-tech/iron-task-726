@@ -72,6 +72,18 @@ export function useWebSocket() {
       socket.off(event, handler)
     }
   }, [socket])
+
+  // Presence-specific methods
+  const updatePresence = useCallback((data: { 
+    projectId?: string; 
+    status?: 'ONLINE' | 'AWAY' | 'BUSY' | 'OFFLINE'; 
+    currentPage?: string; 
+    activity?: string 
+  }) => {
+    if (socket && connected) {
+      socket.emit('update_presence', data)
+    }
+  }, [socket, connected])
   
   return {
     socket,
@@ -79,6 +91,7 @@ export function useWebSocket() {
     error,
     emit,
     on,
-    off
+    off,
+    updatePresence
   }
 }

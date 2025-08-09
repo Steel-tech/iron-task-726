@@ -51,7 +51,7 @@ export default function NotificationBell() {
   const fetchNotifications = async () => {
     try {
       setIsLoading(true)
-      const response = await api.get('/notifications?limit=10')
+      const response = await api.get('/users/notifications?limit=10')
       setNotifications(response.data.notifications)
     } catch (error) {
       console.error('Failed to fetch notifications:', error)
@@ -62,8 +62,8 @@ export default function NotificationBell() {
   
   const fetchUnreadCount = async () => {
     try {
-      const response = await api.get('/notifications/unread-count')
-      setUnreadCount(response.data.count)
+      const response = await api.get('/users/notifications/counts')
+      setUnreadCount(response.data.unread)
     } catch (error) {
       console.error('Failed to fetch unread count:', error)
     }
@@ -85,14 +85,14 @@ export default function NotificationBell() {
   const markAsRead = async (notificationId?: string) => {
     try {
       if (notificationId) {
-        await api.patch(`/notifications/${notificationId}/read`)
+        await api.patch(`/users/notifications/${notificationId}/read`)
         setNotifications(prev => prev.map(n => 
           n.id === notificationId ? { ...n, read: true } : n
         ))
         setUnreadCount(prev => Math.max(0, prev - 1))
       } else {
         // Mark all as read
-        await api.post('/notifications/mark-read')
+        await api.post('/users/notifications/read-all')
         setNotifications(prev => prev.map(n => ({ ...n, read: true })))
         setUnreadCount(0)
       }

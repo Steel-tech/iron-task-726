@@ -6,11 +6,7 @@
   "framework": "nextjs",
   "regions": ["iad1"],
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://fsw-iron-task-api.up.railway.app"
-  },
-  "functions": {
-    "web/app/api/auth/[...nextauth]/route.ts": {
-      "maxDuration": 10
-    }
+    "NEXT_PUBLIC_API_URL": "https://fsw-iron-task-api.up.railway.app",
+    "CORS_ORIGIN": "https://fsw-iron-task-api.up.railway.app"
   }
 }

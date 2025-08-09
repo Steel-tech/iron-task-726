@@ -84,7 +84,7 @@ module.exports = async function galleryRoutes(fastify, opts) {
       
       return {
         ...gallery,
-        shareUrl: `${process.env.PUBLIC_URL}/gallery/${gallery.shareToken}`
+        shareUrl: `${(process.env.FRONTEND_URL || process.env.PUBLIC_URL || (process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:3000'))}/gallery/${gallery.shareToken}`
       }
     }
   )
@@ -134,7 +134,7 @@ module.exports = async function galleryRoutes(fastify, opts) {
       return {
         galleries: galleries.map(g => ({
           ...g,
-          shareUrl: `${process.env.PUBLIC_URL}/gallery/${g.shareToken}`
+          shareUrl: `${(process.env.FRONTEND_URL || process.env.PUBLIC_URL || (process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:3000'))}/gallery/${g.shareToken}`
         })),
         pagination: {
           page,
@@ -194,7 +194,7 @@ module.exports = async function galleryRoutes(fastify, opts) {
       
       return {
         ...gallery,
-        shareUrl: `${process.env.PUBLIC_URL}/gallery/${gallery.shareToken}`
+        shareUrl: `${(process.env.FRONTEND_URL || process.env.PUBLIC_URL || (process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:3000'))}/gallery/${gallery.shareToken}`
       }
     }
   )
@@ -289,7 +289,7 @@ module.exports = async function galleryRoutes(fastify, opts) {
       
       return {
         ...updated,
-        shareUrl: `${process.env.PUBLIC_URL}/gallery/${updated.shareToken}`
+        shareUrl: `${(process.env.FRONTEND_URL || process.env.PUBLIC_URL || (process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:3000'))}/gallery/${updated.shareToken}`
       }
     }
   )

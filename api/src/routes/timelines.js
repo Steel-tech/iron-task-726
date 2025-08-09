@@ -81,7 +81,7 @@ module.exports = async function timelineRoutes(fastify, opts) {
       
       return {
         ...timeline,
-        shareUrl: `${process.env.PUBLIC_URL}/timeline/${timeline.shareToken}`
+        shareUrl: `${(process.env.FRONTEND_URL || process.env.PUBLIC_URL || (process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:3000'))}/timeline/${timeline.shareToken}`
       }
     }
   )
@@ -123,7 +123,7 @@ module.exports = async function timelineRoutes(fastify, opts) {
       
       return {
         ...timeline,
-        shareUrl: `${process.env.PUBLIC_URL}/timeline/${timeline.shareToken}`
+        shareUrl: `${(process.env.FRONTEND_URL || process.env.PUBLIC_URL || (process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:3000'))}/timeline/${timeline.shareToken}`
       }
     }
   )

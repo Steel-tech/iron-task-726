@@ -53,6 +53,9 @@ export function initializeWebSocket(fastify: FastifyInstance) {
           projectSockets.get(projectId)!.add(socket.id)
         }
         
+        // Update user presence to online
+        await updateUserPresence(userId, projectIds, 'ONLINE', socket.handshake.headers['user-agent'])
+        
         socket.emit('authenticated', { userId, projectIds })
         
         // Join project rooms
@@ -80,6 +83,8 @@ export function initializeWebSocket(fastify: FastifyInstance) {
           userSocketSet.delete(socket.id)
           if (userSocketSet.size === 0) {
             userSockets.delete(info.userId)
+            // User is completely offline, update presence
+            updateUserPresence(info.userId, info.projectIds, 'OFFLINE')
           }
         }
         
@@ -98,6 +103,26 @@ export function initializeWebSocket(fastify: FastifyInstance) {
       }
       
       console.log('WebSocket disconnected:', socket.id)
+    })
+    
+    // Handle presence updates
+    socket.on('update_presence', async (data: { projectId?: string; status?: string; currentPage?: string; activity?: string }) => {
+      const info = socketInfo.get(socket.id)
+      if (info) {
+        await updateUserPresence(info.userId, data.projectId ? [data.projectId] : info.projectIds, data.status || 'ONLINE', socket.handshake.headers['user-agent'], data.currentPage, data.activity)
+        
+        // Broadcast presence update to project members
+        if (data.projectId) {
+          socket.to(`project:${data.projectId}`).emit('user_presence_updated', {
+            userId: info.userId,
+            projectId: data.projectId,
+            status: data.status || 'ONLINE',
+            currentPage: data.currentPage,
+            activity: data.activity,
+            lastSeen: new Date()
+          })
+        }
+      }
     })
     
     // Handle joining a specific media room for live comments
@@ -150,4 +175,60 @@ export function getOnlineProjectUsers(projectId: string): string[] {
 // Check if a user is online
 export function isUserOnline(userId: string): boolean {
   return userSockets.has(userId)
+}
+
+// Update user presence in database
+async function updateUserPresence(userId: string, projectIds: string[], status: string, userAgent?: string, currentPage?: string, activity?: string) {
+  try {
+    for (const projectId of projectIds) {
+      await prisma.userPresence.upsert({
+        where: {
+          userId_projectId: {
+            userId,
+            projectId
+          }
+        },
+        update: {
+          status,
+          lastSeen: new Date(),
+          currentPage,
+          activity,
+          userAgent,
+          deviceType: getDeviceType(userAgent)
+        },
+        create: {
+          userId,
+          projectId,
+          status,
+          lastSeen: new Date(),
+          currentPage,
+          activity,
+          userAgent,
+          deviceType: getDeviceType(userAgent)
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Failed to update user presence:', error)
+  }
+}
+
+// Helper function to determine device type from user agent
+function getDeviceType(userAgent?: string): string | undefined {
+  if (!userAgent) return undefined
+  
+  const ua = userAgent.toLowerCase()
+  if (/mobile|android|iphone|ipod/.test(ua)) return 'mobile'
+  if (/tablet|ipad/.test(ua)) return 'tablet'
+  return 'desktop'
+}
+
+// Emit presence updates to all project members
+export function broadcastPresenceUpdate(projectId: string, userId: string, presence: any) {
+  if (!io) return
+  io.to(`project:${projectId}`).emit('user_presence_updated', {
+    userId,
+    projectId,
+    ...presence
+  })
 }

@@ -158,5 +158,5 @@ api/
 
 1. Deploy to Vercel
 2. Test all endpoints
-3. Update frontend NEXT_PUBLIC_API_URL to point to Vercel deployment
+3. Update frontend NEXT_PUBLIC_API_URL to point to your API base URL (do not include /api). Example: https://your-api.vercel.app
 4. Monitor performance and errors

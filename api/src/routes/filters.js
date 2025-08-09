@@ -318,7 +318,7 @@ async function routes(fastify, options) {
       return reply.code(404).send({ error: 'Filter not found or you do not have permission' });
     }
     
-    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const baseUrl = process.env.FRONTEND_URL || process.env.PUBLIC_URL || (process.env.NODE_ENV === 'production' ? 'https://your-frontend-domain.com' : 'http://localhost:3000');
     const shareUrl = `${baseUrl}/shared/catalog/${filter.shareToken}`;
     
     return {
