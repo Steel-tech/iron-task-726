@@ -83,24 +83,64 @@ class RateLimiter {
   }
 
   /**
-   * Default key generator - uses IP address
+   * Default key generator - uses validated IP address
    */
   defaultKeyGenerator(request) {
-    return request.ip;
+    return this.getValidatedIP(request);
+  }
+
+  /**
+   * Get validated IP address to prevent spoofing
+   */
+  getValidatedIP(request) {
+    // If behind a trusted proxy (production)
+    if (process.env.NODE_ENV === 'production' && process.env.TRUST_PROXY === 'true') {
+      // Get the first IP from X-Forwarded-For (most likely real client IP)
+      const forwardedFor = request.headers['x-forwarded-for'];
+      if (forwardedFor) {
+        const ips = forwardedFor.split(',').map(ip => ip.trim());
+        // Validate the IP format
+        const firstIP = ips[0];
+        if (this.isValidIP(firstIP)) {
+          return firstIP;
+        }
+      }
+      
+      // Fallback to X-Real-IP
+      const realIP = request.headers['x-real-ip'];
+      if (realIP && this.isValidIP(realIP)) {
+        return realIP;
+      }
+    }
+    
+    // Use direct connection IP (most secure for non-proxy setups)
+    return request.ip || request.connection?.remoteAddress || 'unknown';
+  }
+
+  /**
+   * Validate IP address format
+   */
+  isValidIP(ip) {
+    // IPv4 regex
+    const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    // IPv6 regex (simplified)
+    const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
+    
+    return ipv4Regex.test(ip) || ipv6Regex.test(ip);
   }
 
   /**
    * Authenticated user key generator
    */
   userKeyGenerator(request) {
-    return request.user ? `user:${request.user.id}` : `ip:${request.ip}`;
+    return request.user ? `user:${request.user.id}` : `ip:${this.getValidatedIP(request)}`;
   }
 
   /**
    * IP + endpoint key generator
    */
   endpointKeyGenerator(request) {
-    return `${request.ip}:${request.method}:${request.routerPath || request.url}`;
+    return `${this.getValidatedIP(request)}:${request.method}:${request.routerPath || request.url}`;
   }
 
   /**
@@ -175,7 +215,7 @@ const apiRateLimit = rateLimiter.create({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100,
   message: 'Too many API requests, please try again later.',
-  keyGenerator: (req) => req.ip
+  keyGenerator: (req) => rateLimiter.getValidatedIP(req)
 });
 
 /**
@@ -195,10 +235,10 @@ const authRateLimit = rateLimiter.create({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5,
   message: 'Too many authentication attempts, please try again later.',
-  keyGenerator: (req) => `${req.ip}:${req.body?.email || 'unknown'}`,
+  keyGenerator: (req) => `${rateLimiter.getValidatedIP(req)}:${req.body?.email || 'unknown'}`,
   onLimitReached: (req, reply) => {
     // Log suspicious activity
-    console.warn(`Rate limit exceeded for auth attempt from ${req.ip} with email ${req.body?.email}`);
+    console.warn(`Rate limit exceeded for auth attempt from ${rateLimiter.getValidatedIP(req)} with email ${req.body?.email}`);
   }
 });
 
@@ -239,7 +279,7 @@ const searchRateLimit = rateLimiter.create({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 50,
   message: 'Too many search requests, please try again later.',
-  keyGenerator: (req) => req.ip
+  keyGenerator: (req) => rateLimiter.getValidatedIP(req)
 });
 
 /**

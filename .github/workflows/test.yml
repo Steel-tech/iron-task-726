@@ -1,0 +1,391 @@
+# .github/workflows/test.yml
+# Comprehensive testing workflow for Iron Task
+# Runs extensive test suites, security scans, and quality checks
+
+name: Test Suite
+
+on:
+  push:
+    branches: [ main, develop, 'feature/*', 'fix/*' ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # Unit and integration tests
+  unit-tests:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        component: [api, web]
+        node-version: ['16', '18', '20']
+        
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: iron_task_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+          
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: ${{ matrix.component }}/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd ${{ matrix.component }}
+        npm ci
+        
+    - name: Generate Prisma client (API only)
+      if: matrix.component == 'api'
+      run: |
+        cd api
+        npx prisma generate
+        
+    - name: Setup test database (API only)
+      if: matrix.component == 'api'
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/iron_task_test
+      run: |
+        cd api
+        npx prisma migrate deploy
+        npx prisma db seed
+        
+    - name: Run tests with coverage
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/iron_task_test
+        REDIS_URL: redis://localhost:6379
+        JWT_SECRET: test-secret-key-for-testing-only-32-chars
+        COOKIE_SECRET: test-cookie-secret-key-for-testing-32
+        NODE_ENV: test
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+      run: |
+        cd ${{ matrix.component }}
+        npm run test:coverage
+        
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ${{ matrix.component }}/coverage/lcov.info
+        flags: ${{ matrix.component }}-node${{ matrix.node-version }}
+        name: ${{ matrix.component }}-coverage-node${{ matrix.node-version }}
+
+  # Security scanning
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        component: [api, web]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: ${{ matrix.component }}/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd ${{ matrix.component }}
+        npm ci
+        
+    - name: Run npm audit
+      run: |
+        cd ${{ matrix.component }}
+        npm audit --audit-level=moderate
+        
+    - name: Run Snyk security scan
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=medium --file=${{ matrix.component }}/package.json
+        
+    - name: Upload Snyk results to GitHub Code Scanning
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: snyk.sarif
+
+  # Code quality checks
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        component: [api, web]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: ${{ matrix.component }}/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd ${{ matrix.component }}
+        npm ci
+        
+    - name: Run ESLint
+      run: |
+        cd ${{ matrix.component }}
+        npm run lint
+        
+    - name: Run TypeScript checking (Web only)
+      if: matrix.component == 'web'
+      run: |
+        cd web
+        npm run typecheck
+        
+    - name: Run Prisma validation (API only)
+      if: matrix.component == 'api'
+      run: |
+        cd api
+        npx prisma validate
+        npx prisma generate
+        
+    - name: Check for dead code
+      run: |
+        cd ${{ matrix.component }}
+        npx unimported
+      continue-on-error: true
+
+  # Performance tests
+  performance:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: iron_task_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+          
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: api/package-lock.json
+        
+    - name: Install API dependencies
+      run: |
+        cd api
+        npm ci
+        
+    - name: Generate Prisma client
+      run: |
+        cd api
+        npx prisma generate
+        
+    - name: Setup test database
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/iron_task_test
+      run: |
+        cd api
+        npx prisma migrate deploy
+        npx prisma db seed
+        
+    - name: Start API server
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/iron_task_test
+        REDIS_URL: redis://localhost:6379
+        JWT_SECRET: test-secret-key-for-testing-only-32-chars
+        COOKIE_SECRET: test-cookie-secret-key-for-testing-32
+        NODE_ENV: test
+        PORT: 3001
+      run: |
+        cd api
+        npm start &
+        sleep 10
+        
+    - name: Run load tests
+      run: |
+        cd api
+        npm run test -- --testMatch="**/__tests__/performance/*.test.js"
+        
+    - name: Upload performance results
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-results
+        path: api/__tests__/performance/results/
+
+  # Database migration tests
+  migration-tests:
+    name: Migration Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: iron_task_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: api/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd api
+        npm ci
+        
+    - name: Generate Prisma client
+      run: |
+        cd api
+        npx prisma generate
+        
+    - name: Test fresh migration
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/iron_task_test
+      run: |
+        cd api
+        npx prisma migrate deploy
+        npx prisma db seed
+        
+    - name: Test migration rollback/forward
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/iron_task_test
+      run: |
+        cd api
+        npx prisma migrate reset --force
+        npx prisma migrate deploy
+        
+    - name: Validate schema integrity
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/iron_task_test
+      run: |
+        cd api
+        npx prisma validate
+        npx prisma db pull --force
+        npx prisma validate
+
+  # Test results summary
+  test-summary:
+    name: Test Summary
+    needs: [unit-tests, security, code-quality, performance, migration-tests]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Generate summary
+      run: |
+        echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ needs.unit-tests.result }}" == "success" ]; then
+          echo "✅ Unit & Integration Tests: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Unit & Integration Tests: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.security.result }}" == "success" ]; then
+          echo "✅ Security Scan: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Security Scan: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.code-quality.result }}" == "success" ]; then
+          echo "✅ Code Quality: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Code Quality: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.performance.result }}" == "success" ]; then
+          echo "✅ Performance Tests: PASSED" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.performance.result }}" == "skipped" ]; then
+          echo "⏭️ Performance Tests: SKIPPED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Performance Tests: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.migration-tests.result }}" == "success" ]; then
+          echo "✅ Migration Tests: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Migration Tests: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi

@@ -30,6 +30,7 @@ const helmet = require('@fastify/helmet');
 const jwt = require('@fastify/jwt');
 const multipart = require('@fastify/multipart');
 const cookie = require('@fastify/cookie');
+const csrf = require('@fastify/csrf-protection');
 const prisma = require('./lib/prisma');
 const bcrypt = require('bcrypt');
 const { errorHandler } = require('./utils/errors');
@@ -137,6 +138,39 @@ fastify.register(multipart, {
   limits: {
     fileSize: constants.MAX_FILE_SIZE,
     files: constants.MAX_FILES_PER_REQUEST
+  },
+  onFile: async (part) => {
+    // Pre-upload validation to prevent malicious files
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/jpg', 
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'video/mp4',
+      'video/quicktime',
+      'video/x-msvideo'
+    ];
+    
+    // Validate MIME type immediately
+    if (!allowedMimeTypes.includes(part.mimetype)) {
+      const error = new Error(`File type ${part.mimetype} not allowed`);
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    // Validate file size before processing
+    let totalSize = 0;
+    const maxSize = constants.MAX_FILE_SIZE;
+    
+    part.on('data', (chunk) => {
+      totalSize += chunk.length;
+      if (totalSize > maxSize) {
+        const error = new Error(`File size exceeds maximum allowed size of ${maxSize} bytes`);
+        error.statusCode = 413;
+        throw error;
+      }
+    });
   }
 });
 
@@ -150,8 +184,50 @@ fastify.register(cookie, {
   }
 });
 
+// CSRF Protection
+fastify.register(csrf, {
+  sessionPlugin: '@fastify/cookie',
+  csrfOpts: {
+    hmacKey: env.COOKIE_SECRET,
+    userInfo: (request) => {
+      // Use user ID for additional CSRF protection
+      return request.user?.userId || 'anonymous';
+    }
+  }
+});
+
 // Global rate limiting (apply to all routes)
 fastify.addHook('preHandler', apiRateLimit);
+
+// Security monitoring setup
+const securityEventLog = {
+  suspiciousIPs: new Set(),
+  blockedIPs: new Set(),
+  eventCounts: new Map(),
+
+  logSecurityEvent: function(eventType, request, data = {}) {
+    const event = {
+      timestamp: new Date().toISOString(),
+      eventType,
+      ip: request.realIp || request.ip,
+      userAgent: request.headers['user-agent'],
+      url: request.url,
+      method: request.method,
+      userId: request.user?.id,
+      ...data
+    };
+
+    if (['CRITICAL', 'HIGH'].includes(data.severity)) {
+      logger.warn('Security Event', event);
+    } else {
+      logger.info('Security Event', event);
+    }
+  },
+
+  isIPBlocked: function(ip) {
+    return this.blockedIPs.has(ip);
+  }
+};
 
 // Enhanced security middleware pipeline
 fastify.addHook('onRequest', async (request, reply) => {
@@ -160,6 +236,19 @@ fastify.addHook('onRequest', async (request, reply) => {
     request.realIp = request.headers['x-forwarded-for'].split(',')[0].trim();
   } else if (request.headers['x-real-ip']) {
     request.realIp = request.headers['x-real-ip'];
+  }
+
+  // Check for blocked IPs
+  const clientIP = request.realIp || request.ip;
+  if (securityEventLog.isIPBlocked(clientIP)) {
+    securityEventLog.logSecurityEvent('IP_BLOCKED', request, { 
+      severity: 'HIGH',
+      action: 'blocked_request_rejected' 
+    });
+    return reply.code(403).send({
+      error: 'Access denied',
+      message: 'IP address blocked due to suspicious activity'
+    });
   }
   
   // Generate unique request ID for tracing
@@ -247,7 +336,10 @@ fastify.decorate("authenticate", async function(request, reply) {
   }
 });
 
-// Routes
+// Documentation routes (must be registered first for Swagger setup)
+fastify.register(require('./routes/docs'));
+
+// API Routes
 fastify.register(require('./routes/auth'), { prefix: '/api/auth' });
 fastify.register(require('./routes/media'), { prefix: '/api/media' });
 fastify.register(require('./routes/projects'), { prefix: '/api/projects' });

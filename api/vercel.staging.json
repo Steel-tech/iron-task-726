@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "builds": [
+    {
+      "src": "production-server-enhanced.js",
+      "use": "@vercel/node",
+      "config": {
+        "maxLambdaSize": "50mb",
+        "maxDuration": 30
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/production-server-enhanced.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "API_VERSION": "2.0.0-staging"
+  }
+}

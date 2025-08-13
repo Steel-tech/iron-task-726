@@ -37,16 +37,43 @@ function authorizeOwnership(resourceField = 'userId') {
   };
 }
 
-// Project-based authorization
+// Input validation helper
+function validateUUID(uuid) {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+}
+
+// Sanitize and validate project ID
+function sanitizeProjectId(projectId) {
+  if (!projectId || typeof projectId !== 'string') {
+    return null;
+  }
+  
+  // Remove any non-UUID characters and validate format
+  const cleanId = projectId.trim();
+  if (!validateUUID(cleanId)) {
+    return null;
+  }
+  
+  return cleanId;
+}
+
+// Project-based authorization with input sanitization
 function authorizeProject(prisma) {
   return async function (request, reply) {
     if (!request.user) {
       return reply.code(401).send({ error: 'Authentication required' });
     }
 
-    const projectId = request.params.projectId || request.body.projectId;
-    if (!projectId) {
+    const rawProjectId = request.params.projectId || request.body.projectId;
+    if (!rawProjectId) {
       return reply.code(400).send({ error: 'Project ID required' });
+    }
+
+    // Sanitize and validate project ID to prevent injection attacks
+    const projectId = sanitizeProjectId(rawProjectId);
+    if (!projectId) {
+      return reply.code(400).send({ error: 'Invalid project ID format' });
     }
 
     try {
@@ -147,5 +174,7 @@ module.exports = {
   authorizeOwnership,
   authorizeProject,
   authRateLimit,
-  requireActiveUser
+  requireActiveUser,
+  validateUUID,
+  sanitizeProjectId
 };

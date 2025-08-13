@@ -60,7 +60,7 @@ export default function VoiceToText({
         startVolumeMonitoring()
       }
 
-      recognition.onresult = (event) => {
+      recognition.onresult = (event: any) => {
         let finalTranscript = ''
         let interimTranscript = ''
 
@@ -76,7 +76,7 @@ export default function VoiceToText({
         setTranscript(finalTranscript + interimTranscript)
       }
 
-      recognition.onerror = (event) => {
+      recognition.onerror = (event: any) => {
         setIsRecording(false)
         setIsProcessing(false)
         stopTimer()

@@ -1,0 +1,185 @@
+# .github/workflows/ci-cd.yml
+# Main CI/CD pipeline for Iron Task construction documentation system
+# Handles testing, building, and deployment of both API and web components
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '18'
+  
+jobs:
+  # Test both API and Web components
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        component: [api, web]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: ${{ matrix.component }}/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd ${{ matrix.component }}
+        npm ci
+        
+    - name: Generate Prisma client (API only)
+      if: matrix.component == 'api'
+      run: |
+        cd api
+        npx prisma generate
+        
+    - name: Run linting
+      run: |
+        cd ${{ matrix.component }}
+        npm run lint
+        
+    - name: Run type checking (Web only)
+      if: matrix.component == 'web'
+      run: |
+        cd web
+        npm run typecheck
+        
+    - name: Run tests with coverage
+      run: |
+        cd ${{ matrix.component }}
+        npm run test:ci
+        
+    - name: Security audit
+      run: |
+        cd ${{ matrix.component }}
+        npm run security:audit
+        
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ${{ matrix.component }}/coverage/lcov.info
+        flags: ${{ matrix.component }}
+        name: ${{ matrix.component }}-coverage
+
+  # Build and deploy API to Railway
+  deploy-api:
+    name: Deploy API
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: api/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd api
+        npm ci
+        
+    - name: Generate Prisma client
+      run: |
+        cd api
+        npx prisma generate
+        
+    - name: Run database migrations
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      run: |
+        cd api
+        npx prisma migrate deploy
+        
+    - name: Deploy to Railway
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      run: |
+        npm install -g @railway/cli
+        cd api
+        railway deploy
+        
+    - name: Health check
+      run: |
+        sleep 30
+        curl -f ${{ secrets.API_URL }}/api/health || exit 1
+
+  # Build and deploy Web to Vercel  
+  deploy-web:
+    name: Deploy Web
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: web/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd web
+        npm ci
+        
+    - name: Build Next.js app
+      env:
+        NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      run: |
+        cd web
+        npm run build
+        
+    - name: Deploy to Vercel
+      env:
+        VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      run: |
+        npm install -g vercel
+        cd web
+        vercel --prod --token $VERCEL_TOKEN
+
+  # Notify deployment status
+  notify:
+    name: Deployment Notification
+    needs: [deploy-api, deploy-web]
+    runs-on: ubuntu-latest
+    if: always() && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Notify success
+      if: needs.deploy-api.result == 'success' && needs.deploy-web.result == 'success'
+      run: |
+        echo "✅ Deployment successful!"
+        echo "API: ${{ secrets.API_URL }}"
+        echo "Web: ${{ secrets.WEB_URL }}"
+        
+    - name: Notify failure
+      if: needs.deploy-api.result == 'failure' || needs.deploy-web.result == 'failure'
+      run: |
+        echo "❌ Deployment failed!"
+        exit 1

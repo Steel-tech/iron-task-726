@@ -1,0 +1,29 @@
+# Exclude large and non-essential files from Vercel upload
+# Fixes path conflicts from coverage reports and api ts/js duplicates
+api/
+web/coverage/
+coverage/
+
+# Dependencies (Vercel installs them during build)
+api/node_modules/
+web/node_modules/
+
+# Local env files
+*.env
+*.env.*
+api/.env*
+web/.env*
+
+# Logs and artifacts
+**/*.log
+**/.DS_Store
+**/tmp/
+**/.cache/
+
+# Misc project files not needed for web build
+database/
+Dockerfile*
+docker-compose*.yml
+README.md
+DEPLOYMENT_*.md
+VERCEL_*.md 

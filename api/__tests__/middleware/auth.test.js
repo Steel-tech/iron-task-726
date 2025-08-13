@@ -106,9 +106,10 @@ describe('Auth Middleware', () => {
     });
 
     it('should allow access for project member', async () => {
+      const validUUID = '12345678-1234-5234-a234-123456789abc';
       mockRequest.user = { id: '123', role: 'WORKER' };
-      mockRequest.params.projectId = 'project-123';
-      mockPrisma.projectMember.findUnique.mockResolvedValue({ userId: '123', projectId: 'project-123' });
+      mockRequest.params.projectId = validUUID;
+      mockPrisma.projectMember.findUnique.mockResolvedValue({ userId: '123', projectId: validUUID });
       
       const middleware = authorizeProject(mockPrisma);
       await middleware(mockRequest, mockReply);
@@ -119,8 +120,9 @@ describe('Auth Middleware', () => {
     });
 
     it('should allow access for admin even if not project member', async () => {
+      const validUUID = '12345678-1234-5234-a234-123456789abc';
       mockRequest.user = { id: '123', role: 'ADMIN' };
-      mockRequest.params.projectId = 'project-123';
+      mockRequest.params.projectId = validUUID;
       mockPrisma.projectMember.findUnique.mockResolvedValue(null);
       
       const middleware = authorizeProject(mockPrisma);
@@ -131,8 +133,9 @@ describe('Auth Middleware', () => {
     });
 
     it('should deny access for non-member', async () => {
+      const validUUID = '12345678-1234-5234-a234-123456789abc';
       mockRequest.user = { id: '123', role: 'WORKER' };
-      mockRequest.params.projectId = 'project-123';
+      mockRequest.params.projectId = validUUID;
       mockPrisma.projectMember.findUnique.mockResolvedValue(null);
       
       const middleware = authorizeProject(mockPrisma);

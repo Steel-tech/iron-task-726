@@ -1,0 +1,341 @@
+# .github/workflows/pr-checks.yml
+# Lightweight PR validation workflow
+# Fast checks to prevent merging broken code
+
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+env:
+  NODE_VERSION: '18'
+
+# Cancel previous runs on new push to PR
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # Basic validation and linting
+  quick-checks:
+    name: Quick Validation
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    strategy:
+      matrix:
+        component: [api, web]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        # Fetch more history for better diffs
+        fetch-depth: 0
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: ${{ matrix.component }}/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd ${{ matrix.component }}
+        npm ci
+        
+    - name: Generate Prisma client (API only)
+      if: matrix.component == 'api'
+      run: |
+        cd api
+        npx prisma generate
+        
+    - name: Run ESLint
+      run: |
+        cd ${{ matrix.component }}
+        npm run lint
+        
+    - name: Run TypeScript checking (Web only)
+      if: matrix.component == 'web'
+      run: |
+        cd web
+        npm run typecheck
+        
+    - name: Validate Prisma schema (API only)
+      if: matrix.component == 'api'
+      run: |
+        cd api
+        npx prisma validate
+        
+    - name: Check for secrets in code
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: ${{ github.event.repository.default_branch }}
+        head: HEAD
+        extra_args: --debug --only-verified
+
+  # Basic tests for PR validation
+  pr-tests:
+    name: PR Tests
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    strategy:
+      matrix:
+        component: [api, web]
+        
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: iron_task_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+          
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: ${{ matrix.component }}/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd ${{ matrix.component }}
+        npm ci
+        
+    - name: Generate Prisma client (API only)
+      if: matrix.component == 'api'
+      run: |
+        cd api
+        npx prisma generate
+        
+    - name: Setup test database (API only)
+      if: matrix.component == 'api'
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/iron_task_test
+      run: |
+        cd api
+        npx prisma migrate deploy
+        npx prisma db seed
+        
+    - name: Run fast tests
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/iron_task_test
+        REDIS_URL: redis://localhost:6379
+        JWT_SECRET: test-secret-key-for-testing-only-32-chars
+        COOKIE_SECRET: test-cookie-secret-key-for-testing-32
+        NODE_ENV: test
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+      run: |
+        cd ${{ matrix.component }}
+        # Run only unit tests (skip integration tests for speed)
+        npm run test -- --testPathIgnorePatterns=integration
+        
+    - name: Build check
+      env:
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key' }}
+      run: |
+        cd ${{ matrix.component }}
+        if [ "${{ matrix.component }}" = "web" ]; then
+          npm run build
+        else
+          npm run build
+        fi
+
+  # Security checks for PR
+  pr-security:
+    name: PR Security Check
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        
+    - name: Check for package vulnerabilities (API)
+      run: |
+        cd api
+        npm ci
+        npm audit --audit-level=high
+        
+    - name: Check for package vulnerabilities (Web)
+      run: |
+        cd web
+        npm ci
+        npm audit --audit-level=high
+        
+    - name: Check for large files
+      run: |
+        find . -type f -size +10M -not -path "./node_modules/*" -not -path "./.git/*" | head -10
+
+  # Changes detection and validation
+  changes-detection:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      api-changed: ${{ steps.changes.outputs.api }}
+      web-changed: ${{ steps.changes.outputs.web }}
+      migrations-changed: ${{ steps.changes.outputs.migrations }}
+      workflows-changed: ${{ steps.changes.outputs.workflows }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Detect changes
+      uses: dorny/paths-filter@v2
+      id: changes
+      with:
+        filters: |
+          api:
+            - 'api/**'
+          web:
+            - 'web/**'
+          migrations:
+            - 'api/prisma/migrations/**'
+            - 'api/prisma/schema.prisma'
+          workflows:
+            - '.github/workflows/**'
+
+  # Migration validation (if schema changed)
+  migration-validation:
+    name: Migration Validation
+    needs: changes-detection
+    runs-on: ubuntu-latest
+    if: needs.changes-detection.outputs.migrations-changed == 'true'
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: iron_task_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: api/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd api
+        npm ci
+        
+    - name: Generate Prisma client
+      run: |
+        cd api
+        npx prisma generate
+        
+    - name: Test migration from clean state
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/iron_task_test
+      run: |
+        cd api
+        npx prisma migrate deploy
+        npx prisma validate
+        
+    - name: Test migration rollback safety
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/iron_task_test
+      run: |
+        cd api
+        # Check if rollback would be safe (destructive changes check)
+        npx prisma migrate diff --preview-feature
+
+  # PR summary
+  pr-summary:
+    name: PR Summary
+    needs: [quick-checks, pr-tests, pr-security, changes-detection]
+    runs-on: ubuntu-latest
+    if: always() && github.event.pull_request.draft == false
+    
+    steps:
+    - name: Generate PR summary
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { owner, repo, number } = context.issue;
+          
+          let summary = "## PR Validation Summary\n\n";
+          
+          // Check results
+          const results = {
+            'Quick Checks': '${{ needs.quick-checks.result }}',
+            'PR Tests': '${{ needs.pr-tests.result }}', 
+            'Security Check': '${{ needs.pr-security.result }}'
+          };
+          
+          for (const [check, result] of Object.entries(results)) {
+            const icon = result === 'success' ? '✅' : result === 'failure' ? '❌' : '⏭️';
+            summary += `${icon} **${check}**: ${result.toUpperCase()}\n`;
+          }
+          
+          // Changes detected
+          summary += "\n### Changes Detected\n";
+          summary += `- API: ${{ needs.changes-detection.outputs.api-changed == 'true' ? '✅ Modified' : '⚪ No changes' }}\n`;
+          summary += `- Web: ${{ needs.changes-detection.outputs.web-changed == 'true' ? '✅ Modified' : '⚪ No changes' }}\n`;
+          summary += `- Migrations: ${{ needs.changes-detection.outputs.migrations-changed == 'true' ? '⚠️ Modified' : '⚪ No changes' }}\n`;
+          summary += `- Workflows: ${{ needs.changes-detection.outputs.workflows-changed == 'true' ? '🔧 Modified' : '⚪ No changes' }}\n`;
+          
+          // Overall status
+          const allPassed = Object.values(results).every(result => result === 'success' || result === 'skipped');
+          summary += `\n### Overall Status: ${allPassed ? '✅ READY TO MERGE' : '❌ NEEDS FIXES'}`;
+          
+          // Post comment
+          await github.rest.issues.createComment({
+            owner,
+            repo,
+            issue_number: number,
+            body: summary
+          });
+          
+          // Set step summary
+          core.summary.addRaw(summary);
+          await core.summary.write();

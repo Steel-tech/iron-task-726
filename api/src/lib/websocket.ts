@@ -15,15 +15,84 @@ const socketInfo = new Map<string, { userId: string; projectIds: string[] }>()
 export function initializeWebSocket(fastify: FastifyInstance) {
   io = new Server(fastify.server, {
     cors: {
-      origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+      origin: (origin, callback) => {
+        const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || [process.env.FRONTEND_URL || 'http://localhost:3000'];
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'), false);
+        }
+      },
       credentials: true
     }
   })
   
+  // Authenticate immediately on connection
+  io.use(async (socket, next) => {
+    try {
+      const token = socket.handshake.auth.token;
+      if (!token) {
+        throw new Error('No authentication token provided');
+      }
+      
+      const payload = verifyToken(token);
+      const userId = payload.userId;
+      
+      // Get user's projects
+      const projectMembers = await prisma.projectMember.findMany({
+        where: { userId },
+        select: { projectId: true }
+      });
+      const projectIds = projectMembers.map(pm => pm.projectId);
+      
+      // Store authentication info on socket
+      socket.userId = userId;
+      socket.projectIds = projectIds;
+      
+      next();
+    } catch (error) {
+      console.error('WebSocket authentication failed:', error);
+      next(new Error('Authentication failed'));
+    }
+  });
+  
   io.on('connection', async (socket) => {
-    console.log('New WebSocket connection:', socket.id)
+    console.log('Authenticated WebSocket connection:', socket.id, 'User:', socket.userId)
     
-    // Authenticate the connection
+    const userId = socket.userId;
+    const projectIds = socket.projectIds;
+    
+    // Store socket info
+    socketInfo.set(socket.id, { userId, projectIds })
+    
+    // Add to user sockets
+    if (!userSockets.has(userId)) {
+      userSockets.set(userId, new Set())
+    }
+    userSockets.get(userId)!.add(socket.id)
+    
+    // Add to project sockets
+    for (const projectId of projectIds) {
+      if (!projectSockets.has(projectId)) {
+        projectSockets.set(projectId, new Set())
+      }
+      projectSockets.get(projectId)!.add(socket.id)
+    }
+    
+    // Update user presence to online
+    await updateUserPresence(userId, projectIds, 'ONLINE', socket.handshake.headers['user-agent'])
+    
+    socket.emit('authenticated', { userId, projectIds })
+    
+    // Join project rooms
+    projectIds.forEach(projectId => {
+      socket.join(`project:${projectId}`)
+    })
+    
+    // Join user room
+    socket.join(`user:${userId}`)
+    
+    // Legacy authenticate event handler (for backward compatibility)
     socket.on('authenticate', async (token: string) => {
       try {
         const payload = verifyToken(token)
