@@ -67,6 +67,12 @@ model User {
   companyId    String
   unionMember  Boolean  @default(false)
   phoneNumber  String?
+  
+  // Two-Factor Authentication
+  twoFactorEnabled     Boolean  @default(false)
+  twoFactorSecret      String?
+  twoFactorBackupCodes String[] @default([])
+  
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   

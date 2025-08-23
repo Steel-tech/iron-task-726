@@ -52,8 +52,10 @@
     "nodemailer": "^7.0.5",
     "pdfkit": "^0.17.1",
     "playwright": "^1.54.1",
+    "qrcode": "^1.5.4",
     "sharp": "^0.33.5",
     "socket.io": "^4.7.2",
+    "speakeasy": "^2.0.0",
     "uuid": "^9.0.1",
     "web-push": "^3.6.7",
     "zod": "^3.25.75"

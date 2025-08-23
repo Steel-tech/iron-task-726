@@ -249,6 +249,7 @@ fastify.decorate("authenticate", async function(request, reply) {
 
 // Routes
 fastify.register(require('./routes/auth'), { prefix: '/api/auth' });
+fastify.register(require('./routes/two-factor'), { prefix: '/api/auth/2fa' });
 fastify.register(require('./routes/media'), { prefix: '/api/media' });
 fastify.register(require('./routes/projects'), { prefix: '/api/projects' });
 fastify.register(require('./routes/users'), { prefix: '/api/users' });

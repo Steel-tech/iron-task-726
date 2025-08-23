@@ -4,6 +4,7 @@ const { validate } = require('../middleware/validation');
 const authSchemas = require('../schemas/auth');
 const { authRateLimit } = require('../middleware/rateLimit');
 const TokenService = require('../services/tokenService');
+const TwoFactorService = require('../services/twoFactorService');
 const { UserService } = require('../services/database');
 const { AuthenticationError, NotFoundError, ValidationError } = require('../utils/errors');
 
@@ -87,7 +88,7 @@ async function routes(fastify, options) {
       validate(authSchemas.login)
     ]
   }, async (request, reply) => {
-    const { email, password } = request.body;
+    const { email, password, twoFactorToken } = request.body;
 
     if (!email || !password) {
       return reply.code(400).send({ error: 'Email and password are required' });
@@ -113,6 +114,31 @@ async function routes(fastify, options) {
           timestamp: new Date().toISOString()
         });
         return reply.code(401).send({ error: 'Invalid credentials' });
+      }
+
+      // Check if 2FA is enabled
+      if (user.twoFactorEnabled) {
+        if (!twoFactorToken) {
+          // Return special response indicating 2FA is required
+          return reply.send({
+            requiresTwoFactor: true,
+            message: 'Two-factor authentication required'
+          });
+        }
+
+        // Verify 2FA token
+        try {
+          await TwoFactorService.verifyToken(user.id, twoFactorToken);
+        } catch (twoFactorError) {
+          console.log('Login failed - invalid 2FA token', { 
+            email: email.substring(0, 3) + '***',
+            timestamp: new Date().toISOString()
+          });
+          return reply.code(401).send({ 
+            error: 'Invalid two-factor authentication code',
+            requiresTwoFactor: true
+          });
+        }
       }
 
       // Generate access token
@@ -148,14 +174,15 @@ async function routes(fastify, options) {
         userId: user.id,
         role: user.role,
         companyId: user.companyId,
-        sessionId: refreshToken.id
+        sessionId: refreshToken.id,
+        twoFactorUsed: user.twoFactorEnabled
       });
 
       // Remove password from response
-      const { password: _, ...userWithoutPassword } = user;
+      const { password: _, twoFactorSecret: __, twoFactorBackupCodes: ___, ...userWithoutSensitiveData } = user;
 
       return reply.send({
-        user: userWithoutPassword,
+        user: userWithoutSensitiveData,
         accessToken
       });
     } catch (error) {
