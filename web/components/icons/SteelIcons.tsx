@@ -152,7 +152,8 @@ export const IronworkerIcon: React.FC<IconProps> = ({ className = '', size = 24 
 export const WeldingSparkIcon: React.FC<IconProps & { isAnimating?: boolean }> = ({ 
   className = '', 
   size = 24, 
-  isAnimating = false 
+  isAnimating = false,
+  ...props 
 }) => (
   <svg
     width={size}
@@ -179,7 +180,8 @@ export const WeldingSparkIcon: React.FC<IconProps & { isAnimating?: boolean }> =
 export const BoltTighteningIcon: React.FC<IconProps & { isAnimating?: boolean }> = ({ 
   className = '', 
   size = 24, 
-  isAnimating = false 
+  isAnimating = false,
+  ...props 
 }) => (
   <svg
     width={size}
@@ -204,7 +206,8 @@ export const BoltTighteningIcon: React.FC<IconProps & { isAnimating?: boolean }>
 export const BeamLiftingIcon: React.FC<IconProps & { isAnimating?: boolean }> = ({ 
   className = '', 
   size = 24, 
-  isAnimating = false 
+  isAnimating = false,
+  ...props 
 }) => (
   <svg
     width={size}

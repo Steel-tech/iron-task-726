@@ -14,6 +14,60 @@ import {
   FileText
 } from 'lucide-react'
 
+// Type declarations for Web Speech API
+interface SpeechRecognitionStatic {
+  new(): SpeechRecognition
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: SpeechRecognitionStatic
+    webkitSpeechRecognition: SpeechRecognitionStatic
+  }
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean
+  interimResults: boolean
+  lang: string
+  maxAlternatives: number
+  start(): void
+  stop(): void
+  abort(): void
+  onstart: ((this: SpeechRecognition, ev: Event) => any) | null
+  onend: ((this: SpeechRecognition, ev: Event) => any) | null
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string
+  message?: string
+}
+
+interface SpeechRecognitionEvent extends Event {
+  resultIndex: number
+  results: SpeechRecognitionResultList
+}
+
+interface SpeechRecognitionResultList {
+  length: number
+  item(index: number): SpeechRecognitionResult
+  [index: number]: SpeechRecognitionResult
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean
+  length: number
+  item(index: number): SpeechRecognitionAlternative
+  [index: number]: SpeechRecognitionAlternative
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string
+  confidence: number
+}
+
 interface VoiceToTextProps {
   onTranscriptionComplete: (text: string) => void
   placeholder?: string
@@ -35,7 +89,7 @@ export default function VoiceToText({
   const [recordingTime, setRecordingTime] = useState(0)
   const [volume, setVolume] = useState(0)
 
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const recognitionRef = useRef<any>(null)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const volumeIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const mediaStreamRef = useRef<MediaStream | null>(null)

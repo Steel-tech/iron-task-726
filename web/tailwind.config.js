@@ -54,6 +54,12 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Steel construction theme colors
+        "steel-gray": "hsl(var(--steel-gray))",
+        "safety-orange": "hsl(var(--safety-orange))",
+        "aisc-blue": "hsl(var(--aisc-blue))",
+        "arc-flash-yellow": "hsl(var(--arc-flash-yellow))",
+        "safety-green": "hsl(var(--safety-green))",
       },
       borderRadius: {
         lg: "var(--radius)",

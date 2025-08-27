@@ -153,7 +153,6 @@ export default function LoginPage() {
           <CraneHookAnimationIcon 
             className="h-48 w-48 text-aisc-blue opacity-10 animate-lift" 
             size={192} 
-            isAnimating={true} 
           />
         </div>
 
@@ -192,11 +191,9 @@ export default function LoginPage() {
           <div className="absolute inset-0 pointer-events-none">
             <SparkAnimationIcon 
               className="absolute top-1/4 left-1/3 h-16 w-16 text-arc-flash-yellow animate-spark" 
-              isAnimating={true} 
             />
             <SparkAnimationIcon 
               className="absolute bottom-1/3 right-1/4 h-12 w-12 text-safety-orange animate-spark" 
-              isAnimating={true} 
             />
           </div>
         )}

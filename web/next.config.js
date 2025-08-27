@@ -2,8 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   
-  // Production optimizations
-  output: 'standalone',
+  // Production optimizations - DISABLE STANDALONE FOR DEV
+  // output: 'standalone',
   poweredByHeader: false,
   
   // Build configuration
@@ -18,14 +18,6 @@ const nextConfig = {
   
   // Performance optimizations  
   compress: true,
-  
-  // WSL development support
-  allowedDevOrigins: [
-    '172.18.129.73:3002',
-    '172.18.129.73:3003',
-    'localhost:3002',
-    'localhost:3003'
-  ],
   
   // Image optimization
   images: {
@@ -82,22 +74,23 @@ const nextConfig = {
     return headers;
   },
   
-  // Redirects for production
+  // Redirects for production - DISABLE FOR DEV DEBUGGING
   async redirects() {
-    return [
-      // Redirect root to dashboard if authenticated
-      {
-        source: '/',
-        destination: '/dashboard',
-        permanent: false,
-        has: [
-          {
-            type: 'cookie',
-            key: 'fsw_session',
-          },
-        ],
-      },
-    ];
+    return [];
+    // return [
+    //   // Redirect root to dashboard if authenticated
+    //   {
+    //     source: '/',
+    //     destination: '/dashboard',
+    //     permanent: false,
+    //     has: [
+    //       {
+    //         type: 'cookie',
+    //         key: 'fsw_session',
+    //       },
+    //     ],
+    //   },
+    // ];
   },
   
   // Environment variables

@@ -43,6 +43,7 @@ interface DashboardStats {
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<'overview' | 'team' | 'analytics' | 'safety' | 'chat'>('overview')
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -97,8 +98,6 @@ export default function DashboardPage() {
       href: '/dashboard/photos',
     },
   ]
-
-  const [activeTab, setActiveTab] = useState<'overview' | 'team' | 'analytics' | 'safety' | 'chat'>('overview')
 
   return (
     <div className="space-y-6">

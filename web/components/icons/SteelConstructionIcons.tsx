@@ -247,7 +247,8 @@ export const MediaGalleryIcon: React.FC<IconProps> = ({ className = '', size = 2
 export const SparkAnimationIcon: React.FC<IconProps & { isAnimating?: boolean }> = ({ 
   className = '', 
   size = 24, 
-  isAnimating = false 
+  isAnimating = false,
+  ...props 
 }) => (
   <svg
     width={size}
@@ -286,7 +287,8 @@ export const SparkAnimationIcon: React.FC<IconProps & { isAnimating?: boolean }>
 export const CraneHookAnimationIcon: React.FC<IconProps & { isAnimating?: boolean }> = ({ 
   className = '', 
   size = 24, 
-  isAnimating = false 
+  isAnimating = false,
+  ...props 
 }) => (
   <svg
     width={size}
@@ -320,7 +322,8 @@ export const CraneHookAnimationIcon: React.FC<IconProps & { isAnimating?: boolea
 export const BoltRotationIcon: React.FC<IconProps & { isAnimating?: boolean }> = ({ 
   className = '', 
   size = 24, 
-  isAnimating = false 
+  isAnimating = false,
+  ...props 
 }) => (
   <svg
     width={size}

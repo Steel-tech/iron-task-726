@@ -14,9 +14,12 @@ export const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+  // Only access localStorage on the client side
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('accessToken')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
   }
   
   // Add request logging for debugging
@@ -65,7 +68,7 @@ api.interceptors.response.use(
 
     // Handle project endpoints with mock fallback
     if ((error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK' || !apiAvailable) && originalRequest.url) {
-      const token = localStorage.getItem('accessToken')
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
       
       // Handle specific project endpoints
       if (originalRequest.url === '/projects/new' && originalRequest.method === 'get' && token) {
@@ -83,7 +86,9 @@ api.interceptors.response.use(
       if (originalRequest.url === '/projects' && originalRequest.method === 'post' && token) {
         console.log('🔧 Using mock API for project creation')
         const mockData = await mockAPI.createProject(token, originalRequest.data)
-        localStorage.setItem('mockMode', 'true')
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('mockMode', 'true')
+        }
         return { data: mockData, status: 201, statusText: 'Created', headers: {}, config: originalRequest }
       }
     }
@@ -106,14 +111,18 @@ api.interceptors.response.use(
       try {
         const response = await api.post('/auth/refresh')
         const { accessToken } = response.data
-        localStorage.setItem('accessToken', accessToken)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('accessToken', accessToken)
+        }
         api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
         processQueue(null, accessToken)
         return api(originalRequest)
       } catch (refreshError) {
         processQueue(refreshError, null)
-        localStorage.removeItem('accessToken')
-        window.location.href = '/login'
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken')
+          window.location.href = '/login'
+        }
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false
@@ -159,7 +168,9 @@ export const authApi = {
       console.log('📡 Sending request with credentials:', { email: credentials.email, password: '***' })
       const response = await api.post<LoginResponse>('/auth/login', credentials)
       console.log('✅ API response received:', response.status, response.data)
-      localStorage.setItem('accessToken', response.data.accessToken)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('accessToken', response.data.accessToken)
+      }
       apiAvailable = true
       console.timeEnd('login-debug')
       return response.data
@@ -183,8 +194,10 @@ export const authApi = {
             mockTimeout
           ])
           console.log('✅ Mock API response received')
-          localStorage.setItem('accessToken', mockResponse.accessToken)
-          localStorage.setItem('mockMode', 'true')
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('accessToken', mockResponse.accessToken)
+            localStorage.setItem('mockMode', 'true')
+          }
           console.timeEnd('login-debug')
           return mockResponse
         } catch (mockError: any) {
@@ -200,13 +213,15 @@ export const authApi = {
 
   register: async (credentials: RegisterCredentials): Promise<LoginResponse> => {
     const response = await api.post<LoginResponse>('/auth/register', credentials)
-    localStorage.setItem('accessToken', response.data.accessToken)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('accessToken', response.data.accessToken)
+    }
     return response.data
   },
 
   logout: async (): Promise<void> => {
     try {
-      if (localStorage.getItem('mockMode') === 'true') {
+      if (typeof window !== 'undefined' && localStorage.getItem('mockMode') === 'true') {
         await mockAPI.logout()
       } else {
         await api.post('/auth/logout')
@@ -214,15 +229,19 @@ export const authApi = {
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('mockMode')
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('mockMode')
+      }
     }
   },
 
   refresh: async (): Promise<string> => {
     const response = await api.post('/auth/refresh')
     const { accessToken } = response.data
-    localStorage.setItem('accessToken', accessToken)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('accessToken', accessToken)
+    }
     return accessToken
   },
 
@@ -245,7 +264,7 @@ export const authApi = {
       return response.data
     } catch (error: any) {
       // If in mock mode or API unavailable, use mock data
-      if (localStorage.getItem('mockMode') === 'true' || !apiAvailable) {
+      if (typeof window !== 'undefined' && (localStorage.getItem('mockMode') === 'true' || !apiAvailable)) {
         const token = localStorage.getItem('accessToken')
         if (token) {
           return await mockAPI.getMe(token)

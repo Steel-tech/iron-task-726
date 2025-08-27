@@ -243,7 +243,7 @@ fastify.decorate("authenticate", async function(request, reply) {
     
     request.user = user;
   } catch (err) {
-    reply.code(401).send({ error: 'Authentication required' });
+    return reply.code(401).send({ error: 'Authentication required' });
   }
 });
 
@@ -274,6 +274,8 @@ fastify.register(require('./routes/filters').sharedCatalogRoute, { prefix: '/api
 fastify.register(require('./routes/push-subscriptions'), { prefix: '/api/push' });
 // User preferences
 fastify.register(require('./routes/user-preferences'), { prefix: '/api/users' });
+// Notifications
+fastify.register(require('./routes/notifications'), { prefix: '/api' });
 
 // Root endpoint
 fastify.get('/', async (request, reply) => {

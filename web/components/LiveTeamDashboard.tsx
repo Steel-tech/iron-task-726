@@ -93,7 +93,7 @@ export default function LiveTeamDashboard() {
     ? recentActivities 
     : recentActivities.filter(a => a.projectId === selectedProject)
 
-  const projects = [...new Set(recentActivities.map(a => a.projectName))].filter(Boolean)
+  const projects = Array.from(new Set(recentActivities.map(a => a.projectName))).filter(Boolean)
 
   return (
     <div className="space-y-6">

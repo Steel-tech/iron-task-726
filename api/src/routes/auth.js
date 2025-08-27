@@ -267,6 +267,11 @@ async function routes(fastify, options) {
     preHandler: [fastify.authenticate]
   }, async (request, reply) => {
     try {
+      // Check if user exists in request (from JWT)
+      if (!request.user || !request.user.id) {
+        return reply.code(401).send({ error: 'User not authenticated' });
+      }
+      
       const user = await prisma.user.findUnique({
         where: { id: request.user.id },
         select: {

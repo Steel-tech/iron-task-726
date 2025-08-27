@@ -75,13 +75,12 @@ export default function HomePage() {
             <WeldingTorchIcon className="h-48 w-48 text-arc-flash-yellow" size={192} />
           </div>
           {showSparks && (
-            <>\n              <SparkAnimationIcon 
+            <>
+              <SparkAnimationIcon 
                 className="absolute top-1/3 right-1/4 h-24 w-24 text-arc-flash-yellow animate-spark" 
-                isAnimating={true} 
               />
               <SparkAnimationIcon 
                 className="absolute bottom-1/2 left-1/3 h-16 w-16 text-safety-orange animate-spark" 
-                isAnimating={true} 
               />
             </>
           )}
@@ -225,7 +224,7 @@ export default function HomePage() {
                     <div className="text-center">
                       <div className="mb-4">
                         <svg className="h-16 w-16 text-safety-orange mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.01M15 10h1.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </div>
                       <h3 className="text-xl font-semibold text-white mb-2">Interactive Demo Coming Soon</h3>
@@ -424,7 +423,7 @@ export default function HomePage() {
       <div className="relative py-24">
         <hr className="weld-seam max-w-4xl mx-auto mb-24" />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <CraneHookAnimationIcon className="h-20 w-20 text-aisc-blue mx-auto mb-8 animate-lift" size={80} isAnimating={true} />
+          <CraneHookAnimationIcon className="h-20 w-20 text-aisc-blue mx-auto mb-8 animate-lift" size={80} />
           <h2 className="text-3xl font-shogun text-white mb-6">
             Ready to Transform Your Documentation?
           </h2>
@@ -528,7 +527,7 @@ export default function HomePage() {
 
             {/* Phone Mockup */}
             <div className="relative">
-              <div className="mx-auto w-64 h-128 bg-gray-900 rounded-3xl p-4 shadow-2xl">
+              <div className="mx-auto w-64 h-[32rem] bg-gray-900 rounded-3xl p-4 shadow-2xl">
                 <div className="w-full h-full bg-gray-800 rounded-2xl overflow-hidden relative">
                   {/* Phone screen content */}
                   <div className="bg-gradient-to-b from-gray-700 to-gray-900 h-full flex flex-col items-center justify-center">

@@ -20,6 +20,9 @@ export default function PWAInstallPrompt() {
   const [isStandalone, setIsStandalone] = useState(false)
 
   useEffect(() => {
+    // Only run on client side to prevent hydration mismatch
+    if (typeof window === 'undefined') return
+
     // Check if app is already installed (running in standalone mode)
     setIsStandalone(window.matchMedia('(display-mode: standalone)').matches)
     
@@ -45,15 +48,20 @@ export default function PWAInstallPrompt() {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener)
     window.addEventListener('appinstalled', handleAppInstalled)
 
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener)
+      window.removeEventListener('appinstalled', handleAppInstalled)
+    }
+  }, [])
+
+  // Separate effect for iOS install prompt to avoid dependency issues
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    
     // Check if we should show iOS install instructions
     if (isIOS && !isStandalone) {
       // Show iOS install prompt after delay if not already installed
       setTimeout(() => setShowPrompt(true), 5000)
-    }
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener)
-      window.removeEventListener('appinstalled', handleAppInstalled)
     }
   }, [isIOS, isStandalone])
 

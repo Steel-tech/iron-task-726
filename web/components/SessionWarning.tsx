@@ -15,6 +15,9 @@ export function SessionWarning({ onExtend, onLogout }: SessionWarningProps) {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
+    // Only access localStorage on the client side
+    if (typeof window === 'undefined') return
+
     // Check if we should show the warning (5 minutes before token expires)
     const token = localStorage.getItem('accessToken')
     if (!token) return

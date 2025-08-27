@@ -119,11 +119,11 @@ export default function RootLayout({
       <body className={`${inter.variable} ${shojumaru.variable} font-sans`}>
         <Providers>
           {children}
-          <PWAInstallPrompt />
+          {/* <PWAInstallPrompt /> */}
         </Providers>
         
-        {/* Service Worker Registration */}
-        <Script
+        {/* Service Worker Registration - TEMPORARILY DISABLED FOR DEBUGGING */}
+        {/* <Script
           id="sw-registration"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
@@ -161,7 +161,7 @@ export default function RootLayout({
               }
             `,
           }}
-        />
+        /> */}
       </body>
     </html>
   )

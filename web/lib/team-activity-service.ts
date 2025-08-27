@@ -313,4 +313,3 @@ class TeamActivityService {
 }
 
 export const teamActivityService = new TeamActivityService()
-export type { ActivityEvent, TeamMember, ProjectPresence }

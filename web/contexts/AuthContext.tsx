@@ -30,14 +30,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [showSessionWarning, setShowSessionWarning] = useState(false)
   
   useEffect(() => {
-    // Check for stored token - use consistent key
-    const storedToken = localStorage.getItem('accessToken')
-    if (storedToken) {
-      setToken(storedToken)
-      api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
-      fetchUser()
-      setupSessionWarning(storedToken)
+    // Only access localStorage on the client side to prevent hydration mismatch
+    if (typeof window !== 'undefined') {
+      const storedToken = localStorage.getItem('accessToken')
+      if (storedToken) {
+        setToken(storedToken)
+        api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
+        fetchUser()
+        setupSessionWarning(storedToken)
+      } else {
+        setIsLoading(false)
+      }
     } else {
+      // On server side, just set loading to false
       setIsLoading(false)
     }
   }, [])
@@ -92,7 +97,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Failed to fetch user:', error)
       // Token might be invalid, clear it
-      localStorage.removeItem('accessToken')
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('accessToken')
+      }
       setToken(null)
       delete api.defaults.headers.common['Authorization']
     } finally {
@@ -123,6 +130,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     delete api.defaults.headers.common['Authorization']
     setToken(null)
     setUser(null)
+    
+    // Clear localStorage only on client side
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('accessToken')
+    }
   }
   
   const refreshUser = async () => {
