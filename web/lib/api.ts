@@ -13,7 +13,7 @@ export const api = axios.create({
   },
 })
 
-api.interceptors.request.use((config) => {
+api.interceptors.request.use(config => {
   // Only access localStorage on the client side
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('accessToken')
@@ -21,13 +21,16 @@ api.interceptors.request.use((config) => {
       config.headers.Authorization = `Bearer ${token}`
     }
   }
-  
+
   // Add request logging for debugging
-  console.log(`🚀 ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`, {
-    data: config.data,
-    headers: config.headers
-  })
-  
+  console.log(
+    `🚀 ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`,
+    {
+      data: config.data,
+      headers: config.headers,
+    }
+  )
+
   return config
 })
 
@@ -38,7 +41,7 @@ let failedQueue: Array<{
 }> = []
 
 const processQueue = (error: any, token: string | null = null) => {
-  failedQueue.forEach((prom) => {
+  failedQueue.forEach(prom => {
     if (error) {
       prom.reject(error)
     } else {
@@ -49,47 +52,94 @@ const processQueue = (error: any, token: string | null = null) => {
 }
 
 api.interceptors.response.use(
-  (response) => {
+  response => {
     // Add response logging for debugging
-    console.log(`✅ ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, {
-      data: response.data,
-      headers: response.headers
-    })
+    console.log(
+      `✅ ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`,
+      {
+        data: response.data,
+        headers: response.headers,
+      }
+    )
     return response
   },
   async (error: AxiosError) => {
     // Add error logging for debugging
-    console.error(`❌ ${error.response?.status || 'NETWORK'} ${error.config?.method?.toUpperCase()} ${error.config?.url}`, {
-      message: error.message,
-      code: error.code,
-      response: error.response?.data
-    })
+    console.error(
+      `❌ ${error.response?.status || 'NETWORK'} ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
+      {
+        message: error.message,
+        code: error.code,
+        response: error.response?.data,
+      }
+    )
     const originalRequest = error.config as any
 
     // Handle project endpoints with mock fallback
-    if ((error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK' || !apiAvailable) && originalRequest.url) {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
-      
+    if (
+      (error.code === 'ECONNREFUSED' ||
+        error.code === 'ERR_NETWORK' ||
+        !apiAvailable) &&
+      originalRequest.url
+    ) {
+      const token =
+        typeof window !== 'undefined'
+          ? localStorage.getItem('accessToken')
+          : null
+
       // Handle specific project endpoints
-      if (originalRequest.url === '/projects/new' && originalRequest.method === 'get' && token) {
+      if (
+        originalRequest.url === '/projects/new' &&
+        originalRequest.method === 'get' &&
+        token
+      ) {
         console.log('🔧 Using mock API for project creation data')
         const mockData = await mockAPI.getProjectCreationData(token)
-        return { data: mockData, status: 200, statusText: 'OK', headers: {}, config: originalRequest }
+        return {
+          data: mockData,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: originalRequest,
+        }
       }
-      
-      if (originalRequest.url === '/projects' && originalRequest.method === 'get' && token) {
+
+      if (
+        originalRequest.url === '/projects' &&
+        originalRequest.method === 'get' &&
+        token
+      ) {
         console.log('🔧 Using mock API for projects list')
         const mockData = await mockAPI.getProjects(token)
-        return { data: mockData, status: 200, statusText: 'OK', headers: {}, config: originalRequest }
+        return {
+          data: mockData,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: originalRequest,
+        }
       }
-      
-      if (originalRequest.url === '/projects' && originalRequest.method === 'post' && token) {
+
+      if (
+        originalRequest.url === '/projects' &&
+        originalRequest.method === 'post' &&
+        token
+      ) {
         console.log('🔧 Using mock API for project creation')
-        const mockData = await mockAPI.createProject(token, originalRequest.data)
+        const mockData = await mockAPI.createProject(
+          token,
+          originalRequest.data
+        )
         if (typeof window !== 'undefined') {
           localStorage.setItem('mockMode', 'true')
         }
-        return { data: mockData, status: 201, statusText: 'Created', headers: {}, config: originalRequest }
+        return {
+          data: mockData,
+          status: 201,
+          statusText: 'Created',
+          headers: {},
+          config: originalRequest,
+        }
       }
     }
 
@@ -97,12 +147,14 @@ api.interceptors.response.use(
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })
-        }).then((token) => {
-          originalRequest.headers.Authorization = `Bearer ${token}`
-          return api(originalRequest)
-        }).catch((err) => {
-          return Promise.reject(err)
         })
+          .then(token => {
+            originalRequest.headers.Authorization = `Bearer ${token}`
+            return api(originalRequest)
+          })
+          .catch(err => {
+            return Promise.reject(err)
+          })
       }
 
       originalRequest._retry = true
@@ -163,9 +215,12 @@ export const authApi = {
     console.log('📡 Making API call to:', `${API_BASE_URL}/api/auth/login`)
     console.log('🔧 API Available Status:', apiAvailable)
     console.time('login-debug')
-    
+
     try {
-      console.log('📡 Sending request with credentials:', { email: credentials.email, password: '***' })
+      console.log('📡 Sending request with credentials:', {
+        email: credentials.email,
+        password: '***',
+      })
       const response = await api.post<LoginResponse>('/auth/login', credentials)
       console.log('✅ API response received:', response.status, response.data)
       if (typeof window !== 'undefined') {
@@ -176,22 +231,29 @@ export const authApi = {
       return response.data
     } catch (error: any) {
       console.error('❌ API error:', error.code, error.message)
-      
+
       // If network error or connection refused, use mock API with timeout protection
-      if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK' || !apiAvailable) {
+      if (
+        error.code === 'ECONNREFUSED' ||
+        error.code === 'ERR_NETWORK' ||
+        !apiAvailable
+      ) {
         console.log('🔧 API unavailable, using mock authentication...')
         apiAvailable = false
-        
+
         // Add timeout protection for mock API
-        const mockTimeout = new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('Mock API timeout after 5 seconds')), 5000)
+        const mockTimeout = new Promise<never>((_, reject) =>
+          setTimeout(
+            () => reject(new Error('Mock API timeout after 5 seconds')),
+            5000
+          )
         )
-        
+
         try {
-          console.log('🔄 Attempting mock API fallback...')  
+          console.log('🔄 Attempting mock API fallback...')
           const mockResponse = await Promise.race([
             mockAPI.login(credentials.email, credentials.password),
-            mockTimeout
+            mockTimeout,
           ])
           console.log('✅ Mock API response received')
           if (typeof window !== 'undefined') {
@@ -211,8 +273,13 @@ export const authApi = {
     }
   },
 
-  register: async (credentials: RegisterCredentials): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>('/auth/register', credentials)
+  register: async (
+    credentials: RegisterCredentials
+  ): Promise<LoginResponse> => {
+    const response = await api.post<LoginResponse>(
+      '/auth/register',
+      credentials
+    )
     if (typeof window !== 'undefined') {
       localStorage.setItem('accessToken', response.data.accessToken)
     }
@@ -221,7 +288,10 @@ export const authApi = {
 
   logout: async (): Promise<void> => {
     try {
-      if (typeof window !== 'undefined' && localStorage.getItem('mockMode') === 'true') {
+      if (
+        typeof window !== 'undefined' &&
+        localStorage.getItem('mockMode') === 'true'
+      ) {
         await mockAPI.logout()
       } else {
         await api.post('/auth/logout')
@@ -264,7 +334,10 @@ export const authApi = {
       return response.data
     } catch (error: any) {
       // If in mock mode or API unavailable, use mock data
-      if (typeof window !== 'undefined' && (localStorage.getItem('mockMode') === 'true' || !apiAvailable)) {
+      if (
+        typeof window !== 'undefined' &&
+        (localStorage.getItem('mockMode') === 'true' || !apiAvailable)
+      ) {
         const token = localStorage.getItem('accessToken')
         if (token) {
           return await mockAPI.getMe(token)

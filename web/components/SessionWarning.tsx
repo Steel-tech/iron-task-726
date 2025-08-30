@@ -82,17 +82,23 @@ export function SessionWarning({ onExtend, onLogout }: SessionWarningProps) {
             <Clock className="h-8 w-8 text-safety-orange animate-pulse" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">Session Expiring Soon</h3>
+            <h3 className="text-lg font-bold text-white">
+              Session Expiring Soon
+            </h3>
             <p className="text-sm text-gray-400">
-              Your session will expire in <span className="font-mono text-safety-orange">{formatTime(timeLeft)}</span>
+              Your session will expire in{' '}
+              <span className="font-mono text-safety-orange">
+                {formatTime(timeLeft)}
+              </span>
             </p>
           </div>
         </div>
 
         <div className="space-y-3">
           <p className="text-sm text-gray-300">
-            For your security, we&apos;ll automatically log you out when your session expires. 
-            Click &quot;Stay Signed In&quot; to extend your session.
+            For your security, we&apos;ll automatically log you out when your
+            session expires. Click &quot;Stay Signed In&quot; to extend your
+            session.
           </p>
 
           <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -110,7 +116,7 @@ export function SessionWarning({ onExtend, onLogout }: SessionWarningProps) {
             <Shield className="h-4 w-4 mr-2" />
             Stay Signed In
           </Button>
-          
+
           <Button
             onClick={() => {
               setIsVisible(false)

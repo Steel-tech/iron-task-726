@@ -13,9 +13,12 @@ export async function progressUpdate(text: string): Promise<string> {
   const completion = await openai.chat.completions.create({
     model: 'gpt-4-turbo',
     messages: [
-      { role: 'system', content: 'Summarize this construction progress update.' },
-      { role: 'user', content: text }
-    ]
+      {
+        role: 'system',
+        content: 'Summarize this construction progress update.',
+      },
+      { role: 'user', content: text },
+    ],
   })
 
   return completion.choices[0]?.message?.content?.trim() || ''

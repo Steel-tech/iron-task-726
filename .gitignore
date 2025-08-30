@@ -62,4 +62,5 @@ temp/
 .yarn/unplugged
 .yarn/build-state.yml
 .yarn/install-state.gz
-EOF < /dev/null
+EOF < /dev/null# Deployment environment files (contains secrets)
+.env.api

@@ -31,21 +31,27 @@ class SyncService {
     }
 
     this.isSyncing = true
-    
+
     try {
       // Get all pending media
-      const pendingMedia = await offlineStorage.getOfflineMedia({ syncStatus: 'pending' })
-      const errorMedia = await offlineStorage.getOfflineMedia({ syncStatus: 'error' })
-      
+      const pendingMedia = await offlineStorage.getOfflineMedia({
+        syncStatus: 'pending',
+      })
+      const errorMedia = await offlineStorage.getOfflineMedia({
+        syncStatus: 'error',
+      })
+
       // Include error media that haven't exceeded retry limit
-      const retryableMedia = errorMedia.filter(media => media.retryCount < this.maxRetries)
-      
+      const retryableMedia = errorMedia.filter(
+        media => media.retryCount < this.maxRetries
+      )
+
       this.syncQueue = [...pendingMedia, ...retryableMedia]
-      
+
       const progress: SyncProgress = {
         totalItems: this.syncQueue.length,
         completedItems: 0,
-        errors: []
+        errors: [],
       }
 
       if (onProgress) onProgress(progress)
@@ -62,20 +68,29 @@ class SyncService {
           await offlineStorage.updateMediaSyncStatus(media.id, 'syncing')
           await this.syncSingleMedia(media)
           await offlineStorage.updateMediaSyncStatus(media.id, 'synced')
-          
+
           progress.completedItems++
         } catch (error) {
           const newRetryCount = media.retryCount + 1
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-          
+          const errorMessage =
+            error instanceof Error ? error.message : 'Unknown error'
+
           if (newRetryCount >= this.maxRetries) {
             // Mark as permanently failed
-            await offlineStorage.updateMediaSyncStatus(media.id, 'error', newRetryCount)
+            await offlineStorage.updateMediaSyncStatus(
+              media.id,
+              'error',
+              newRetryCount
+            )
             progress.errors.push({ id: media.id, error: errorMessage })
           } else {
             // Mark for retry
-            await offlineStorage.updateMediaSyncStatus(media.id, 'error', newRetryCount)
-            
+            await offlineStorage.updateMediaSyncStatus(
+              media.id,
+              'error',
+              newRetryCount
+            )
+
             // Wait before next item (exponential backoff)
             await this.delay(this.retryDelay * Math.pow(2, newRetryCount - 1))
           }
@@ -119,23 +134,27 @@ class SyncService {
 
     await api.post('/media/upload', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
       },
-      timeout: 60000 // 60 second timeout for large files
+      timeout: 60000, // 60 second timeout for large files
     })
   }
 
   async getQueuedItemsCount(): Promise<number> {
-    const pending = await offlineStorage.getOfflineMedia({ syncStatus: 'pending' })
+    const pending = await offlineStorage.getOfflineMedia({
+      syncStatus: 'pending',
+    })
     const errors = await offlineStorage.getOfflineMedia({ syncStatus: 'error' })
-    const retryableErrors = errors.filter(media => media.retryCount < this.maxRetries)
-    
+    const retryableErrors = errors.filter(
+      media => media.retryCount < this.maxRetries
+    )
+
     return pending.length + retryableErrors.length
   }
 
   async cancelSync(): Promise<void> {
     if (!this.isSyncing) return
-    
+
     // Note: This is a simple cancellation. In a production app,
     // you might want to wait for the current upload to complete
     this.isSyncing = false
@@ -155,10 +174,10 @@ class SyncService {
     window.addEventListener('online', async () => {
       // Wait a bit for connection to stabilize
       await this.delay(2000)
-      
+
       try {
         const queuedCount = await this.getQueuedItemsCount()
-        
+
         if (queuedCount > 0) {
           await this.startSync(onProgress)
         }
@@ -170,20 +189,28 @@ class SyncService {
 
   // Background sync for failed items
   async retryFailedSync(): Promise<SyncProgress> {
-    const errorMedia = await offlineStorage.getOfflineMedia({ syncStatus: 'error' })
-    const retryableMedia = errorMedia.filter(media => media.retryCount < this.maxRetries)
+    const errorMedia = await offlineStorage.getOfflineMedia({
+      syncStatus: 'error',
+    })
+    const retryableMedia = errorMedia.filter(
+      media => media.retryCount < this.maxRetries
+    )
 
     if (retryableMedia.length === 0) {
       return {
         totalItems: 0,
         completedItems: 0,
-        errors: []
+        errors: [],
       }
     }
 
     // Reset status to pending for retry
     for (const media of retryableMedia) {
-      await offlineStorage.updateMediaSyncStatus(media.id, 'pending', media.retryCount)
+      await offlineStorage.updateMediaSyncStatus(
+        media.id,
+        'pending',
+        media.retryCount
+      )
     }
 
     return this.startSync()

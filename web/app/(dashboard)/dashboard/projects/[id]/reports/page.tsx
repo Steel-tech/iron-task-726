@@ -20,7 +20,7 @@ import {
   MessageSquare,
   Link as LinkIcon,
   Eye,
-  Trash2
+  Trash2,
 } from 'lucide-react'
 import { Button } from '@/components/Button'
 import { useAuth } from '@/contexts/AuthContext'
@@ -31,7 +31,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -41,7 +41,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from '@/components/ui/select'
 import api from '@/lib/api'
 
@@ -70,20 +70,20 @@ const reportTypeInfo = {
     title: 'Progress Recap',
     description: 'Best for showing everything that has happened at a project',
     icon: FileSpreadsheet,
-    color: 'bg-blue-500'
+    color: 'bg-blue-500',
   },
   SUMMARY: {
     title: 'Summary',
     description: 'Best for adding context to a group of photos',
     icon: FileText,
-    color: 'bg-green-500'
+    color: 'bg-green-500',
   },
   DAILY_LOG: {
     title: 'Daily Log',
-    description: 'Best for seeing what got done and what\'s next',
+    description: "Best for seeing what got done and what's next",
     icon: ListTodo,
-    color: 'bg-purple-500'
-  }
+    color: 'bg-purple-500',
+  },
 }
 
 export default function ProjectReportsPage() {
@@ -97,17 +97,20 @@ export default function ProjectReportsPage() {
   const [showShareDialog, setShowShareDialog] = useState(false)
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
   const [creatingReport, setCreatingReport] = useState(false)
-  
+
   // Form state
-  const [reportType, setReportType] = useState<Report['reportType']>('PROGRESS_RECAP')
+  const [reportType, setReportType] =
+    useState<Report['reportType']>('PROGRESS_RECAP')
   const [reportTitle, setReportTitle] = useState('')
   const [dateRange, setDateRange] = useState({
     start: format(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
-    end: format(new Date(), 'yyyy-MM-dd')
+    end: format(new Date(), 'yyyy-MM-dd'),
   })
-  
+
   // Share form state
-  const [shareMethod, setShareMethod] = useState<'email' | 'sms' | 'link'>('link')
+  const [shareMethod, setShareMethod] = useState<'email' | 'sms' | 'link'>(
+    'link'
+  )
   const [recipientEmail, setRecipientEmail] = useState('')
   const [recipientPhone, setRecipientPhone] = useState('')
 
@@ -124,7 +127,7 @@ export default function ProjectReportsPage() {
       toast({
         title: 'Error',
         description: 'Failed to load reports',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     } finally {
       setLoading(false)
@@ -136,7 +139,7 @@ export default function ProjectReportsPage() {
       toast({
         title: 'Error',
         description: 'Please enter a report title',
-        variant: 'destructive'
+        variant: 'destructive',
       })
       return
     }
@@ -147,17 +150,18 @@ export default function ProjectReportsPage() {
         projectId,
         reportType,
         title: reportTitle,
-        dateRange: reportType === 'DAILY_LOG' ? undefined : dateRange
+        dateRange: reportType === 'DAILY_LOG' ? undefined : dateRange,
       })
 
       const newReport = response.data.report
       setReports([newReport, ...reports])
       setShowCreateDialog(false)
       setReportTitle('')
-      
+
       toast({
         title: 'Report Created',
-        description: 'Your report is being generated. This may take a few moments.',
+        description:
+          'Your report is being generated. This may take a few moments.',
       })
 
       // Poll for completion
@@ -167,7 +171,7 @@ export default function ProjectReportsPage() {
       toast({
         title: 'Error',
         description: 'Failed to create report',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     } finally {
       setCreatingReport(false)
@@ -179,10 +183,8 @@ export default function ProjectReportsPage() {
       try {
         const response = await api.get(`/api/reports/${reportId}`)
         const report = response.data.report
-        
-        setReports(prev => prev.map(r => 
-          r.id === reportId ? report : r
-        ))
+
+        setReports(prev => prev.map(r => (r.id === reportId ? report : r)))
 
         if (report.status === 'COMPLETED') {
           toast({
@@ -193,7 +195,7 @@ export default function ProjectReportsPage() {
           toast({
             title: 'Generation Failed',
             description: 'Failed to generate the report. Please try again.',
-            variant: 'destructive'
+            variant: 'destructive',
           })
         } else if (report.status === 'GENERATING') {
           // Continue polling
@@ -224,7 +226,7 @@ export default function ProjectReportsPage() {
       toast({
         title: 'Error',
         description: 'Failed to delete report',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
@@ -236,7 +238,7 @@ export default function ProjectReportsPage() {
       toast({
         title: 'Error',
         description: 'Please enter an email address',
-        variant: 'destructive'
+        variant: 'destructive',
       })
       return
     }
@@ -245,20 +247,23 @@ export default function ProjectReportsPage() {
       toast({
         title: 'Error',
         description: 'Please enter a phone number',
-        variant: 'destructive'
+        variant: 'destructive',
       })
       return
     }
 
     try {
-      const response = await api.post(`/api/reports/${selectedReport.id}/share`, {
-        method: shareMethod,
-        recipientEmail: shareMethod === 'email' ? recipientEmail : undefined,
-        recipientPhone: shareMethod === 'sms' ? recipientPhone : undefined
-      })
+      const response = await api.post(
+        `/api/reports/${selectedReport.id}/share`,
+        {
+          method: shareMethod,
+          recipientEmail: shareMethod === 'email' ? recipientEmail : undefined,
+          recipientPhone: shareMethod === 'sms' ? recipientPhone : undefined,
+        }
+      )
 
       const shareUrl = response.data.shareUrl
-      
+
       if (shareMethod === 'link') {
         await navigator.clipboard.writeText(shareUrl)
         toast({
@@ -280,7 +285,7 @@ export default function ProjectReportsPage() {
       toast({
         title: 'Error',
         description: 'Failed to share report',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
@@ -313,7 +318,9 @@ export default function ProjectReportsPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">AI Reports</h1>
-            <p className="text-gray-400">Pages build themselves with AI actions</p>
+            <p className="text-gray-400">
+              Pages build themselves with AI actions
+            </p>
           </div>
           <Button onClick={() => setShowCreateDialog(true)}>
             <Plus className="h-4 w-4 mr-2" />
@@ -333,7 +340,9 @@ export default function ProjectReportsPage() {
                   <Icon className="h-6 w-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-white mb-1">{info.title}</h3>
+                  <h3 className="font-semibold text-white mb-1">
+                    {info.title}
+                  </h3>
                   <p className="text-sm text-gray-400">{info.description}</p>
                 </div>
               </div>
@@ -353,10 +362,10 @@ export default function ProjectReportsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {reports.map((report) => {
+          {reports.map(report => {
             const typeInfo = reportTypeInfo[report.reportType]
             const TypeIcon = typeInfo.icon
-            
+
             return (
               <div
                 key={report.id}
@@ -374,30 +383,38 @@ export default function ProjectReportsPage() {
                       <div className="flex items-center gap-4 text-sm text-gray-400 mb-2">
                         <span>{typeInfo.title}</span>
                         <span>•</span>
-                        <span>Created {format(new Date(report.createdAt), 'MMM d, yyyy')}</span>
+                        <span>
+                          Created{' '}
+                          {format(new Date(report.createdAt), 'MMM d, yyyy')}
+                        </span>
                         <span>•</span>
                         <span>By {report.user.name}</span>
                       </div>
                       {report.summary && (
-                        <p className="text-sm text-gray-300 mb-3">{report.summary}</p>
+                        <p className="text-sm text-gray-300 mb-3">
+                          {report.summary}
+                        </p>
                       )}
                       <div className="flex items-center gap-2">
                         {getStatusIcon(report.status)}
                         <span className="text-sm text-gray-400">
-                          {report.status === 'GENERATING' ? 'Generating...' : report.status.toLowerCase()}
+                          {report.status === 'GENERATING'
+                            ? 'Generating...'
+                            : report.status.toLowerCase()}
                         </span>
                         {report._count.shares > 0 && (
                           <>
                             <span className="text-gray-600">•</span>
                             <span className="text-sm text-gray-400">
-                              Shared {report._count.shares} time{report._count.shares !== 1 ? 's' : ''}
+                              Shared {report._count.shares} time
+                              {report._count.shares !== 1 ? 's' : ''}
                             </span>
                           </>
                         )}
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Actions */}
                   <div className="flex items-center gap-2">
                     {report.status === 'COMPLETED' && (
@@ -405,14 +422,23 @@ export default function ProjectReportsPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => router.push(`/dashboard/projects/${projectId}/reports/${report.id}`)}
+                          onClick={() =>
+                            router.push(
+                              `/dashboard/projects/${projectId}/reports/${report.id}`
+                            )
+                          }
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => window.open(`/api/reports/${report.id}/download`, '_blank')}
+                          onClick={() =>
+                            window.open(
+                              `/api/reports/${report.id}/download`,
+                              '_blank'
+                            )
+                          }
                         >
                           <Download className="h-4 w-4" />
                         </Button>
@@ -455,11 +481,16 @@ export default function ProjectReportsPage() {
               Select a report type and let AI generate it for you
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Report Type</Label>
-              <Select value={reportType} onValueChange={(value) => setReportType(value as Report['reportType'])}>
+              <Select
+                value={reportType}
+                onValueChange={value =>
+                  setReportType(value as Report['reportType'])
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -483,7 +514,7 @@ export default function ProjectReportsPage() {
               <Label>Report Title</Label>
               <Input
                 value={reportTitle}
-                onChange={(e) => setReportTitle(e.target.value)}
+                onChange={e => setReportTitle(e.target.value)}
                 placeholder={`${reportTypeInfo[reportType].title} - ${format(new Date(), 'MMMM d, yyyy')}`}
               />
             </div>
@@ -495,7 +526,9 @@ export default function ProjectReportsPage() {
                   <Input
                     type="date"
                     value={dateRange.start}
-                    onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                    onChange={e =>
+                      setDateRange({ ...dateRange, start: e.target.value })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -503,7 +536,9 @@ export default function ProjectReportsPage() {
                   <Input
                     type="date"
                     value={dateRange.end}
-                    onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                    onChange={e =>
+                      setDateRange({ ...dateRange, end: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -511,7 +546,10 @@ export default function ProjectReportsPage() {
           </div>
 
           <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowCreateDialog(false)}
+            >
               Cancel
             </Button>
             <Button onClick={createReport} disabled={creatingReport}>
@@ -540,11 +578,16 @@ export default function ProjectReportsPage() {
               Choose how you want to share this report
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Share Method</Label>
-              <Select value={shareMethod} onValueChange={(value) => setShareMethod(value as typeof shareMethod)}>
+              <Select
+                value={shareMethod}
+                onValueChange={value =>
+                  setShareMethod(value as typeof shareMethod)
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -577,7 +620,7 @@ export default function ProjectReportsPage() {
                 <Input
                   type="email"
                   value={recipientEmail}
-                  onChange={(e) => setRecipientEmail(e.target.value)}
+                  onChange={e => setRecipientEmail(e.target.value)}
                   placeholder="email@example.com"
                 />
               </div>
@@ -589,7 +632,7 @@ export default function ProjectReportsPage() {
                 <Input
                   type="tel"
                   value={recipientPhone}
-                  onChange={(e) => setRecipientPhone(e.target.value)}
+                  onChange={e => setRecipientPhone(e.target.value)}
                   placeholder="+1 (555) 123-4567"
                 />
               </div>

@@ -1,60 +1,60 @@
-const cors = require('@fastify/cors');
-const helmet = require('@fastify/helmet');
-const jwt = require('@fastify/jwt');
-const multipart = require('@fastify/multipart');
-const cookie = require('@fastify/cookie');
+const cors = require('@fastify/cors')
+const helmet = require('@fastify/helmet')
+const jwt = require('@fastify/jwt')
+const multipart = require('@fastify/multipart')
+const cookie = require('@fastify/cookie')
 
 async function setupBasicMiddleware(fastify) {
   // Basic CORS setup
   await fastify.register(cors, {
     origin: true,
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
-  });
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  })
 
   // Basic security headers
   await fastify.register(helmet, {
-    contentSecurityPolicy: false
-  });
+    contentSecurityPolicy: false,
+  })
 
   // JWT setup
   await fastify.register(jwt, {
-    secret: process.env.JWT_SECRET || 'fallback-secret-key'
-  });
+    secret: process.env.JWT_SECRET || 'fallback-secret-key',
+  })
 
   // File upload support
-  await fastify.register(multipart);
+  await fastify.register(multipart)
 
   // Cookie support
   await fastify.register(cookie, {
-    secret: process.env.COOKIE_SECRET || 'fallback-cookie-secret'
-  });
+    secret: process.env.COOKIE_SECRET || 'fallback-cookie-secret',
+  })
 
   // Health check route
   fastify.get('/health', async (request, reply) => {
-    return { status: 'ok', timestamp: new Date().toISOString() };
-  });
+    return { status: 'ok', timestamp: new Date().toISOString() }
+  })
 
   // API info route
   fastify.get('/api', async (request, reply) => {
-    return { 
+    return {
       name: 'Iron Task API',
       version: '1.0.0',
-      status: 'ok' 
-    };
-  });
+      status: 'ok',
+    }
+  })
 
   // Auth middleware decorator
-  fastify.decorate("authenticate", async function(request, reply) {
+  fastify.decorate('authenticate', async function (request, reply) {
     try {
-      await request.jwtVerify();
+      await request.jwtVerify()
       // For now, just set basic user info from JWT
       // In production, you might want to verify user still exists in database
-      request.user = request.user || { id: 'mock-user-id' };
+      request.user = request.user || { id: 'mock-user-id' }
     } catch (err) {
-      reply.code(401).send({ error: 'Authentication required' });
+      reply.code(401).send({ error: 'Authentication required' })
     }
-  });
+  })
 }
 
-module.exports = { setupBasicMiddleware };
+module.exports = { setupBasicMiddleware }

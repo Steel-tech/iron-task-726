@@ -2,7 +2,14 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/Button'
-import { Shield, Users, CheckCircle, AlertTriangle, Plus, X } from 'lucide-react'
+import {
+  Shield,
+  Users,
+  CheckCircle,
+  AlertTriangle,
+  Plus,
+  X,
+} from 'lucide-react'
 
 interface CrewMember {
   name: string
@@ -22,31 +29,31 @@ interface PreTaskSafetyData {
   location: string
   workDescription: string
   supervisorName: string
-  
+
   // Crew Information
   crewMembers: CrewMember[]
-  
+
   // Weather & Environmental
   weatherConditions: string
   temperature: string
   windSpeed: string
   visibility: string
   groundConditions: string
-  
+
   // Work Plan
   plannedStartTime: string
   plannedEndTime: string
   estimatedDuration: string
   workScope: string
-  
+
   // Safety Requirements
   requiredPPE: string[]
   specialEquipment: string[]
   permits: string[]
-  
+
   // Hazard Identification
   hazards: Hazard[]
-  
+
   // Emergency Information
   emergencyContacts: {
     site: string
@@ -54,11 +61,11 @@ interface PreTaskSafetyData {
     fire: string
     supervisor: string
   }
-  
+
   // Safety Topics Discussed
   topicsDiscussed: string[]
   additionalSafetyNotes: string
-  
+
   // Inspection Checklist
   inspectionChecklist: {
     toolsInspected: boolean
@@ -68,7 +75,7 @@ interface PreTaskSafetyData {
     emergencyPlanReviewed: boolean
     escapeRoutesIdentified: boolean
   }
-  
+
   // Signatures
   supervisorSignature: string
   briefingTime: string
@@ -78,54 +85,56 @@ interface FSWPreTaskSafetyBriefProps {
   projectId: string
 }
 
-export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBriefProps) {
+export default function FSWPreTaskSafetyBrief({
+  projectId,
+}: FSWPreTaskSafetyBriefProps) {
   const [formData, setFormData] = useState<PreTaskSafetyData>({
     date: new Date().toISOString().split('T')[0],
     time: new Date().toTimeString().slice(0, 5),
     location: '',
     workDescription: '',
     supervisorName: '',
-    
+
     crewMembers: [],
-    
+
     weatherConditions: '',
     temperature: '',
     windSpeed: '',
     visibility: '',
     groundConditions: '',
-    
+
     plannedStartTime: '',
     plannedEndTime: '',
     estimatedDuration: '',
     workScope: '',
-    
+
     requiredPPE: [],
     specialEquipment: [],
     permits: [],
-    
+
     hazards: [],
-    
+
     emergencyContacts: {
       site: '',
       medical: '911',
       fire: '911',
-      supervisor: ''
+      supervisor: '',
     },
-    
+
     topicsDiscussed: [],
     additionalSafetyNotes: '',
-    
+
     inspectionChecklist: {
       toolsInspected: false,
       ppeInspected: false,
       workAreaSecured: false,
       hazardsCommunicated: false,
       emergencyPlanReviewed: false,
-      escapeRoutesIdentified: false
+      escapeRoutesIdentified: false,
     },
-    
+
     supervisorSignature: '',
-    briefingTime: ''
+    briefingTime: '',
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -133,30 +142,37 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
   const addCrewMember = () => {
     setFormData(prev => ({
       ...prev,
-      crewMembers: [...prev.crewMembers, { name: '', role: '', signature: '' }]
+      crewMembers: [...prev.crewMembers, { name: '', role: '', signature: '' }],
     }))
   }
 
-  const updateCrewMember = (index: number, field: keyof CrewMember, value: string) => {
+  const updateCrewMember = (
+    index: number,
+    field: keyof CrewMember,
+    value: string
+  ) => {
     setFormData(prev => ({
       ...prev,
       crewMembers: prev.crewMembers.map((member, i) =>
         i === index ? { ...member, [field]: value } : member
-      )
+      ),
     }))
   }
 
   const removeCrewMember = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      crewMembers: prev.crewMembers.filter((_, i) => i !== index)
+      crewMembers: prev.crewMembers.filter((_, i) => i !== index),
     }))
   }
 
   const addHazard = () => {
     setFormData(prev => ({
       ...prev,
-      hazards: [...prev.hazards, { hazardType: '', riskLevel: 'medium', controlMeasures: '' }]
+      hazards: [
+        ...prev.hazards,
+        { hazardType: '', riskLevel: 'medium', controlMeasures: '' },
+      ],
     }))
   }
 
@@ -165,14 +181,14 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
       ...prev,
       hazards: prev.hazards.map((hazard, i) =>
         i === index ? { ...hazard, [field]: value } : hazard
-      )
+      ),
     }))
   }
 
   const removeHazard = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      hazards: prev.hazards.filter((_, i) => i !== index)
+      hazards: prev.hazards.filter((_, i) => i !== index),
     }))
   }
 
@@ -181,7 +197,7 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
       ...prev,
       requiredPPE: checked
         ? [...prev.requiredPPE, ppe]
-        : prev.requiredPPE.filter(p => p !== ppe)
+        : prev.requiredPPE.filter(p => p !== ppe),
     }))
   }
 
@@ -190,7 +206,7 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
       ...prev,
       specialEquipment: checked
         ? [...prev.specialEquipment, equipment]
-        : prev.specialEquipment.filter(e => e !== equipment)
+        : prev.specialEquipment.filter(e => e !== equipment),
     }))
   }
 
@@ -199,7 +215,7 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
       ...prev,
       permits: checked
         ? [...prev.permits, permit]
-        : prev.permits.filter(p => p !== permit)
+        : prev.permits.filter(p => p !== permit),
     }))
   }
 
@@ -208,17 +224,22 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
       ...prev,
       topicsDiscussed: checked
         ? [...prev.topicsDiscussed, topic]
-        : prev.topicsDiscussed.filter(t => t !== topic)
+        : prev.topicsDiscussed.filter(t => t !== topic),
     }))
   }
 
   const getRiskColor = (level: Hazard['riskLevel']) => {
     switch (level) {
-      case 'low': return 'text-green-400'
-      case 'medium': return 'text-yellow-400'
-      case 'high': return 'text-orange-400'
-      case 'critical': return 'text-red-400'
-      default: return 'text-gray-400'
+      case 'low':
+        return 'text-green-400'
+      case 'medium':
+        return 'text-yellow-400'
+      case 'high':
+        return 'text-orange-400'
+      case 'critical':
+        return 'text-red-400'
+      default:
+        return 'text-gray-400'
     }
   }
 
@@ -232,7 +253,7 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
     'Hearing protection',
     'Respirator',
     'Fall protection',
-    'Arc flash protection'
+    'Arc flash protection',
   ]
 
   const equipmentOptions = [
@@ -245,7 +266,7 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
     'Lockout/Tagout devices',
     'Barricades/Signage',
     'Lifting equipment',
-    'Welding screens'
+    'Welding screens',
   ]
 
   const permitOptions = [
@@ -256,7 +277,7 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
     'Electrical work permit',
     'Crane operation permit',
     'Environmental permit',
-    'Noise permit'
+    'Noise permit',
   ]
 
   const safetyTopics = [
@@ -269,7 +290,7 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
     'First aid procedures',
     'Weather monitoring',
     'Communication protocols',
-    'Incident reporting'
+    'Incident reporting',
   ]
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -280,7 +301,7 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000))
       alert('Pre-Task Safety Brief submitted successfully!')
-      
+
       // Reset form would go here in production
     } catch (error) {
       alert('Failed to submit brief. Please try again.')
@@ -297,42 +318,60 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
             <Shield className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold font-shogun text-white">Pre-Task Safety Brief</h2>
-            <p className="text-gray-400">Daily safety briefing checklist and crew acknowledgment</p>
+            <h2 className="text-2xl font-bold font-shogun text-white">
+              Pre-Task Safety Brief
+            </h2>
+            <p className="text-gray-400">
+              Daily safety briefing checklist and crew acknowledgment
+            </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Header Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Brief Information</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Brief Information
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Date *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Date *
+                </label>
                 <input
                   type="date"
                   value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, date: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Time *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Time *
+                </label>
                 <input
                   type="time"
                   value={formData.time}
-                  onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, time: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   required
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-300 mb-2">Location *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Location *
+                </label>
                 <input
                   type="text"
                   value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, location: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Work location/area"
                   required
@@ -342,21 +381,32 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Supervisor Name *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Supervisor Name *
+                </label>
                 <input
                   type="text"
                   value={formData.supervisorName}
-                  onChange={(e) => setFormData({ ...formData, supervisorName: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, supervisorName: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Work Description *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Work Description *
+                </label>
                 <input
                   type="text"
                   value={formData.workDescription}
-                  onChange={(e) => setFormData({ ...formData, workDescription: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      workDescription: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Brief description of work to be performed"
                   required
@@ -368,7 +418,9 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
           {/* Crew Members */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Crew Members</h3>
+              <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+                Crew Members
+              </h3>
               <Button
                 type="button"
                 size="sm"
@@ -384,7 +436,9 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
             {formData.crewMembers.map((member, index) => (
               <div key={index} className="bg-gray-800/50 p-4 rounded-lg">
                 <div className="flex justify-between items-center mb-3">
-                  <h4 className="text-white font-medium">Crew Member {index + 1}</h4>
+                  <h4 className="text-white font-medium">
+                    Crew Member {index + 1}
+                  </h4>
                   <Button
                     type="button"
                     size="sm"
@@ -395,34 +449,46 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Name *</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Name *
+                    </label>
                     <input
                       type="text"
                       value={member.name}
-                      onChange={(e) => updateCrewMember(index, 'name', e.target.value)}
+                      onChange={e =>
+                        updateCrewMember(index, 'name', e.target.value)
+                      }
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Role *</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Role *
+                    </label>
                     <input
                       type="text"
                       value={member.role}
-                      onChange={(e) => updateCrewMember(index, 'role', e.target.value)}
+                      onChange={e =>
+                        updateCrewMember(index, 'role', e.target.value)
+                      }
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Signature *</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Signature *
+                    </label>
                     <input
                       type="text"
                       value={member.signature}
-                      onChange={(e) => updateCrewMember(index, 'signature', e.target.value)}
+                      onChange={e =>
+                        updateCrewMember(index, 'signature', e.target.value)
+                      }
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                       placeholder="Type full name as signature"
                       required
@@ -435,53 +501,81 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
 
           {/* Environmental Conditions */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Environmental Conditions</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Environmental Conditions
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Weather</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Weather
+                </label>
                 <input
                   type="text"
                   value={formData.weatherConditions}
-                  onChange={(e) => setFormData({ ...formData, weatherConditions: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      weatherConditions: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Clear, cloudy, rainy"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Temperature (°F)</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Temperature (°F)
+                </label>
                 <input
                   type="number"
                   value={formData.temperature}
-                  onChange={(e) => setFormData({ ...formData, temperature: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, temperature: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Wind Speed</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Wind Speed
+                </label>
                 <input
                   type="text"
                   value={formData.windSpeed}
-                  onChange={(e) => setFormData({ ...formData, windSpeed: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, windSpeed: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Calm, light, strong"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Visibility</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Visibility
+                </label>
                 <input
                   type="text"
                   value={formData.visibility}
-                  onChange={(e) => setFormData({ ...formData, visibility: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, visibility: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Good, fair, poor"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Ground Conditions</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Ground Conditions
+                </label>
                 <input
                   type="text"
                   value={formData.groundConditions}
-                  onChange={(e) => setFormData({ ...formData, groundConditions: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      groundConditions: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Dry, wet, icy"
                 />
@@ -491,32 +585,52 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
 
           {/* Work Plan */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Work Plan</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Work Plan
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Planned Start Time</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Planned Start Time
+                </label>
                 <input
                   type="time"
                   value={formData.plannedStartTime}
-                  onChange={(e) => setFormData({ ...formData, plannedStartTime: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      plannedStartTime: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Planned End Time</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Planned End Time
+                </label>
                 <input
                   type="time"
                   value={formData.plannedEndTime}
-                  onChange={(e) => setFormData({ ...formData, plannedEndTime: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, plannedEndTime: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Estimated Duration</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Estimated Duration
+                </label>
                 <input
                   type="text"
                   value={formData.estimatedDuration}
-                  onChange={(e) => setFormData({ ...formData, estimatedDuration: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      estimatedDuration: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="e.g., 4 hours"
                 />
@@ -524,10 +638,14 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Work Scope</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Work Scope
+              </label>
               <textarea
                 value={formData.workScope}
-                onChange={(e) => setFormData({ ...formData, workScope: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, workScope: e.target.value })
+                }
                 rows={3}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 placeholder="Detailed description of work to be performed..."
@@ -537,14 +655,19 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
 
           {/* Required PPE */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Required Personal Protective Equipment</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Required Personal Protective Equipment
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {ppeOptions.map((ppe) => (
-                <label key={ppe} className="flex items-center text-sm text-gray-300">
+              {ppeOptions.map(ppe => (
+                <label
+                  key={ppe}
+                  className="flex items-center text-sm text-gray-300"
+                >
                   <input
                     type="checkbox"
                     checked={formData.requiredPPE.includes(ppe)}
-                    onChange={(e) => handlePPEChange(ppe, e.target.checked)}
+                    onChange={e => handlePPEChange(ppe, e.target.checked)}
                     className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                   />
                   {ppe}
@@ -555,14 +678,21 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
 
           {/* Special Equipment */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Special Equipment Required</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Special Equipment Required
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {equipmentOptions.map((equipment) => (
-                <label key={equipment} className="flex items-center text-sm text-gray-300">
+              {equipmentOptions.map(equipment => (
+                <label
+                  key={equipment}
+                  className="flex items-center text-sm text-gray-300"
+                >
                   <input
                     type="checkbox"
                     checked={formData.specialEquipment.includes(equipment)}
-                    onChange={(e) => handleEquipmentChange(equipment, e.target.checked)}
+                    onChange={e =>
+                      handleEquipmentChange(equipment, e.target.checked)
+                    }
                     className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                   />
                   {equipment}
@@ -573,14 +703,19 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
 
           {/* Permits Required */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Permits Required</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Permits Required
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {permitOptions.map((permit) => (
-                <label key={permit} className="flex items-center text-sm text-gray-300">
+              {permitOptions.map(permit => (
+                <label
+                  key={permit}
+                  className="flex items-center text-sm text-gray-300"
+                >
                   <input
                     type="checkbox"
                     checked={formData.permits.includes(permit)}
-                    onChange={(e) => handlePermitChange(permit, e.target.checked)}
+                    onChange={e => handlePermitChange(permit, e.target.checked)}
                     className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                   />
                   {permit}
@@ -592,7 +727,9 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
           {/* Hazard Identification */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Hazard Identification</h3>
+              <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+                Hazard Identification
+              </h3>
               <Button
                 type="button"
                 size="sm"
@@ -619,24 +756,32 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Hazard Type *</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Hazard Type *
+                    </label>
                     <input
                       type="text"
                       value={hazard.hazardType}
-                      onChange={(e) => updateHazard(index, 'hazardType', e.target.value)}
+                      onChange={e =>
+                        updateHazard(index, 'hazardType', e.target.value)
+                      }
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                       placeholder="e.g., Fall hazard, Electrical"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Risk Level *</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Risk Level *
+                    </label>
                     <select
                       value={hazard.riskLevel}
-                      onChange={(e) => updateHazard(index, 'riskLevel', e.target.value)}
+                      onChange={e =>
+                        updateHazard(index, 'riskLevel', e.target.value)
+                      }
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                       required
                     >
@@ -647,17 +792,23 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
                     </select>
                   </div>
                   <div className="flex items-center pt-6">
-                    <span className={`text-sm font-medium ${getRiskColor(hazard.riskLevel)}`}>
+                    <span
+                      className={`text-sm font-medium ${getRiskColor(hazard.riskLevel)}`}
+                    >
                       {hazard.riskLevel.toUpperCase()} RISK
                     </span>
                   </div>
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Control Measures *</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                    Control Measures *
+                  </label>
                   <textarea
                     value={hazard.controlMeasures}
-                    onChange={(e) => updateHazard(index, 'controlMeasures', e.target.value)}
+                    onChange={e =>
+                      updateHazard(index, 'controlMeasures', e.target.value)
+                    }
                     rows={2}
                     className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                     placeholder="How will this hazard be controlled or mitigated?"
@@ -670,54 +821,84 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
 
           {/* Emergency Contacts */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Emergency Contacts</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Emergency Contacts
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Site Emergency</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Site Emergency
+                </label>
                 <input
                   type="tel"
                   value={formData.emergencyContacts.site}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    emergencyContacts: { ...formData.emergencyContacts, site: e.target.value } 
-                  })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      emergencyContacts: {
+                        ...formData.emergencyContacts,
+                        site: e.target.value,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Site emergency number"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Medical Emergency</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Medical Emergency
+                </label>
                 <input
                   type="tel"
                   value={formData.emergencyContacts.medical}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    emergencyContacts: { ...formData.emergencyContacts, medical: e.target.value } 
-                  })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      emergencyContacts: {
+                        ...formData.emergencyContacts,
+                        medical: e.target.value,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Fire Emergency</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Fire Emergency
+                </label>
                 <input
                   type="tel"
                   value={formData.emergencyContacts.fire}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    emergencyContacts: { ...formData.emergencyContacts, fire: e.target.value } 
-                  })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      emergencyContacts: {
+                        ...formData.emergencyContacts,
+                        fire: e.target.value,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Supervisor Contact</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Supervisor Contact
+                </label>
                 <input
                   type="tel"
                   value={formData.emergencyContacts.supervisor}
-                  onChange={(e) => setFormData({ 
-                    ...formData, 
-                    emergencyContacts: { ...formData.emergencyContacts, supervisor: e.target.value } 
-                  })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      emergencyContacts: {
+                        ...formData.emergencyContacts,
+                        supervisor: e.target.value,
+                      },
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 />
               </div>
@@ -726,14 +907,19 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
 
           {/* Safety Topics Discussed */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Safety Topics Discussed</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Safety Topics Discussed
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {safetyTopics.map((topic) => (
-                <label key={topic} className="flex items-center text-sm text-gray-300">
+              {safetyTopics.map(topic => (
+                <label
+                  key={topic}
+                  className="flex items-center text-sm text-gray-300"
+                >
                   <input
                     type="checkbox"
                     checked={formData.topicsDiscussed.includes(topic)}
-                    onChange={(e) => handleTopicChange(topic, e.target.checked)}
+                    onChange={e => handleTopicChange(topic, e.target.checked)}
                     className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                   />
                   {topic}
@@ -742,10 +928,17 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Additional Safety Notes</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Additional Safety Notes
+              </label>
               <textarea
                 value={formData.additionalSafetyNotes}
-                onChange={(e) => setFormData({ ...formData, additionalSafetyNotes: e.target.value })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    additionalSafetyNotes: e.target.value,
+                  })
+                }
                 rows={3}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 placeholder="Additional safety reminders or concerns discussed..."
@@ -755,49 +948,73 @@ export default function FSWPreTaskSafetyBrief({ projectId }: FSWPreTaskSafetyBri
 
           {/* Pre-Work Inspection Checklist */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Pre-Work Inspection Checklist</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Pre-Work Inspection Checklist
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Object.entries(formData.inspectionChecklist).map(([key, value]) => (
-                <label key={key} className="flex items-center text-sm text-gray-300">
-                  <input
-                    type="checkbox"
-                    checked={value}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      inspectionChecklist: {
-                        ...formData.inspectionChecklist,
-                        [key]: e.target.checked
+              {Object.entries(formData.inspectionChecklist).map(
+                ([key, value]) => (
+                  <label
+                    key={key}
+                    className="flex items-center text-sm text-gray-300"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={value}
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          inspectionChecklist: {
+                            ...formData.inspectionChecklist,
+                            [key]: e.target.checked,
+                          },
+                        })
                       }
-                    })}
-                    className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
-                  />
-                  {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                </label>
-              ))}
+                      className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
+                    />
+                    {key
+                      .replace(/([A-Z])/g, ' $1')
+                      .replace(/^./, str => str.toUpperCase())}
+                  </label>
+                )
+              )}
             </div>
           </div>
 
           {/* Signatures */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Completion & Signatures</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Completion & Signatures
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Supervisor Signature *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Supervisor Signature *
+                </label>
                 <input
                   type="text"
                   value={formData.supervisorSignature}
-                  onChange={(e) => setFormData({ ...formData, supervisorSignature: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      supervisorSignature: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Type full name as signature"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Briefing Completion Time</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Briefing Completion Time
+                </label>
                 <input
                   type="time"
                   value={formData.briefingTime}
-                  onChange={(e) => setFormData({ ...formData, briefingTime: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, briefingTime: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 />
               </div>

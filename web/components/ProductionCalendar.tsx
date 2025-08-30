@@ -1,30 +1,30 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { 
-  format, 
-  startOfMonth, 
-  endOfMonth, 
-  startOfWeek, 
-  endOfWeek, 
-  addDays, 
-  isSameMonth, 
-  isSameDay, 
-  addMonths, 
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  addDays,
+  isSameMonth,
+  isSameDay,
+  addMonths,
   subMonths,
   isToday,
-  parseISO
+  parseISO,
 } from 'date-fns'
-import { 
-  Calendar, 
-  ChevronLeft, 
-  ChevronRight, 
-  Plus, 
-  Clock, 
-  MapPin, 
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Clock,
+  MapPin,
   Users,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-react'
 import { Button } from '@/components/Button'
 
@@ -55,7 +55,7 @@ const defaultEvents: CalendarEvent[] = [
     type: 'delivery',
     status: 'pending',
     location: 'Site A - East Wing',
-    assignedTo: ['foreman@fsw-denver.com']
+    assignedTo: ['foreman@fsw-denver.com'],
   },
   {
     id: '2',
@@ -63,30 +63,30 @@ const defaultEvents: CalendarEvent[] = [
     date: '2024-07-30',
     type: 'inspection',
     status: 'pending',
-    assignedTo: ['inspector@fsw-denver.com']
+    assignedTo: ['inspector@fsw-denver.com'],
   },
   {
     id: '3',
     title: 'Foundation Complete',
     date: '2024-07-25',
     type: 'milestone',
-    status: 'completed'
+    status: 'completed',
   },
   {
     id: '4',
     title: 'Beam Installation Deadline',
     date: '2024-08-05',
     type: 'deadline',
-    status: 'pending'
-  }
+    status: 'pending',
+  },
 ]
 
-export default function ProductionCalendar({ 
-  projectId, 
-  events = defaultEvents, 
-  onEventCreate, 
+export default function ProductionCalendar({
+  projectId,
+  events = defaultEvents,
+  onEventCreate,
   onEventClick,
-  className = ''
+  className = '',
 }: ProductionCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
@@ -101,33 +101,46 @@ export default function ProductionCalendar({
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1))
 
   const getEventsForDate = (date: Date): CalendarEvent[] => {
-    return events.filter(event => 
-      isSameDay(parseISO(event.date), date)
-    )
+    return events.filter(event => isSameDay(parseISO(event.date), date))
   }
 
-  const getEventTypeColor = (type: CalendarEvent['type'], status: CalendarEvent['status']) => {
+  const getEventTypeColor = (
+    type: CalendarEvent['type'],
+    status: CalendarEvent['status']
+  ) => {
     if (status === 'completed') return 'bg-green-500'
     if (status === 'overdue') return 'bg-red-500'
-    
+
     switch (type) {
-      case 'milestone': return 'bg-safety-orange'
-      case 'inspection': return 'bg-aisc-blue'
-      case 'delivery': return 'bg-purple-500'
-      case 'meeting': return 'bg-yellow-500'
-      case 'deadline': return 'bg-red-600'
-      default: return 'bg-gray-500'
+      case 'milestone':
+        return 'bg-safety-orange'
+      case 'inspection':
+        return 'bg-aisc-blue'
+      case 'delivery':
+        return 'bg-purple-500'
+      case 'meeting':
+        return 'bg-yellow-500'
+      case 'deadline':
+        return 'bg-red-600'
+      default:
+        return 'bg-gray-500'
     }
   }
 
   const getEventIcon = (type: CalendarEvent['type']) => {
     switch (type) {
-      case 'milestone': return CheckCircle
-      case 'inspection': return AlertTriangle
-      case 'delivery': return MapPin
-      case 'meeting': return Users
-      case 'deadline': return Clock
-      default: return Calendar
+      case 'milestone':
+        return CheckCircle
+      case 'inspection':
+        return AlertTriangle
+      case 'delivery':
+        return MapPin
+      case 'meeting':
+        return Users
+      case 'deadline':
+        return Clock
+      default:
+        return Calendar
     }
   }
 
@@ -159,22 +172,22 @@ export default function ProductionCalendar({
           }}
         >
           <div className="flex justify-between items-start mb-1">
-            <span className={`
+            <span
+              className={`
               text-sm font-medium
               ${isCurrentMonth ? 'text-white' : 'text-gray-500'}
               ${isCurrentDay ? 'text-safety-orange font-bold' : ''}
-            `}>
+            `}
+            >
               {format(day, 'd')}
             </span>
             {dayEvents.length > 0 && (
-              <span className="text-xs text-gray-400">
-                {dayEvents.length}
-              </span>
+              <span className="text-xs text-gray-400">{dayEvents.length}</span>
             )}
           </div>
-          
+
           <div className="space-y-1">
-            {dayEvents.slice(0, 2).map((event) => {
+            {dayEvents.slice(0, 2).map(event => {
               const IconComponent = getEventIcon(event.type)
               return (
                 <div
@@ -184,7 +197,7 @@ export default function ProductionCalendar({
                     ${getEventTypeColor(event.type, event.status)}
                     hover:opacity-80
                   `}
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation()
                     if (onEventClick) onEventClick(event)
                   }}
@@ -209,7 +222,9 @@ export default function ProductionCalendar({
   }
 
   return (
-    <div className={`bg-steel-gray rounded-lg border border-gray-700 ${className}`}>
+    <div
+      className={`bg-steel-gray rounded-lg border border-gray-700 ${className}`}
+    >
       {/* Calendar Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-700">
         <div className="flex items-center gap-3">
@@ -218,28 +233,20 @@ export default function ProductionCalendar({
             Production Schedule
           </h3>
         </div>
-        
+
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={prevMonth}
-          >
+          <Button variant="outline" size="sm" onClick={prevMonth}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          
+
           <h2 className="text-white font-medium min-w-[140px] text-center">
             {format(currentMonth, 'MMMM yyyy')}
           </h2>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={nextMonth}
-          >
+
+          <Button variant="outline" size="sm" onClick={nextMonth}>
             <ChevronRight className="h-4 w-4" />
           </Button>
-          
+
           {onEventCreate && (
             <Button
               size="sm"
@@ -255,7 +262,7 @@ export default function ProductionCalendar({
 
       {/* Days of Week Header */}
       <div className="grid grid-cols-7 border-b border-gray-700">
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
           <div key={day} className="p-2 text-center">
             <span className="text-sm font-medium text-gray-400">{day}</span>
           </div>
@@ -263,9 +270,7 @@ export default function ProductionCalendar({
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7">
-        {renderCalendarDays()}
-      </div>
+      <div className="grid grid-cols-7">{renderCalendarDays()}</div>
 
       {/* Legend */}
       <div className="p-4 border-t border-gray-700">

@@ -11,7 +11,7 @@ module.exports = (req, res) => {
       hasCookie: !!process.env.COOKIE_SECRET,
       hasSupabase: !!process.env.SUPABASE_URL,
       jwtLength: process.env.JWT_SECRET?.length || 0,
-      cookieLength: process.env.COOKIE_SECRET?.length || 0
-    }
+      cookieLength: process.env.COOKIE_SECRET?.length || 0,
+    },
   })
 }

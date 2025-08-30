@@ -10,15 +10,15 @@ const createCommentSchema = z.object({
   content: z.string().min(1),
   mediaId: z.string().uuid(),
   parentId: z.string().uuid().optional(),
-  mentions: z.array(z.string().uuid()).optional()
+  mentions: z.array(z.string().uuid()).optional(),
 })
 
 const updateCommentSchema = z.object({
-  content: z.string().min(1)
+  content: z.string().min(1),
 })
 
 const addReactionSchema = z.object({
-  type: z.enum(['like', 'thumbsup', 'thumbsdown', 'question', 'check'])
+  type: z.enum(['like', 'thumbsup', 'thumbsdown', 'question', 'check']),
 })
 
 export async function commentRoutes(fastify: FastifyInstance) {
@@ -28,76 +28,78 @@ export async function commentRoutes(fastify: FastifyInstance) {
     handler: async (request, reply) => {
       const { mediaId } = request.params as { mediaId: string }
       const { lang = 'en' } = request.query as { lang?: string }
-      
+
       const comments = await prisma.comment.findMany({
         where: { mediaId, parentId: null },
         include: {
           user: {
-            select: { id: true, name: true, role: true }
+            select: { id: true, name: true, role: true },
           },
           reactions: {
             include: {
               user: {
-                select: { id: true, name: true }
-              }
-            }
+                select: { id: true, name: true },
+              },
+            },
           },
           replies: {
             include: {
               user: {
-                select: { id: true, name: true, role: true }
+                select: { id: true, name: true, role: true },
               },
               reactions: {
                 include: {
                   user: {
-                    select: { id: true, name: true }
-                  }
-                }
-              }
+                    select: { id: true, name: true },
+                  },
+                },
+              },
             },
-            orderBy: { createdAt: 'asc' }
-          }
+            orderBy: { createdAt: 'asc' },
+          },
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
       })
-      
+
       // Return translated comments based on user's language preference
       const translatedComments = comments.map(comment => ({
         ...comment,
         content: getTranslatedContent(comment, lang),
         replies: comment.replies.map(reply => ({
           ...reply,
-          content: getTranslatedContent(reply, lang)
-        }))
+          content: getTranslatedContent(reply, lang),
+        })),
       }))
-      
+
       return reply.send(translatedComments)
-    }
+    },
   })
-  
+
   // Create a new comment
   fastify.post('/comments', {
     preHandler: authenticate,
     handler: async (request, reply) => {
       const data = createCommentSchema.parse(request.body)
       const userId = request.user!.id
-      
+
       // Get user's browser language for original language detection
-      const userLang = (request.headers['accept-language'] || 'en').split(',')[0].split('-')[0]
-      
+      const userLang = (request.headers['accept-language'] || 'en')
+        .split(',')[0]
+        .split('-')[0]
+
       // Get the media item to find project
       const media = await prisma.media.findUnique({
         where: { id: data.mediaId },
-        include: { project: true }
+        include: { project: true },
       })
-      
+
       if (!media) {
         return reply.code(404).send({ error: 'Media not found' })
       }
-      
+
       // Create translations for common languages
       const translations = await createTranslations(data.content, userLang)
-      
+
       // Create the comment
       const comment = await prisma.comment.create({
         data: {
@@ -107,22 +109,22 @@ export async function commentRoutes(fastify: FastifyInstance) {
           mediaId: data.mediaId,
           userId,
           parentId: data.parentId,
-          mentions: data.mentions || []
+          mentions: data.mentions || [],
         },
         include: {
           user: {
-            select: { id: true, name: true, role: true }
-          }
-        }
+            select: { id: true, name: true, role: true },
+          },
+        },
       })
-      
+
       // Send notifications to mentioned users
       if (data.mentions && data.mentions.length > 0) {
         const user = await prisma.user.findUnique({
           where: { id: userId },
-          select: { name: true }
+          select: { name: true },
         })
-        
+
         for (const mentionedUserId of data.mentions) {
           await sendNotification({
             userId: mentionedUserId,
@@ -132,25 +134,25 @@ export async function commentRoutes(fastify: FastifyInstance) {
             data: {
               mediaId: data.mediaId,
               commentId: comment.id,
-              projectId: media.projectId
-            }
+              projectId: media.projectId,
+            },
           })
         }
       }
-      
+
       // Send notification to parent comment author if this is a reply
       if (data.parentId) {
         const parentComment = await prisma.comment.findUnique({
           where: { id: data.parentId },
-          select: { userId: true }
+          select: { userId: true },
         })
-        
+
         if (parentComment && parentComment.userId !== userId) {
           const user = await prisma.user.findUnique({
             where: { id: userId },
-            select: { name: true }
+            select: { name: true },
           })
-          
+
           await sendNotification({
             userId: parentComment.userId,
             type: 'reply',
@@ -159,22 +161,22 @@ export async function commentRoutes(fastify: FastifyInstance) {
             data: {
               mediaId: data.mediaId,
               commentId: comment.id,
-              projectId: media.projectId
-            }
+              projectId: media.projectId,
+            },
           })
         }
       }
-      
+
       // Emit real-time update
       emitToProject(media.projectId, 'comment:created', {
         comment,
-        mediaId: data.mediaId
+        mediaId: data.mediaId,
       })
-      
+
       return reply.code(201).send(comment)
-    }
+    },
   })
-  
+
   // Update a comment
   fastify.patch('/comments/:id', {
     preHandler: authenticate,
@@ -182,85 +184,88 @@ export async function commentRoutes(fastify: FastifyInstance) {
       const { id } = request.params as { id: string }
       const data = updateCommentSchema.parse(request.body)
       const userId = request.user!.id
-      
+
       // Check if user owns the comment
       const existingComment = await prisma.comment.findUnique({
         where: { id },
-        include: { media: true }
+        include: { media: true },
       })
-      
+
       if (!existingComment) {
         return reply.code(404).send({ error: 'Comment not found' })
       }
-      
+
       if (existingComment.userId !== userId) {
         return reply.code(403).send({ error: 'Forbidden' })
       }
-      
+
       // Update translations
-      const translations = await createTranslations(data.content, existingComment.originalLang)
-      
+      const translations = await createTranslations(
+        data.content,
+        existingComment.originalLang
+      )
+
       const comment = await prisma.comment.update({
         where: { id },
         data: {
           content: data.content,
-          translations
+          translations,
         },
         include: {
           user: {
-            select: { id: true, name: true, role: true }
-          }
-        }
+            select: { id: true, name: true, role: true },
+          },
+        },
       })
-      
+
       // Emit real-time update
       emitToProject(existingComment.media.projectId, 'comment:updated', {
         comment,
-        mediaId: existingComment.mediaId
+        mediaId: existingComment.mediaId,
       })
-      
+
       return reply.send(comment)
-    }
+    },
   })
-  
+
   // Delete a comment
   fastify.delete('/comments/:id', {
     preHandler: authenticate,
     handler: async (request, reply) => {
       const { id } = request.params as { id: string }
       const userId = request.user!.id
-      
+
       // Check if user owns the comment or is an admin
       const comment = await prisma.comment.findUnique({
         where: { id },
-        include: { media: true }
+        include: { media: true },
       })
-      
+
       if (!comment) {
         return reply.code(404).send({ error: 'Comment not found' })
       }
-      
+
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { role: true }
+        select: { role: true },
       })
-      
+
       if (comment.userId !== userId && user?.role !== 'ADMIN') {
         return reply.code(403).send({ error: 'Forbidden' })
       }
-      
+
       await prisma.comment.delete({ where: { id } })
-      
+
       // Emit real-time update
       emitToProject(comment.media.projectId, 'comment:deleted', {
         commentId: id,
-        mediaId: comment.mediaId
+        mediaId: comment.mediaId,
       })
-      
+
       return reply.code(204).send()
-    }
+    },
   })
-  
+
   // Add reaction to a comment
   fastify.post('/comments/:id/reactions', {
     preHandler: authenticate,
@@ -268,37 +273,37 @@ export async function commentRoutes(fastify: FastifyInstance) {
       const { id } = request.params as { id: string }
       const { type } = addReactionSchema.parse(request.body)
       const userId = request.user!.id
-      
+
       const comment = await prisma.comment.findUnique({
         where: { id },
-        include: { media: true }
+        include: { media: true },
       })
-      
+
       if (!comment) {
         return reply.code(404).send({ error: 'Comment not found' })
       }
-      
+
       try {
         const reaction = await prisma.reaction.create({
           data: {
             type,
             commentId: id,
-            userId
+            userId,
           },
           include: {
             user: {
-              select: { id: true, name: true }
-            }
-          }
+              select: { id: true, name: true },
+            },
+          },
         })
-        
+
         // Send notification to comment author
         if (comment.userId !== userId) {
           const user = await prisma.user.findUnique({
             where: { id: userId },
-            select: { name: true }
+            select: { name: true },
           })
-          
+
           await sendNotification({
             userId: comment.userId,
             type: 'reaction',
@@ -307,18 +312,18 @@ export async function commentRoutes(fastify: FastifyInstance) {
             data: {
               mediaId: comment.mediaId,
               commentId: comment.id,
-              projectId: comment.media.projectId
-            }
+              projectId: comment.media.projectId,
+            },
           })
         }
-        
+
         // Emit real-time update
         emitToProject(comment.media.projectId, 'reaction:added', {
           reaction,
           commentId: id,
-          mediaId: comment.mediaId
+          mediaId: comment.mediaId,
         })
-        
+
         return reply.code(201).send(reaction)
       } catch (error: any) {
         if (error.code === 'P2002') {
@@ -326,45 +331,45 @@ export async function commentRoutes(fastify: FastifyInstance) {
         }
         throw error
       }
-    }
+    },
   })
-  
+
   // Remove reaction from a comment
   fastify.delete('/comments/:id/reactions/:type', {
     preHandler: authenticate,
     handler: async (request, reply) => {
       const { id, type } = request.params as { id: string; type: string }
       const userId = request.user!.id
-      
+
       const comment = await prisma.comment.findUnique({
         where: { id },
-        include: { media: true }
+        include: { media: true },
       })
-      
+
       if (!comment) {
         return reply.code(404).send({ error: 'Comment not found' })
       }
-      
+
       await prisma.reaction.delete({
         where: {
           commentId_userId_type: {
             commentId: id,
             userId,
-            type
-          }
-        }
+            type,
+          },
+        },
       })
-      
+
       // Emit real-time update
       emitToProject(comment.media.projectId, 'reaction:removed', {
         commentId: id,
         type,
         userId,
-        mediaId: comment.mediaId
+        mediaId: comment.mediaId,
       })
-      
+
       return reply.code(204).send()
-    }
+    },
   })
 }
 
@@ -373,20 +378,23 @@ function getTranslatedContent(comment: any, targetLang: string): string {
   if (comment.originalLang === targetLang) {
     return comment.content
   }
-  
+
   const translations = comment.translations as any
   if (translations && translations[targetLang]) {
     return translations[targetLang]
   }
-  
+
   return comment.content // Fallback to original
 }
 
-async function createTranslations(content: string, sourceLang: string): Promise<any> {
+async function createTranslations(
+  content: string,
+  sourceLang: string
+): Promise<any> {
   // Translate to common languages used in construction
   const targetLanguages = ['en', 'es', 'fr', 'de', 'pt', 'zh', 'ja', 'ko']
   const translations: any = {}
-  
+
   for (const lang of targetLanguages) {
     if (lang !== sourceLang) {
       try {
@@ -397,6 +405,6 @@ async function createTranslations(content: string, sourceLang: string): Promise<
       }
     }
   }
-  
+
   return translations
 }

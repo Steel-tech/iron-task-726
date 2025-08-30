@@ -23,7 +23,7 @@ import {
   Camera,
   Smartphone,
   Shield,
-  Mic
+  Mic,
 } from 'lucide-react'
 import { UploadFabricationIcon } from '@/components/icons/SteelConstructionIcons'
 import SafetyAnalysisModal from './SafetyAnalysisModal'
@@ -48,7 +48,7 @@ export default function OfflineUpload() {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
-  
+
   const [files, setFiles] = useState<FileUpload[]>([])
   const [projects, setProjects] = useState<Project[]>([])
   const [selectedProjectId, setSelectedProjectId] = useState('')
@@ -63,17 +63,18 @@ export default function OfflineUpload() {
   const [syncProgress, setSyncProgress] = useState<SyncProgress | null>(null)
   const [autoLocationEnabled, setAutoLocationEnabled] = useState(true)
   const [showSafetyModal, setShowSafetyModal] = useState(false)
-  const [selectedFileForAnalysis, setSelectedFileForAnalysis] = useState<FileUpload | null>(null)
+  const [selectedFileForAnalysis, setSelectedFileForAnalysis] =
+    useState<FileUpload | null>(null)
   const [showVoiceInput, setShowVoiceInput] = useState(false)
 
   // Network status monitoring
   useEffect(() => {
     const handleOnline = () => setIsOnline(true)
     const handleOffline = () => setIsOnline(false)
-    
+
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
-    
+
     return () => {
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
@@ -90,18 +91,18 @@ export default function OfflineUpload() {
         // Silent failure
       }
     }
-    
+
     updateQueuedCount()
     const interval = setInterval(updateQueuedCount, 5000)
-    
+
     return () => clearInterval(interval)
   }, [])
 
   // Setup auto-sync
   useEffect(() => {
-    syncService.setupAutoSync((progress) => {
+    syncService.setupAutoSync(progress => {
       setSyncProgress(progress)
-      
+
       // Update queued count when sync completes
       if (progress.completedItems === progress.totalItems) {
         setTimeout(async () => {
@@ -141,9 +142,9 @@ export default function OfflineUpload() {
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === "dragenter" || e.type === "dragover") {
+    if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true)
-    } else if (e.type === "dragleave") {
+    } else if (e.type === 'dragleave') {
       setDragActive(false)
     }
   }
@@ -152,7 +153,7 @@ export default function OfflineUpload() {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFiles(e.dataTransfer.files)
     }
@@ -171,24 +172,30 @@ export default function OfflineUpload() {
   }
 
   const handleFiles = async (fileList: FileList, fromCamera = false) => {
-    const gpsCoordinates = autoLocationEnabled ? await offlineStorage.getCurrentLocation() : null
-    
+    const gpsCoordinates = autoLocationEnabled
+      ? await offlineStorage.getCurrentLocation()
+      : null
+
     const newFiles: FileUpload[] = Array.from(fileList)
-      .filter(file => file.type.startsWith('image/') || file.type.startsWith('video/'))
+      .filter(
+        file => file.type.startsWith('image/') || file.type.startsWith('video/')
+      )
       .map(file => ({
         id: Math.random().toString(36).substr(2, 9),
         file,
         preview: URL.createObjectURL(file),
         progress: 0,
         status: 'pending' as const,
-        gpsCoordinates: gpsCoordinates || undefined
+        gpsCoordinates: gpsCoordinates || undefined,
       }))
-    
+
     setFiles(prev => [...prev, ...newFiles])
 
     // Auto-fill location from GPS if available and camera was used
     if (fromCamera && gpsCoordinates && !location) {
-      setLocation(`GPS: ${gpsCoordinates.latitude.toFixed(6)}, ${gpsCoordinates.longitude.toFixed(6)}`)
+      setLocation(
+        `GPS: ${gpsCoordinates.latitude.toFixed(6)}, ${gpsCoordinates.longitude.toFixed(6)}`
+      )
     }
   }
 
@@ -219,11 +226,13 @@ export default function OfflineUpload() {
       if (fileUpload.status === 'success') continue
 
       try {
-        setFiles(prev => prev.map(f => 
-          f.id === fileUpload.id 
-            ? { ...f, status: 'uploading' as const, progress: 0 }
-            : f
-        ))
+        setFiles(prev =>
+          prev.map(f =>
+            f.id === fileUpload.id
+              ? { ...f, status: 'uploading' as const, progress: 0 }
+              : f
+          )
+        )
 
         if (isOnline) {
           // Try online upload first
@@ -234,35 +243,44 @@ export default function OfflineUpload() {
           formData.append('location', location)
           formData.append('notes', notes)
           formData.append('tags', tags)
-          formData.append('mediaType', fileUpload.file.type.startsWith('video/') ? 'VIDEO' : 'PHOTO')
+          formData.append(
+            'mediaType',
+            fileUpload.file.type.startsWith('video/') ? 'VIDEO' : 'PHOTO'
+          )
 
           if (fileUpload.gpsCoordinates) {
-            formData.append('latitude', fileUpload.gpsCoordinates.latitude.toString())
-            formData.append('longitude', fileUpload.gpsCoordinates.longitude.toString())
+            formData.append(
+              'latitude',
+              fileUpload.gpsCoordinates.latitude.toString()
+            )
+            formData.append(
+              'longitude',
+              fileUpload.gpsCoordinates.longitude.toString()
+            )
           }
 
           await api.post('/media/upload', formData, {
             headers: {
-              'Content-Type': 'multipart/form-data'
+              'Content-Type': 'multipart/form-data',
             },
-            onUploadProgress: (progressEvent) => {
+            onUploadProgress: progressEvent => {
               const progress = progressEvent.total
                 ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
                 : 0
-              
-              setFiles(prev => prev.map(f => 
-                f.id === fileUpload.id 
-                  ? { ...f, progress }
-                  : f
-              ))
-            }
+
+              setFiles(prev =>
+                prev.map(f => (f.id === fileUpload.id ? { ...f, progress } : f))
+              )
+            },
           })
 
-          setFiles(prev => prev.map(f => 
-            f.id === fileUpload.id 
-              ? { ...f, status: 'success' as const, progress: 100 }
-              : f
-          ))
+          setFiles(prev =>
+            prev.map(f =>
+              f.id === fileUpload.id
+                ? { ...f, status: 'success' as const, progress: 100 }
+                : f
+            )
+          )
         } else {
           throw new Error('No internet connection')
         }
@@ -276,25 +294,35 @@ export default function OfflineUpload() {
             location,
             notes,
             tags,
-            mediaType: fileUpload.file.type.startsWith('video/') ? 'VIDEO' : 'PHOTO',
-            gpsCoordinates: fileUpload.gpsCoordinates
+            mediaType: fileUpload.file.type.startsWith('video/')
+              ? 'VIDEO'
+              : 'PHOTO',
+            gpsCoordinates: fileUpload.gpsCoordinates,
           })
 
-          setFiles(prev => prev.map(f => 
-            f.id === fileUpload.id 
-              ? { ...f, status: 'offline' as const, progress: 100 }
-              : f
-          ))
+          setFiles(prev =>
+            prev.map(f =>
+              f.id === fileUpload.id
+                ? { ...f, status: 'offline' as const, progress: 100 }
+                : f
+            )
+          )
 
           // Update queued count
           const count = await syncService.getQueuedItemsCount()
           setQueuedCount(count)
         } catch (offlineError) {
-          setFiles(prev => prev.map(f => 
-            f.id === fileUpload.id 
-              ? { ...f, status: 'error' as const, error: 'Failed to save offline' }
-              : f
-          ))
+          setFiles(prev =>
+            prev.map(f =>
+              f.id === fileUpload.id
+                ? {
+                    ...f,
+                    status: 'error' as const,
+                    error: 'Failed to save offline',
+                  }
+                : f
+            )
+          )
         }
       }
     }
@@ -302,7 +330,9 @@ export default function OfflineUpload() {
     setIsUploading(false)
 
     // Check if all uploads were successful or stored offline
-    const allProcessed = files.every(f => f.status === 'success' || f.status === 'offline')
+    const allProcessed = files.every(
+      f => f.status === 'success' || f.status === 'offline'
+    )
     if (allProcessed) {
       setTimeout(() => {
         router.push(`/dashboard/projects/${selectedProjectId}`)
@@ -317,15 +347,18 @@ export default function OfflineUpload() {
     }
 
     try {
-      await syncService.startSync((progress) => {
+      await syncService.startSync(progress => {
         setSyncProgress(progress)
       })
-      
+
       const count = await syncService.getQueuedItemsCount()
       setQueuedCount(count)
       setSyncProgress(null)
     } catch (error) {
-      alert('Sync failed: ' + (error instanceof Error ? error.message : 'Unknown error'))
+      alert(
+        'Sync failed: ' +
+          (error instanceof Error ? error.message : 'Unknown error')
+      )
     }
   }
 
@@ -335,7 +368,7 @@ export default function OfflineUpload() {
   }
 
   const handleVoiceTranscription = (text: string) => {
-    setNotes(prev => prev ? `${prev}\n\n${text}` : text)
+    setNotes(prev => (prev ? `${prev}\n\n${text}` : text))
     setShowVoiceInput(false)
   }
 
@@ -348,13 +381,21 @@ export default function OfflineUpload() {
         <h1 className="text-3xl font-bold font-shogun">Upload Media</h1>
         <div className="flex items-center gap-4">
           {/* Network status */}
-          <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm ${
-            isOnline ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          }`}>
-            {isOnline ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
+          <div
+            className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm ${
+              isOnline
+                ? 'bg-green-100 text-green-800'
+                : 'bg-red-100 text-red-800'
+            }`}
+          >
+            {isOnline ? (
+              <Wifi className="h-4 w-4" />
+            ) : (
+              <WifiOff className="h-4 w-4" />
+            )}
             {isOnline ? 'Online' : 'Offline'}
           </div>
-          
+
           {/* Queued items indicator */}
           {queuedCount > 0 && (
             <div className="flex items-center gap-2 px-3 py-1 rounded-full text-sm bg-orange-100 text-orange-800">
@@ -373,7 +414,7 @@ export default function OfflineUpload() {
               )}
             </div>
           )}
-          
+
           <div className="text-sm text-muted-foreground">
             {files.length} files ({totalSizeMB} MB)
           </div>
@@ -385,16 +426,22 @@ export default function OfflineUpload() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-blue-800">
-              Syncing offline media ({syncProgress.completedItems} of {syncProgress.totalItems})
+              Syncing offline media ({syncProgress.completedItems} of{' '}
+              {syncProgress.totalItems})
             </span>
             <span className="text-sm text-blue-600">
-              {Math.round((syncProgress.completedItems / syncProgress.totalItems) * 100)}%
+              {Math.round(
+                (syncProgress.completedItems / syncProgress.totalItems) * 100
+              )}
+              %
             </span>
           </div>
           <div className="w-full bg-blue-200 rounded-full h-2">
             <div
               className="bg-blue-500 h-2 rounded-full transition-all"
-              style={{ width: `${(syncProgress.completedItems / syncProgress.totalItems) * 100}%` }}
+              style={{
+                width: `${(syncProgress.completedItems / syncProgress.totalItems) * 100}%`,
+              }}
             />
           </div>
           {syncProgress.currentItem && (
@@ -414,24 +461,25 @@ export default function OfflineUpload() {
               type="checkbox"
               id="autoLocation"
               checked={autoLocationEnabled}
-              onChange={(e) => setAutoLocationEnabled(e.target.checked)}
+              onChange={e => setAutoLocationEnabled(e.target.checked)}
               className="rounded"
             />
-            <label htmlFor="autoLocation" className="text-sm flex items-center gap-1">
+            <label
+              htmlFor="autoLocation"
+              className="text-sm flex items-center gap-1"
+            >
               <MapPin className="h-4 w-4" />
               Auto GPS
             </label>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Project *
-            </label>
+            <label className="block text-sm font-medium mb-2">Project *</label>
             <select
               value={selectedProjectId}
-              onChange={(e) => setSelectedProjectId(e.target.value)}
+              onChange={e => setSelectedProjectId(e.target.value)}
               className="w-full p-3 border rounded-md text-base" // Larger touch targets
               required
             >
@@ -450,7 +498,7 @@ export default function OfflineUpload() {
             </label>
             <select
               value={activityType}
-              onChange={(e) => setActivityType(e.target.value)}
+              onChange={e => setActivityType(e.target.value)}
               className="w-full p-3 border rounded-md text-base" // Larger touch targets
             >
               <option value="ERECTION">Erection</option>
@@ -462,26 +510,22 @@ export default function OfflineUpload() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Location
-            </label>
+            <label className="block text-sm font-medium mb-2">Location</label>
             <input
               type="text"
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={e => setLocation(e.target.value)}
               placeholder="e.g., Bay 3, Level 2"
               className="w-full p-3 border rounded-md text-base" // Larger touch targets
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Tags
-            </label>
+            <label className="block text-sm font-medium mb-2">Tags</label>
             <input
               type="text"
               value={tags}
-              onChange={(e) => setTags(e.target.value)}
+              onChange={e => setTags(e.target.value)}
               placeholder="welding, beam, safety (comma separated)"
               className="w-full p-3 border rounded-md text-base" // Larger touch targets
             />
@@ -490,9 +534,7 @@ export default function OfflineUpload() {
 
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium">
-              Notes
-            </label>
+            <label className="block text-sm font-medium">Notes</label>
             <Button
               type="button"
               onClick={() => setShowVoiceInput(!showVoiceInput)}
@@ -504,7 +546,7 @@ export default function OfflineUpload() {
               Voice Input
             </Button>
           </div>
-          
+
           {showVoiceInput && (
             <div className="mb-4">
               <VoiceToText
@@ -513,10 +555,10 @@ export default function OfflineUpload() {
               />
             </div>
           )}
-          
+
           <textarea
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+            onChange={e => setNotes(e.target.value)}
             placeholder="Add any additional details..."
             className="w-full p-3 border rounded-md text-base" // Larger touch targets
             rows={3}
@@ -572,12 +614,13 @@ export default function OfflineUpload() {
             onChange={handleFileSelect}
             className="hidden"
           />
-          
+
           <div className="text-center">
-            <UploadFabricationIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" size={32} />
-            <p className="text-sm font-medium mb-2">
-              Drop files or browse
-            </p>
+            <UploadFabricationIcon
+              className="h-8 w-8 text-gray-400 mx-auto mb-2"
+              size={32}
+            />
+            <p className="text-sm font-medium mb-2">Drop files or browse</p>
             <Button
               onClick={() => fileInputRef.current?.click()}
               variant="outline"
@@ -594,7 +637,9 @@ export default function OfflineUpload() {
       {files.length > 0 && (
         <div className="bg-card rounded-lg shadow p-6 space-y-4">
           <h3 className="font-semibold">Selected Files</h3>
-          <div className="space-y-3"> {/* Increased spacing for touch */}
+          <div className="space-y-3">
+            {' '}
+            {/* Increased spacing for touch */}
             {files.map(file => (
               <div
                 key={file.id}
@@ -618,9 +663,11 @@ export default function OfflineUpload() {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{file.file.name}</p>
+                  <p className="text-sm font-medium truncate">
+                    {file.file.name}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {(file.file.size / 1024 / 1024).toFixed(2)} MB
                   </p>
@@ -631,7 +678,9 @@ export default function OfflineUpload() {
                     </p>
                   )}
                   {file.status === 'uploading' && (
-                    <div className="mt-1 w-full bg-gray-200 rounded-full h-2"> {/* Thicker progress bar */}
+                    <div className="mt-1 w-full bg-gray-200 rounded-full h-2">
+                      {' '}
+                      {/* Thicker progress bar */}
                       <div
                         className="bg-primary h-2 rounded-full transition-all"
                         style={{ width: `${file.progress}%` }}
@@ -639,7 +688,7 @@ export default function OfflineUpload() {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   {file.status === 'success' && (
                     <CheckCircle className="h-6 w-6 text-green-500" />
@@ -671,7 +720,7 @@ export default function OfflineUpload() {
               </div>
             ))}
           </div>
-          
+
           <div className="flex gap-4 pt-4">
             <Button
               onClick={uploadFiles}

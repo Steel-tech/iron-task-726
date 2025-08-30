@@ -4,17 +4,13 @@
  */
 
 const CACHE_NAME = 'fsw-iron-task-v2'
-const CORE_URLS = [
-  '/',
-  '/dashboard',
-  '/dashboard/upload',
-  '/login'
-]
+const CORE_URLS = ['/', '/dashboard', '/dashboard/upload', '/login']
 
 // Install event - cache core assets
-self.addEventListener('install', (event) => {
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
+    caches
+      .open(CACHE_NAME)
       .then(cache => {
         return cache.addAll(CORE_URLS)
       })
@@ -23,9 +19,10 @@ self.addEventListener('install', (event) => {
 })
 
 // Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys()
+    caches
+      .keys()
       .then(cacheNames => {
         return Promise.all(
           cacheNames.map(cacheName => {
@@ -40,7 +37,7 @@ self.addEventListener('activate', (event) => {
 })
 
 // Fetch event - implement cache-first strategy
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', event => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') {
     return
@@ -54,49 +51,54 @@ self.addEventListener('fetch', (event) => {
   // Handle API requests with network-first strategy
   if (event.request.url.includes('/api/')) {
     event.respondWith(
-      fetch(event.request)
-        .catch(() => {
-          return new Response(JSON.stringify({
+      fetch(event.request).catch(() => {
+        return new Response(
+          JSON.stringify({
             error: 'Offline',
-            message: 'Request will be processed when connection is restored'
-          }), {
+            message: 'Request will be processed when connection is restored',
+          }),
+          {
             status: 503,
             statusText: 'Service Unavailable',
-            headers: { 'Content-Type': 'application/json' }
-          })
-        })
+            headers: { 'Content-Type': 'application/json' },
+          }
+        )
+      })
     )
     return
   }
 
   // Handle page requests with cache-first strategy
   event.respondWith(
-    caches.match(event.request)
-      .then(cachedResponse => {
-        if (cachedResponse) {
-          return cachedResponse
-        }
+    caches.match(event.request).then(cachedResponse => {
+      if (cachedResponse) {
+        return cachedResponse
+      }
 
-        return fetch(event.request)
-          .then(response => {
-            // Don't cache error responses
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response
-            }
-
-            // Cache successful responses
-            const responseToCache = response.clone()
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache)
-              })
-
+      return fetch(event.request)
+        .then(response => {
+          // Don't cache error responses
+          if (
+            !response ||
+            response.status !== 200 ||
+            response.type !== 'basic'
+          ) {
             return response
+          }
+
+          // Cache successful responses
+          const responseToCache = response.clone()
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseToCache)
           })
-          .catch(() => {
-            // Return offline page for navigation requests
-            if (event.request.mode === 'navigate') {
-              return new Response(`
+
+          return response
+        })
+        .catch(() => {
+          // Return offline page for navigation requests
+          if (event.request.mode === 'navigate') {
+            return new Response(
+              `
                 <!DOCTYPE html>
                 <html>
                 <head>
@@ -128,21 +130,23 @@ self.addEventListener('fetch', (event) => {
                   </div>
                 </body>
                 </html>
-              `, {
+              `,
+              {
                 status: 200,
                 statusText: 'OK',
-                headers: { 'Content-Type': 'text/html' }
-              })
-            }
-            
-            return new Response('', { status: 503 })
-          })
-      })
+                headers: { 'Content-Type': 'text/html' },
+              }
+            )
+          }
+
+          return new Response('', { status: 503 })
+        })
+    })
   )
 })
 
 // Background sync for offline uploads
-self.addEventListener('sync', (event) => {
+self.addEventListener('sync', event => {
   if (event.tag === 'background-sync-uploads') {
     event.waitUntil(handleBackgroundSync())
   }
@@ -154,7 +158,7 @@ async function handleBackgroundSync() {
     clients.forEach(client => {
       client.postMessage({
         type: 'BACKGROUND_SYNC',
-        action: 'sync-uploads'
+        action: 'sync-uploads',
       })
     })
   } catch (error) {
@@ -163,7 +167,7 @@ async function handleBackgroundSync() {
 }
 
 // Push notification handling
-self.addEventListener('push', (event) => {
+self.addEventListener('push', event => {
   if (!event.data) return
 
   const options = {
@@ -173,8 +177,8 @@ self.addEventListener('push', (event) => {
     data: { url: '/dashboard' },
     actions: [
       { action: 'open', title: 'View Updates' },
-      { action: 'close', title: 'Dismiss' }
-    ]
+      { action: 'close', title: 'Dismiss' },
+    ],
   }
 
   try {
@@ -185,13 +189,11 @@ self.addEventListener('push', (event) => {
     // Use default options if parsing fails
   }
 
-  event.waitUntil(
-    self.registration.showNotification('FSW Iron Task', options)
-  )
+  event.waitUntil(self.registration.showNotification('FSW Iron Task', options))
 })
 
 // Notification click handling
-self.addEventListener('notificationclick', (event) => {
+self.addEventListener('notificationclick', event => {
   event.notification.close()
 
   if (event.action === 'close') {
@@ -201,25 +203,24 @@ self.addEventListener('notificationclick', (event) => {
   const urlToOpen = event.notification.data?.url || '/dashboard'
 
   event.waitUntil(
-    self.clients.matchAll({ type: 'window' })
-      .then(clients => {
-        // Check if window is already open
-        for (const client of clients) {
-          if (client.url.includes(urlToOpen) && 'focus' in client) {
-            return client.focus()
-          }
+    self.clients.matchAll({ type: 'window' }).then(clients => {
+      // Check if window is already open
+      for (const client of clients) {
+        if (client.url.includes(urlToOpen) && 'focus' in client) {
+          return client.focus()
         }
+      }
 
-        // Open new window
-        if (self.clients.openWindow) {
-          return self.clients.openWindow(urlToOpen)
-        }
-      })
+      // Open new window
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(urlToOpen)
+      }
+    })
   )
 })
 
 // Handle messages from the app
-self.addEventListener('message', (event) => {
+self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting()
   }

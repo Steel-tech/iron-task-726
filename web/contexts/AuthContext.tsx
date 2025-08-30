@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [showSessionWarning, setShowSessionWarning] = useState(false)
-  
+
   useEffect(() => {
     // Only access localStorage on the client side to prevent hydration mismatch
     if (typeof window !== 'undefined') {
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false)
     }
   }, [])
-  
+
   const setupSessionWarning = (token: string) => {
     try {
       // Validate JWT token format
@@ -54,13 +54,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.warn('Invalid token provided to setupSessionWarning')
         return
       }
-      
+
       const tokenParts = token.split('.')
       if (tokenParts.length !== 3) {
         console.warn('Invalid JWT token format')
         return
       }
-      
+
       // Decode the base64 payload safely
       let decodedPayload: string
       try {
@@ -69,17 +69,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.warn('Failed to decode JWT token payload:', decodeError)
         return
       }
-      
+
       const payload = JSON.parse(decodedPayload)
       if (!payload.exp) {
         console.warn('Token payload missing exp field')
         return
       }
-      
+
       const expiresAt = payload.exp * 1000
       const now = Date.now()
-      const timeUntilWarning = expiresAt - now - (5 * 60 * 1000) // 5 minutes before expiry
-      
+      const timeUntilWarning = expiresAt - now - 5 * 60 * 1000 // 5 minutes before expiry
+
       if (timeUntilWarning > 0) {
         setTimeout(() => {
           setShowSessionWarning(true)
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Error setting up session warning:', error)
     }
   }
-  
+
   const fetchUser = async () => {
     try {
       const userData = await authApi.getMe()
@@ -106,57 +106,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false)
     }
   }
-  
+
   const login = async (email: string, password: string) => {
     const response = await authApi.login({ email, password })
     const { accessToken: newToken, user: userData } = response
-    
+
     // Store token - already handled by authApi.login
     api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
-    
+
     setToken(newToken)
     setUser(userData)
     setupSessionWarning(newToken)
   }
-  
+
   const logout = async () => {
     try {
       await authApi.logout()
     } catch (error) {
       console.error('Logout error:', error)
     }
-    
+
     // Clear token and user - authApi.logout already removes accessToken
     delete api.defaults.headers.common['Authorization']
     setToken(null)
     setUser(null)
-    
+
     // Clear localStorage only on client side
     if (typeof window !== 'undefined') {
       localStorage.removeItem('accessToken')
     }
   }
-  
+
   const refreshUser = async () => {
     if (token) {
       await fetchUser()
     }
   }
-  
+
   const value = {
     user,
     token,
     isLoading,
     login,
     logout,
-    refreshUser
+    refreshUser,
   }
-  
+
   return (
     <AuthContext.Provider value={value}>
       {children}
       {showSessionWarning && (
-        <SessionWarning 
+        <SessionWarning
           onExtend={() => {
             setShowSessionWarning(false)
             // Token refresh is handled by the SessionWarning component

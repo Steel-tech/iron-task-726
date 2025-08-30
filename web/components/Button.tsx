@@ -11,8 +11,10 @@ const buttonVariants = cva(
         default: 'btn-construction-primary',
         destructive: 'btn-construction-danger',
         outline: 'btn-construction',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 border-2 border-secondary',
-        ghost: 'hover:bg-accent hover:text-accent-foreground shadow-none hover:shadow-none',
+        secondary:
+          'bg-secondary text-secondary-foreground hover:bg-secondary/80 border-2 border-secondary',
+        ghost:
+          'hover:bg-accent hover:text-accent-foreground shadow-none hover:shadow-none',
         link: 'text-primary underline-offset-4 hover:underline shadow-none hover:shadow-none transform-none hover:scale-100 active:scale-100',
         construction: 'btn-construction',
         'construction-primary': 'btn-construction-primary',

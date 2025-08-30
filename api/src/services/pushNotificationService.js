@@ -1,7 +1,7 @@
-const webpush = require('web-push');
-const prisma = require('../lib/prisma');
-const env = require('../config/env');
-const { logger } = require('../utils/logger');
+const webpush = require('web-push')
+const prisma = require('../lib/prisma')
+const env = require('../config/env')
+const { logger } = require('../utils/logger')
 
 class PushNotificationService {
   constructor() {
@@ -11,11 +11,11 @@ class PushNotificationService {
         `mailto:${env.VAPID_EMAIL}`,
         env.VAPID_PUBLIC_KEY,
         env.VAPID_PRIVATE_KEY
-      );
-      this.initialized = true;
+      )
+      this.initialized = true
     } else {
-      logger.warn('Push notifications not configured - missing VAPID keys');
-      this.initialized = false;
+      logger.warn('Push notifications not configured - missing VAPID keys')
+      this.initialized = false
     }
   }
 
@@ -23,7 +23,7 @@ class PushNotificationService {
    * Generate VAPID keys for initial setup
    */
   static generateVapidKeys() {
-    return webpush.generateVAPIDKeys();
+    return webpush.generateVAPIDKeys()
   }
 
   /**
@@ -39,9 +39,9 @@ class PushNotificationService {
       const existing = await prisma.pushSubscription.findFirst({
         where: {
           userId,
-          endpoint: subscription.endpoint
-        }
-      });
+          endpoint: subscription.endpoint,
+        },
+      })
 
       if (existing) {
         // Update existing subscription
@@ -51,9 +51,9 @@ class PushNotificationService {
             p256dh: subscription.keys.p256dh,
             auth: subscription.keys.auth,
             deviceName,
-            lastUsed: new Date()
-          }
-        });
+            lastUsed: new Date(),
+          },
+        })
       }
 
       // Create new subscription
@@ -64,12 +64,12 @@ class PushNotificationService {
           p256dh: subscription.keys.p256dh,
           auth: subscription.keys.auth,
           deviceName,
-          lastUsed: new Date()
-        }
-      });
+          lastUsed: new Date(),
+        },
+      })
     } catch (error) {
-      logger.error('Failed to save push subscription:', error);
-      throw error;
+      logger.error('Failed to save push subscription:', error)
+      throw error
     }
   }
 
@@ -83,12 +83,12 @@ class PushNotificationService {
       await prisma.pushSubscription.deleteMany({
         where: {
           userId,
-          endpoint
-        }
-      });
+          endpoint,
+        },
+      })
     } catch (error) {
-      logger.error('Failed to remove push subscription:', error);
-      throw error;
+      logger.error('Failed to remove push subscription:', error)
+      throw error
     }
   }
 
@@ -100,19 +100,19 @@ class PushNotificationService {
    */
   async sendToUser(userId, notification) {
     if (!this.initialized) {
-      logger.warn('Push notifications not initialized');
-      return [];
+      logger.warn('Push notifications not initialized')
+      return []
     }
 
     try {
       // Get all user's push subscriptions
       const subscriptions = await prisma.pushSubscription.findMany({
-        where: { userId }
-      });
+        where: { userId },
+      })
 
       if (subscriptions.length === 0) {
-        logger.debug(`No push subscriptions found for user ${userId}`);
-        return [];
+        logger.debug(`No push subscriptions found for user ${userId}`)
+        return []
       }
 
       // Prepare notification payload
@@ -125,50 +125,57 @@ class PushNotificationService {
           notificationId: notification.id,
           type: notification.type,
           url: notification.url || '/',
-          ...notification.data
+          ...notification.data,
         },
-        timestamp: Date.now()
-      });
+        timestamp: Date.now(),
+      })
 
       // Send to all subscriptions
       const results = await Promise.allSettled(
-        subscriptions.map(async (sub) => {
+        subscriptions.map(async sub => {
           const pushSubscription = {
             endpoint: sub.endpoint,
             keys: {
               p256dh: sub.p256dh,
-              auth: sub.auth
-            }
-          };
+              auth: sub.auth,
+            },
+          }
 
           try {
-            await webpush.sendNotification(pushSubscription, payload);
+            await webpush.sendNotification(pushSubscription, payload)
             // Update last used timestamp
             await prisma.pushSubscription.update({
               where: { id: sub.id },
-              data: { lastUsed: new Date() }
-            });
-            return { success: true, subscriptionId: sub.id };
+              data: { lastUsed: new Date() },
+            })
+            return { success: true, subscriptionId: sub.id }
           } catch (error) {
             // Handle subscription errors
             if (error.statusCode === 410) {
               // Subscription expired, remove it
               await prisma.pushSubscription.delete({
-                where: { id: sub.id }
-              });
-              logger.info(`Removed expired subscription ${sub.id}`);
+                where: { id: sub.id },
+              })
+              logger.info(`Removed expired subscription ${sub.id}`)
             } else {
-              logger.error(`Failed to send push to subscription ${sub.id}:`, error);
+              logger.error(
+                `Failed to send push to subscription ${sub.id}:`,
+                error
+              )
             }
-            return { success: false, subscriptionId: sub.id, error: error.message };
+            return {
+              success: false,
+              subscriptionId: sub.id,
+              error: error.message,
+            }
           }
         })
-      );
+      )
 
-      return results;
+      return results
     } catch (error) {
-      logger.error('Failed to send push notifications:', error);
-      throw error;
+      logger.error('Failed to send push notifications:', error)
+      throw error
     }
   }
 
@@ -180,14 +187,14 @@ class PushNotificationService {
   async sendToUsers(userIds, notification) {
     const results = await Promise.allSettled(
       userIds.map(userId => this.sendToUser(userId, notification))
-    );
-    
+    )
+
     return results.map((result, index) => ({
       userId: userIds[index],
       status: result.status,
       results: result.value || [],
-      error: result.reason?.message
-    }));
+      error: result.reason?.message,
+    }))
   }
 
   /**
@@ -201,10 +208,10 @@ class PushNotificationService {
         id: true,
         deviceName: true,
         createdAt: true,
-        lastUsed: true
+        lastUsed: true,
       },
-      orderBy: { lastUsed: 'desc' }
-    });
+      orderBy: { lastUsed: 'desc' },
+    })
   }
 
   /**
@@ -212,21 +219,21 @@ class PushNotificationService {
    * @param {number} daysInactive - Number of days of inactivity
    */
   async cleanupInactiveSubscriptions(daysInactive = 90) {
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - daysInactive);
+    const cutoffDate = new Date()
+    cutoffDate.setDate(cutoffDate.getDate() - daysInactive)
 
     const result = await prisma.pushSubscription.deleteMany({
       where: {
         lastUsed: {
-          lt: cutoffDate
-        }
-      }
-    });
+          lt: cutoffDate,
+        },
+      },
+    })
 
-    logger.info(`Cleaned up ${result.count} inactive push subscriptions`);
-    return result.count;
+    logger.info(`Cleaned up ${result.count} inactive push subscriptions`)
+    return result.count
   }
 }
 
 // Export singleton instance
-module.exports = new PushNotificationService();
+module.exports = new PushNotificationService()

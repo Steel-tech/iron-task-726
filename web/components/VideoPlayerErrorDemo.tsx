@@ -8,10 +8,11 @@ import { AlertTriangle, CheckCircle } from 'lucide-react'
 export default function VideoPlayerErrorDemo() {
   const [showError, setShowError] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
-  
-  const validVideoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
+
+  const validVideoUrl =
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
   const invalidVideoUrl = 'https://example.invalid/non-existent-video-404.mp4'
-  
+
   return (
     <div className="space-y-4">
       {/* Force error state for demo */}
@@ -21,7 +22,9 @@ export default function VideoPlayerErrorDemo() {
             <AlertTriangle className="h-16 w-16 text-red-500" />
             <div className="text-center space-y-2 px-4">
               <p className="text-lg font-semibold">Video source not found</p>
-              <p className="text-sm text-gray-400">Please check the video source and try again</p>
+              <p className="text-sm text-gray-400">
+                Please check the video source and try again
+              </p>
             </div>
           </div>
         </div>
@@ -30,15 +33,15 @@ export default function VideoPlayerErrorDemo() {
           src={validVideoUrl}
           title="Successfully Loaded Video"
           className="w-full aspect-video"
-          onError={(e) => {
+          onError={e => {
             console.log('Video error:', e)
             setErrorMessage('Video failed to load')
           }}
         />
       )}
-      
+
       <div className="flex gap-2">
-        <Button 
+        <Button
           variant="outline"
           size="sm"
           onClick={() => setShowError(true)}
@@ -47,7 +50,7 @@ export default function VideoPlayerErrorDemo() {
           <AlertTriangle className="h-4 w-4 mr-2" />
           Show Error State
         </Button>
-        <Button 
+        <Button
           size="sm"
           onClick={() => setShowError(false)}
           className="text-xs bg-safety-green hover:bg-green-700"
@@ -56,10 +59,8 @@ export default function VideoPlayerErrorDemo() {
           Load Valid Video
         </Button>
       </div>
-      
-      {errorMessage && (
-        <p className="text-sm text-red-400">{errorMessage}</p>
-      )}
+
+      {errorMessage && <p className="text-sm text-red-400">{errorMessage}</p>}
     </div>
   )
 }

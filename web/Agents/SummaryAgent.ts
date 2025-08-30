@@ -14,7 +14,7 @@ export const SummaryIcon = BookOpen
 export async function summarize(text: string): Promise<string> {
   const completion = await openai.chat.completions.create({
     model: 'gpt-4-turbo',
-    messages: [{ role: 'user', content: `Summarize the following:\n${text}` }]
+    messages: [{ role: 'user', content: `Summarize the following:\n${text}` }],
   })
 
   return completion.choices[0]?.message?.content?.trim() || ''

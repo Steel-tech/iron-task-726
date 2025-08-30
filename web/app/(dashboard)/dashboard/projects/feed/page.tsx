@@ -20,18 +20,18 @@ import {
   MoreVertical,
   Image as ImageIcon,
   Clock,
-  Activity
+  Activity,
 } from 'lucide-react'
 import { Button } from '@/components/Button'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/ui/use-toast'
 import { Badge } from '@/components/ui/badge'
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import api from '@/lib/api'
 
@@ -130,8 +130,8 @@ export default function ProjectFeedPage() {
       const response = await api.get('/api/feed', {
         params: {
           starred: showStarredOnly,
-          limit: preferences.itemsPerPage || 20
-        }
+          limit: preferences.itemsPerPage || 20,
+        },
       })
       setProjects(response.data.projects)
       setPreferences(response.data.preferences || {})
@@ -141,7 +141,7 @@ export default function ProjectFeedPage() {
       toast({
         title: 'Error',
         description: 'Failed to load project feed',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     } finally {
       setLoading(false)
@@ -156,9 +156,12 @@ export default function ProjectFeedPage() {
   // Auto-refresh functionality
   useEffect(() => {
     if (preferences.autoRefresh) {
-      const interval = setInterval(() => {
-        fetchProjectFeed()
-      }, (preferences.refreshInterval || 30) * 1000)
+      const interval = setInterval(
+        () => {
+          fetchProjectFeed()
+        },
+        (preferences.refreshInterval || 30) * 1000
+      )
 
       return () => clearInterval(interval)
     }
@@ -169,24 +172,24 @@ export default function ProjectFeedPage() {
       const response = await api.post(`/api/projects/${projectId}/star`)
       const isStarred = response.data.starred
 
-      setProjects(prev => prev.map(project => 
-        project.id === projectId 
-          ? { ...project, isStarred }
-          : project
-      ))
+      setProjects(prev =>
+        prev.map(project =>
+          project.id === projectId ? { ...project, isStarred } : project
+        )
+      )
 
       toast({
         title: isStarred ? 'Project starred' : 'Project unstarred',
-        description: isStarred 
+        description: isStarred
           ? 'This project will appear at the top of your feed'
-          : 'Project removed from starred list'
+          : 'Project removed from starred list',
       })
     } catch (error) {
       console.error('Failed to star/unstar project:', error)
       toast({
         title: 'Error',
         description: 'Failed to update project star status',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
@@ -197,14 +200,14 @@ export default function ProjectFeedPage() {
       setPreferences(response.data.preferences)
       toast({
         title: 'Preferences updated',
-        description: 'Your feed preferences have been saved'
+        description: 'Your feed preferences have been saved',
       })
     } catch (error) {
       console.error('Failed to update preferences:', error)
       toast({
         title: 'Error',
         description: 'Failed to update preferences',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
@@ -212,7 +215,7 @@ export default function ProjectFeedPage() {
   const hideProject = async (projectId: string) => {
     const updatedHiddenProjects = [
       ...(preferences.hiddenProjects || []),
-      projectId
+      projectId,
     ]
     await updatePreferences({ hiddenProjects: updatedHiddenProjects })
     setProjects(prev => prev.filter(p => p.id !== projectId))
@@ -220,12 +223,18 @@ export default function ProjectFeedPage() {
 
   const getStatusColor = (status: Project['status']) => {
     switch (status) {
-      case 'ACTIVE': return 'bg-green-500'
-      case 'ON_HOLD': return 'bg-yellow-500'
-      case 'COMPLETED': return 'bg-blue-500'
-      case 'PLANNING': return 'bg-purple-500'
-      case 'ARCHIVED': return 'bg-gray-500'
-      default: return 'bg-gray-500'
+      case 'ACTIVE':
+        return 'bg-green-500'
+      case 'ON_HOLD':
+        return 'bg-yellow-500'
+      case 'COMPLETED':
+        return 'bg-blue-500'
+      case 'PLANNING':
+        return 'bg-purple-500'
+      case 'ARCHIVED':
+        return 'bg-gray-500'
+      default:
+        return 'bg-gray-500'
     }
   }
 
@@ -268,7 +277,9 @@ export default function ProjectFeedPage() {
               disabled={isRefreshing}
               className="text-gray-300"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`}
+              />
               Refresh
             </Button>
             <DropdownMenu>
@@ -279,28 +290,56 @@ export default function ProjectFeedPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={() => updatePreferences({ showStarredFirst: !preferences.showStarredFirst })}>
-                  {preferences.showStarredFirst ? 'Show all projects first' : 'Show starred first'}
+                <DropdownMenuItem
+                  onClick={() =>
+                    updatePreferences({
+                      showStarredFirst: !preferences.showStarredFirst,
+                    })
+                  }
+                >
+                  {preferences.showStarredFirst
+                    ? 'Show all projects first'
+                    : 'Show starred first'}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => updatePreferences({ hideInactive: !preferences.hideInactive })}>
-                  {preferences.hideInactive ? 'Show inactive projects' : 'Hide inactive projects'}
+                <DropdownMenuItem
+                  onClick={() =>
+                    updatePreferences({
+                      hideInactive: !preferences.hideInactive,
+                    })
+                  }
+                >
+                  {preferences.hideInactive
+                    ? 'Show inactive projects'
+                    : 'Hide inactive projects'}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => updatePreferences({ viewMode: 'grid' })}>
+                <DropdownMenuItem
+                  onClick={() => updatePreferences({ viewMode: 'grid' })}
+                >
                   <Grid3X3 className="h-4 w-4 mr-2" />
                   Grid view
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => updatePreferences({ viewMode: 'list' })}>
+                <DropdownMenuItem
+                  onClick={() => updatePreferences({ viewMode: 'list' })}
+                >
                   <List className="h-4 w-4 mr-2" />
                   List view
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => updatePreferences({ viewMode: 'compact' })}>
+                <DropdownMenuItem
+                  onClick={() => updatePreferences({ viewMode: 'compact' })}
+                >
                   <Layers className="h-4 w-4 mr-2" />
                   Compact view
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => updatePreferences({ autoRefresh: !preferences.autoRefresh })}>
-                  {preferences.autoRefresh ? 'Disable auto-refresh' : 'Enable auto-refresh'}
+                <DropdownMenuItem
+                  onClick={() =>
+                    updatePreferences({ autoRefresh: !preferences.autoRefresh })
+                  }
+                >
+                  {preferences.autoRefresh
+                    ? 'Disable auto-refresh'
+                    : 'Enable auto-refresh'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -318,20 +357,23 @@ export default function ProjectFeedPage() {
             Starred Projects
           </Button>
           <div className="text-sm text-gray-400">
-            Last updated: {formatDistanceToNow(lastRefresh, { addSuffix: true })}
+            Last updated:{' '}
+            {formatDistanceToNow(lastRefresh, { addSuffix: true })}
           </div>
         </div>
       </div>
 
       {/* Projects Grid/List */}
-      <div className={
-        preferences.viewMode === 'list' 
-          ? 'space-y-4' 
-          : preferences.viewMode === 'compact'
-          ? 'space-y-2'
-          : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
-      }>
-        {projects.map((project) => (
+      <div
+        className={
+          preferences.viewMode === 'list'
+            ? 'space-y-4'
+            : preferences.viewMode === 'compact'
+              ? 'space-y-2'
+              : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
+        }
+      >
+        {projects.map(project => (
           <div
             key={project.id}
             className={`
@@ -344,7 +386,7 @@ export default function ProjectFeedPage() {
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <Link 
+                  <Link
                     href={`/dashboard/projects/${project.id}`}
                     className="text-xl font-semibold text-white hover:text-primary transition-colors"
                   >
@@ -354,13 +396,17 @@ export default function ProjectFeedPage() {
                     onClick={() => toggleProjectStar(project.id)}
                     className="text-gray-400 hover:text-yellow-500 transition-colors"
                   >
-                    <Star className={`h-5 w-5 ${project.isStarred ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+                    <Star
+                      className={`h-5 w-5 ${project.isStarred ? 'fill-yellow-500 text-yellow-500' : ''}`}
+                    />
                   </button>
                 </div>
                 <div className="flex items-center gap-4 text-sm text-gray-400">
                   <span>#{project.jobNumber}</span>
                   <span>{project.location}</span>
-                  <Badge className={`${getStatusColor(project.status)} text-white`}>
+                  <Badge
+                    className={`${getStatusColor(project.status)} text-white`}
+                  >
                     {project.status}
                   </Badge>
                 </div>
@@ -372,7 +418,11 @@ export default function ProjectFeedPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => router.push(`/dashboard/projects/${project.id}`)}>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      router.push(`/dashboard/projects/${project.id}`)
+                    }
+                  >
                     <Eye className="h-4 w-4 mr-2" />
                     View project
                   </DropdownMenuItem>
@@ -388,7 +438,7 @@ export default function ProjectFeedPage() {
             {preferences.viewMode !== 'compact' && project.media.length > 0 && (
               <div className="mb-4">
                 <div className="grid grid-cols-5 gap-1">
-                  {project.media.slice(0, 5).map((media) => (
+                  {project.media.slice(0, 5).map(media => (
                     <div key={media.id} className="relative aspect-square">
                       {media.mediaType === 'VIDEO' ? (
                         <div className="absolute inset-0 bg-black rounded flex items-center justify-center">
@@ -430,25 +480,27 @@ export default function ProjectFeedPage() {
               </div>
               {project.feedEvents.length > 0 && (
                 <div className="text-xs text-gray-500">
-                  {project.feedEvents[0].user.name} {formatEventDescription(project.feedEvents[0])}
+                  {project.feedEvents[0].user.name}{' '}
+                  {formatEventDescription(project.feedEvents[0])}
                 </div>
               )}
             </div>
 
             {/* Labels */}
-            {project.labels.length > 0 && preferences.viewMode !== 'compact' && (
-              <div className="mt-3 flex flex-wrap gap-1">
-                {project.labels.map(({ label }) => (
-                  <Badge
-                    key={label.id}
-                    style={{ backgroundColor: label.color }}
-                    className="text-white text-xs"
-                  >
-                    {label.name}
-                  </Badge>
-                ))}
-              </div>
-            )}
+            {project.labels.length > 0 &&
+              preferences.viewMode !== 'compact' && (
+                <div className="mt-3 flex flex-wrap gap-1">
+                  {project.labels.map(({ label }) => (
+                    <Badge
+                      key={label.id}
+                      style={{ backgroundColor: label.color }}
+                      className="text-white text-xs"
+                    >
+                      {label.name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
           </div>
         ))}
       </div>

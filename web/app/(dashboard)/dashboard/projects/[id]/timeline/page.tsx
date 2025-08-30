@@ -17,7 +17,7 @@ import {
   Save,
   Trash2,
   ExternalLink,
-  BarChart
+  BarChart,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -44,12 +44,12 @@ export default function ProjectTimelinePage() {
   const params = useParams()
   const router = useRouter()
   const projectId = params.id as string
-  
+
   const [timeline, setTimeline] = useState<Timeline | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [project, setProject] = useState<any>(null)
-  
+
   // Timeline settings
   const [isPublic, setIsPublic] = useState(false)
   const [password, setPassword] = useState('')
@@ -81,7 +81,7 @@ export default function ProjectTimelinePage() {
       const response = await api.get(`/projects/${projectId}/timeline`)
       const data = response.data
       setTimeline(data)
-      
+
       // Load existing settings
       setIsPublic(data.isPublic)
       setShowAllMedia(data.showAllMedia)
@@ -101,7 +101,7 @@ export default function ProjectTimelinePage() {
 
   const saveTimeline = async () => {
     setIsSaving(true)
-    
+
     try {
       const settings = {
         isPublic,
@@ -112,10 +112,13 @@ export default function ProjectTimelinePage() {
         brandLogo: brandLogo || undefined,
         brandColor,
         title,
-        description: description || undefined
+        description: description || undefined,
       }
-      
-      const response = await api.post(`/projects/${projectId}/timeline`, settings)
+
+      const response = await api.post(
+        `/projects/${projectId}/timeline`,
+        settings
+      )
       setTimeline(response.data)
       alert('Timeline settings saved successfully!')
     } catch (error) {
@@ -127,10 +130,14 @@ export default function ProjectTimelinePage() {
   }
 
   const deleteTimeline = async () => {
-    if (!confirm('Are you sure you want to delete the timeline? This will remove all timeline settings and analytics.')) {
+    if (
+      !confirm(
+        'Are you sure you want to delete the timeline? This will remove all timeline settings and analytics.'
+      )
+    ) {
       return
     }
-    
+
     try {
       await api.delete(`/projects/${projectId}/timeline`)
       setTimeline(null)
@@ -149,18 +156,14 @@ export default function ProjectTimelinePage() {
   }
 
   const toggleMediaType = (type: string) => {
-    setMediaTypes(prev => 
-      prev.includes(type) 
-        ? prev.filter(t => t !== type)
-        : [...prev, type]
+    setMediaTypes(prev =>
+      prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
     )
   }
 
   const toggleActivityType = (type: string) => {
-    setActivityTypes(prev => 
-      prev.includes(type) 
-        ? prev.filter(t => t !== type)
-        : [...prev, type]
+    setActivityTypes(prev =>
+      prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
     )
   }
 
@@ -225,7 +228,9 @@ export default function ProjectTimelinePage() {
               </p>
               <div className="mt-2 p-2 bg-white rounded border border-blue-200">
                 <p className="text-xs text-gray-600 mb-1">Share link:</p>
-                <p className="text-sm font-mono break-all">{timeline.shareUrl}</p>
+                <p className="text-sm font-mono break-all">
+                  {timeline.shareUrl}
+                </p>
               </div>
             </div>
           </div>
@@ -236,7 +241,7 @@ export default function ProjectTimelinePage() {
         {/* Basic Settings */}
         <div className="bg-card rounded-lg shadow p-6 space-y-4">
           <h2 className="text-xl font-semibold">Timeline Settings</h2>
-          
+
           <div>
             <label className="block text-sm font-medium mb-2">
               Timeline Title
@@ -244,7 +249,7 @@ export default function ProjectTimelinePage() {
             <input
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={e => setTitle(e.target.value)}
               placeholder="Enter timeline title"
               className="w-full p-2 border rounded-md"
             />
@@ -256,7 +261,7 @@ export default function ProjectTimelinePage() {
             </label>
             <textarea
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={e => setDescription(e.target.value)}
               placeholder="Add a description for the timeline..."
               className="w-full p-2 border rounded-md"
               rows={3}
@@ -268,7 +273,7 @@ export default function ProjectTimelinePage() {
               <input
                 type="checkbox"
                 checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
+                onChange={e => setIsPublic(e.target.checked)}
                 className="rounded"
               />
               <Globe className="h-4 w-4" />
@@ -283,7 +288,7 @@ export default function ProjectTimelinePage() {
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 placeholder="Optional password"
                 className="w-full p-2 border rounded-md text-sm"
               />
@@ -297,18 +302,20 @@ export default function ProjectTimelinePage() {
             <Filter className="h-5 w-5" />
             Media Filters
           </h3>
-          
+
           <div>
             <label className="flex items-center gap-2 mb-3">
               <input
                 type="checkbox"
                 checked={showAllMedia}
-                onChange={(e) => setShowAllMedia(e.target.checked)}
+                onChange={e => setShowAllMedia(e.target.checked)}
                 className="rounded"
               />
-              <span className="text-sm font-medium">Show all project media</span>
+              <span className="text-sm font-medium">
+                Show all project media
+              </span>
             </label>
-            
+
             {!showAllMedia && (
               <>
                 <div className="mb-4">
@@ -338,7 +345,13 @@ export default function ProjectTimelinePage() {
                 <div>
                   <p className="text-sm font-medium mb-2">Activity Types</p>
                   <div className="grid grid-cols-2 gap-2">
-                    {['ERECTION', 'FABRICATION', 'DELIVERY', 'SAFETY', 'OTHER'].map(type => (
+                    {[
+                      'ERECTION',
+                      'FABRICATION',
+                      'DELIVERY',
+                      'SAFETY',
+                      'OTHER',
+                    ].map(type => (
                       <label key={type} className="flex items-center gap-2">
                         <input
                           type="checkbox"
@@ -359,7 +372,7 @@ export default function ProjectTimelinePage() {
         {/* Branding */}
         <div className="bg-card rounded-lg shadow p-6 space-y-4">
           <h3 className="font-semibold">Branding</h3>
-          
+
           <div>
             <label className="flex items-center gap-2 mb-2">
               <Upload className="h-4 w-4" />
@@ -368,7 +381,7 @@ export default function ProjectTimelinePage() {
             <input
               type="url"
               value={brandLogo}
-              onChange={(e) => setBrandLogo(e.target.value)}
+              onChange={e => setBrandLogo(e.target.value)}
               placeholder="https://example.com/logo.png"
               className="w-full p-2 border rounded-md text-sm"
             />
@@ -382,7 +395,7 @@ export default function ProjectTimelinePage() {
             <input
               type="color"
               value={brandColor}
-              onChange={(e) => setBrandColor(e.target.value)}
+              onChange={e => setBrandColor(e.target.value)}
               className="w-full h-10 border rounded-md cursor-pointer"
             />
           </div>
@@ -390,11 +403,7 @@ export default function ProjectTimelinePage() {
 
         {/* Actions */}
         <div className="flex gap-4">
-          <Button
-            onClick={saveTimeline}
-            disabled={isSaving}
-            className="flex-1"
-          >
+          <Button onClick={saveTimeline} disabled={isSaving} className="flex-1">
             {isSaving ? (
               'Saving...'
             ) : (
@@ -405,10 +414,7 @@ export default function ProjectTimelinePage() {
             )}
           </Button>
           {timeline && (
-            <Button
-              variant="destructive"
-              onClick={deleteTimeline}
-            >
+            <Button variant="destructive" onClick={deleteTimeline}>
               <Trash2 className="h-4 w-4 mr-2" />
               Delete Timeline
             </Button>

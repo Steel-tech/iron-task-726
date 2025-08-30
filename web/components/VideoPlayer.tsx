@@ -15,7 +15,7 @@ import {
   AlertCircle,
   Download,
   Share2,
-  PictureInPicture
+  PictureInPicture,
 } from 'lucide-react'
 import { Button } from '@/components/Button'
 
@@ -53,7 +53,7 @@ export default function VideoPlayer({
   showShare = true,
   className = '',
   secondarySrc,
-  isPictureInPicture = false
+  isPictureInPicture = false,
 }: VideoPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const primaryVideoRef = useRef<HTMLVideoElement>(null)
@@ -70,8 +70,10 @@ export default function VideoPlayer({
   const [playbackRate, setPlaybackRate] = useState(1)
   const [showSettings, setShowSettings] = useState(false)
   const [buffered, setBuffered] = useState(0)
-  const [pipPosition, setPipPosition] = useState<'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'>('bottom-right')
-  
+  const [pipPosition, setPipPosition] = useState<
+    'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+  >('bottom-right')
+
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Auto-hide controls
@@ -79,9 +81,14 @@ export default function VideoPlayer({
   useEffect(() => {
     setError(null)
     setIsLoading(true)
-    
+
     // Quick validation for obviously invalid URLs
-    if (!src || src.includes('invalid') || src.includes('404') || src.includes('non-existent')) {
+    if (
+      !src ||
+      src.includes('invalid') ||
+      src.includes('404') ||
+      src.includes('non-existent')
+    ) {
       setTimeout(() => {
         setError('Video source not found')
         setIsLoading(false)
@@ -113,10 +120,15 @@ export default function VideoPlayer({
 
   // Sync both videos if dual video mode
   useEffect(() => {
-    if (isPictureInPicture && primaryVideoRef.current && secondaryVideoRef.current) {
+    if (
+      isPictureInPicture &&
+      primaryVideoRef.current &&
+      secondaryVideoRef.current
+    ) {
       const syncVideos = () => {
         if (secondaryVideoRef.current && primaryVideoRef.current) {
-          secondaryVideoRef.current.currentTime = primaryVideoRef.current.currentTime
+          secondaryVideoRef.current.currentTime =
+            primaryVideoRef.current.currentTime
         }
       }
 
@@ -173,10 +185,12 @@ export default function VideoPlayer({
   const handleTimeUpdate = () => {
     if (primaryVideoRef.current) {
       setCurrentTime(primaryVideoRef.current.currentTime)
-      
+
       // Update buffered amount
       if (primaryVideoRef.current.buffered.length > 0) {
-        const bufferedEnd = primaryVideoRef.current.buffered.end(primaryVideoRef.current.buffered.length - 1)
+        const bufferedEnd = primaryVideoRef.current.buffered.end(
+          primaryVideoRef.current.buffered.length - 1
+        )
         setBuffered((bufferedEnd / primaryVideoRef.current.duration) * 100)
       }
     }
@@ -189,11 +203,13 @@ export default function VideoPlayer({
     }
   }
 
-  const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+  const handleVideoError = (
+    e: React.SyntheticEvent<HTMLVideoElement, Event>
+  ) => {
     console.error('Video error occurred:', e)
     const videoElement = e.currentTarget
     const error = videoElement.error
-    
+
     let errorMessage = 'Failed to load video'
     if (error) {
       switch (error.code) {
@@ -211,12 +227,12 @@ export default function VideoPlayer({
           break
       }
     }
-    
+
     setError(errorMessage)
     setIsLoading(false)
     onError?.(e.nativeEvent)
   }
-  
+
   // Also handle poster image errors
   const handlePosterError = () => {
     console.warn('Poster image failed to load')
@@ -286,9 +302,9 @@ export default function VideoPlayer({
   }
 
   const cyclePipPosition = () => {
-    const positions: Array<'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'> = [
-      'top-left', 'top-right', 'bottom-left', 'bottom-right'
-    ]
+    const positions: Array<
+      'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+    > = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
     const currentIndex = positions.indexOf(pipPosition)
     const nextIndex = (currentIndex + 1) % positions.length
     setPipPosition(positions[nextIndex])
@@ -298,7 +314,7 @@ export default function VideoPlayer({
     'top-left': 'top-4 left-4',
     'top-right': 'top-4 right-4',
     'bottom-left': 'bottom-20 left-4',
-    'bottom-right': 'bottom-20 right-4'
+    'bottom-right': 'bottom-20 right-4',
   }
 
   return (
@@ -321,7 +337,9 @@ export default function VideoPlayer({
             <AlertCircle className="h-16 w-16 text-red-500" />
             <div className="text-center space-y-2 px-4">
               <p className="text-lg font-semibold">{error}</p>
-              <p className="text-sm text-gray-400">Please check the video source and try again</p>
+              <p className="text-sm text-gray-400">
+                Please check the video source and try again
+              </p>
             </div>
           </div>
         ) : (
@@ -391,7 +409,7 @@ export default function VideoPlayer({
           >
             {/* Top gradient */}
             <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/70 to-transparent" />
-            
+
             {/* Bottom gradient */}
             <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/70 to-transparent" />
 
@@ -408,7 +426,9 @@ export default function VideoPlayer({
             {/* Title */}
             {title && (
               <div className="absolute top-4 left-4 right-4">
-                <h3 className="text-white text-lg font-semibold truncate">{title}</h3>
+                <h3 className="text-white text-lg font-semibold truncate">
+                  {title}
+                </h3>
               </div>
             )}
 
@@ -429,7 +449,7 @@ export default function VideoPlayer({
                   onChange={handleSeek}
                   className="relative w-full h-1 bg-transparent rounded-lg appearance-none cursor-pointer z-10"
                   style={{
-                    background: `linear-gradient(to right, #ff6600 ${(currentTime / duration) * 100}%, transparent 0%)`
+                    background: `linear-gradient(to right, #ff6600 ${(currentTime / duration) * 100}%, transparent 0%)`,
                   }}
                 />
               </div>
@@ -492,7 +512,7 @@ export default function VideoPlayer({
                       onChange={handleVolumeChange}
                       className="w-20 h-1 bg-white/30 rounded-lg appearance-none cursor-pointer"
                       style={{
-                        background: `linear-gradient(to right, #fff ${(isMuted ? 0 : volume) * 100}%, rgba(255,255,255,0.3) 0%)`
+                        background: `linear-gradient(to right, #fff ${(isMuted ? 0 : volume) * 100}%, rgba(255,255,255,0.3) 0%)`,
                       }}
                     />
                   </div>
@@ -514,11 +534,13 @@ export default function VideoPlayer({
                     >
                       <Settings className="h-5 w-5" />
                     </Button>
-                    
+
                     {showSettings && (
                       <div className="absolute bottom-full right-0 mb-2 bg-black/90 rounded-lg p-2 min-w-[120px]">
                         <div className="text-white text-sm">
-                          <p className="text-xs text-white/70 mb-1">Playback Speed</p>
+                          <p className="text-xs text-white/70 mb-1">
+                            Playback Speed
+                          </p>
                           {[0.5, 0.75, 1, 1.25, 1.5, 2].map(rate => (
                             <button
                               key={rate}

@@ -48,13 +48,15 @@ export default function CapturePage() {
   const [isCapturing, setIsCapturing] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [captureMode, setCaptureMode] = useState<'photo' | 'video'>('photo')
-  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment')
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>(
+    'environment'
+  )
   const [capturedMedia, setCapturedMedia] = useState<Blob | null>(null)
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [location, setLocation] = useState<GeolocationPosition | null>(null)
-  
+
   // Form data
   const [projectId, setProjectId] = useState('')
   const [activityType, setActivityType] = useState('INSTALLATION')
@@ -71,9 +73,9 @@ export default function CapturePage() {
         video: {
           facingMode,
           width: { ideal: 1920 },
-          height: { ideal: 1080 }
+          height: { ideal: 1080 },
         },
-        audio: captureMode === 'video'
+        audio: captureMode === 'video',
       }
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints)
@@ -85,8 +87,8 @@ export default function CapturePage() {
       // Get location
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          (position) => setLocation(position),
-          (error) => console.error('Location error:', error),
+          position => setLocation(position),
+          error => console.error('Location error:', error),
           { enableHighAccuracy: true }
         )
       }
@@ -111,7 +113,7 @@ export default function CapturePage() {
 
   // Toggle camera
   const toggleCamera = () => {
-    setFacingMode(prev => prev === 'user' ? 'environment' : 'user')
+    setFacingMode(prev => (prev === 'user' ? 'environment' : 'user'))
     if (isCapturing) {
       stopCamera()
       setTimeout(startCamera, 100)
@@ -130,13 +132,17 @@ export default function CapturePage() {
     const ctx = canvas.getContext('2d')
     if (ctx) {
       ctx.drawImage(video, 0, 0)
-      canvas.toBlob((blob) => {
-        if (blob) {
-          setCapturedMedia(blob)
-          setCapturedUrl(URL.createObjectURL(blob))
-          stopCamera()
-        }
-      }, 'image/jpeg', 0.9)
+      canvas.toBlob(
+        blob => {
+          if (blob) {
+            setCapturedMedia(blob)
+            setCapturedUrl(URL.createObjectURL(blob))
+            stopCamera()
+          }
+        },
+        'image/jpeg',
+        0.9
+      )
     }
   }
 
@@ -146,10 +152,10 @@ export default function CapturePage() {
 
     const stream = videoRef.current.srcObject as MediaStream
     const mediaRecorder = new MediaRecorder(stream, {
-      mimeType: 'video/webm;codecs=vp8,opus'
+      mimeType: 'video/webm;codecs=vp8,opus',
     })
 
-    mediaRecorder.ondataavailable = (event) => {
+    mediaRecorder.ondataavailable = event => {
       if (event.data.size > 0) {
         chunksRef.current.push(event.data)
       }
@@ -187,10 +193,11 @@ export default function CapturePage() {
     setUploadProgress(0)
 
     const formData = new FormData()
-    const fileName = captureMode === 'photo' 
-      ? `photo_${Date.now()}.jpg` 
-      : `video_${Date.now()}.webm`
-    
+    const fileName =
+      captureMode === 'photo'
+        ? `photo_${Date.now()}.jpg`
+        : `video_${Date.now()}.webm`
+
     formData.append('file', capturedMedia, fileName)
     formData.append('projectId', projectId)
     formData.append('activityType', activityType)
@@ -198,7 +205,7 @@ export default function CapturePage() {
     formData.append('notes', notes)
     formData.append('tags', tags)
     formData.append('mediaType', captureMode === 'photo' ? 'PHOTO' : 'VIDEO')
-    
+
     if (location) {
       formData.append('latitude', location.coords.latitude.toString())
       formData.append('longitude', location.coords.longitude.toString())
@@ -209,14 +216,14 @@ export default function CapturePage() {
     try {
       const response = await api.post('/media/upload', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
         },
-        onUploadProgress: (progressEvent) => {
+        onUploadProgress: progressEvent => {
           const progress = progressEvent.total
             ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
             : 0
           setUploadProgress(progress)
-        }
+        },
       })
 
       alert('Media uploaded successfully!')
@@ -382,12 +389,10 @@ export default function CapturePage() {
           <h2 className="text-xl font-semibold mb-4">Add Details</h2>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Project *
-            </label>
+            <label className="block text-sm font-medium mb-2">Project *</label>
             <select
               value={projectId}
-              onChange={(e) => setProjectId(e.target.value)}
+              onChange={e => setProjectId(e.target.value)}
               className="w-full p-2 border rounded-md"
               required
               disabled={loadingProjects}
@@ -395,7 +400,7 @@ export default function CapturePage() {
               <option value="">
                 {loadingProjects ? 'Loading projects...' : 'Select a project'}
               </option>
-              {projects.map((project) => (
+              {projects.map(project => (
                 <option key={project.id} value={project.id}>
                   {project.name} ({project.jobNumber})
                 </option>
@@ -409,7 +414,7 @@ export default function CapturePage() {
             </label>
             <select
               value={activityType}
-              onChange={(e) => setActivityType(e.target.value)}
+              onChange={e => setActivityType(e.target.value)}
               className="w-full p-2 border rounded-md"
             >
               <option value="INSTALLATION">Installation</option>
@@ -428,7 +433,7 @@ export default function CapturePage() {
             <input
               type="text"
               value={locationDesc}
-              onChange={(e) => setLocationDesc(e.target.value)}
+              onChange={e => setLocationDesc(e.target.value)}
               placeholder="e.g., Bay 3, Level 2"
               className="w-full p-2 border rounded-md"
             />
@@ -442,7 +447,7 @@ export default function CapturePage() {
             <input
               type="text"
               value={tags}
-              onChange={(e) => setTags(e.target.value)}
+              onChange={e => setTags(e.target.value)}
               placeholder="welding, beam, safety (comma separated)"
               className="w-full p-2 border rounded-md"
             />
@@ -455,7 +460,7 @@ export default function CapturePage() {
             </label>
             <textarea
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={e => setNotes(e.target.value)}
               placeholder="Add any additional details..."
               className="w-full p-2 border rounded-md"
               rows={3}
@@ -465,8 +470,10 @@ export default function CapturePage() {
           {location && (
             <div className="text-sm text-muted-foreground">
               <MapPin className="inline h-4 w-4 mr-1" />
-              GPS: {location.coords.latitude.toFixed(6)}, {location.coords.longitude.toFixed(6)}
-              {location.coords.accuracy && ` (±${Math.round(location.coords.accuracy)}m)`}
+              GPS: {location.coords.latitude.toFixed(6)},{' '}
+              {location.coords.longitude.toFixed(6)}
+              {location.coords.accuracy &&
+                ` (±${Math.round(location.coords.accuracy)}m)`}
             </div>
           )}
 

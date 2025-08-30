@@ -2,14 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { format } from 'date-fns'
-import { 
-  Send, 
-  AtSign, 
-  Globe,
-  Users,
-  Circle,
-  Loader2
-} from 'lucide-react'
+import { Send, AtSign, Globe, Users, Circle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/Button'
 import { api } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
@@ -49,27 +42,27 @@ export default function TeamChat({ projectId, projectName }: TeamChatProps) {
   const [selectedMentions, setSelectedMentions] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  
+
   const userLang = navigator.language.split('-')[0] || 'en'
-  
+
   useEffect(() => {
     fetchMessages()
     fetchOnlineMembers()
-    
+
     // Listen for real-time messages
     if (socket) {
       socket.on('teamchat:message', handleNewMessage)
-      
+
       return () => {
         socket.off('teamchat:message')
       }
     }
   }, [projectId, socket])
-  
+
   useEffect(() => {
     scrollToBottom()
   }, [messages])
-  
+
   const fetchMessages = async () => {
     try {
       const response = await api.get(`/projects/${projectId}/chat`)
@@ -80,7 +73,7 @@ export default function TeamChat({ projectId, projectName }: TeamChatProps) {
       setIsLoading(false)
     }
   }
-  
+
   const fetchOnlineMembers = async () => {
     try {
       const response = await api.get(`/projects/${projectId}/online-members`)
@@ -89,27 +82,27 @@ export default function TeamChat({ projectId, projectName }: TeamChatProps) {
       console.error('Failed to fetch online members:', error)
     }
   }
-  
+
   const handleNewMessage = (message: ChatMessage) => {
     setMessages(prev => [...prev, message])
   }
-  
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newMessage.trim() || isSending) return
-    
+
     setIsSending(true)
     try {
       await api.post('/team-chat', {
         projectId,
         message: newMessage,
-        mentions: selectedMentions
+        mentions: selectedMentions,
       })
-      
+
       setNewMessage('')
       setSelectedMentions([])
     } catch (error) {
@@ -118,7 +111,7 @@ export default function TeamChat({ projectId, projectName }: TeamChatProps) {
       setIsSending(false)
     }
   }
-  
+
   const handleMention = (userId: string, userName: string) => {
     const newText = newMessage.replace(/@\w*$/, `@${userName} `)
     setNewMessage(newText)
@@ -126,11 +119,11 @@ export default function TeamChat({ projectId, projectName }: TeamChatProps) {
     setShowMentions(false)
     inputRef.current?.focus()
   }
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setNewMessage(value)
-    
+
     const lastWord = value.split(' ').pop() || ''
     if (lastWord.startsWith('@')) {
       setShowMentions(true)
@@ -139,34 +132,30 @@ export default function TeamChat({ projectId, projectName }: TeamChatProps) {
       setShowMentions(false)
     }
   }
-  
+
   const renderMessage = (message: ChatMessage) => {
     const isOwn = message.user.id === user?.id
     const showTranslation = message.originalLang !== userLang
-    
+
     return (
       <div
         key={message.id}
         className={`mb-4 flex ${isOwn ? 'justify-end' : 'justify-start'}`}
       >
         <div className={`max-w-xs lg:max-w-md ${isOwn ? 'order-2' : ''}`}>
-          <div className={`flex items-center gap-2 mb-1 ${isOwn ? 'justify-end' : ''}`}>
-            <span className="text-xs text-gray-500">
-              {message.user.name}
-            </span>
-            {showTranslation && (
-              <Globe className="h-3 w-3 text-blue-400" />
-            )}
+          <div
+            className={`flex items-center gap-2 mb-1 ${isOwn ? 'justify-end' : ''}`}
+          >
+            <span className="text-xs text-gray-500">{message.user.name}</span>
+            {showTranslation && <Globe className="h-3 w-3 text-blue-400" />}
             <span className="text-xs text-gray-600">
               {format(new Date(message.createdAt), 'HH:mm')}
             </span>
           </div>
-          
+
           <div
             className={`rounded-lg px-4 py-2 ${
-              isOwn
-                ? 'bg-safety-orange text-white'
-                : 'bg-gray-700 text-white'
+              isOwn ? 'bg-safety-orange text-white' : 'bg-gray-700 text-white'
             }`}
           >
             <p className="text-sm">{message.message}</p>
@@ -175,7 +164,7 @@ export default function TeamChat({ projectId, projectName }: TeamChatProps) {
       </div>
     )
   }
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -183,7 +172,7 @@ export default function TeamChat({ projectId, projectName }: TeamChatProps) {
       </div>
     )
   }
-  
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -205,7 +194,7 @@ export default function TeamChat({ projectId, projectName }: TeamChatProps) {
           </div>
         </div>
       </div>
-      
+
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4">
         {messages.length === 0 ? (
@@ -220,9 +209,12 @@ export default function TeamChat({ projectId, projectName }: TeamChatProps) {
           </>
         )}
       </div>
-      
+
       {/* Input */}
-      <form onSubmit={handleSubmit} className="brushed-metal border-t border-gray-700 p-4">
+      <form
+        onSubmit={handleSubmit}
+        className="brushed-metal border-t border-gray-700 p-4"
+      >
         <div className="relative">
           <input
             ref={inputRef}
@@ -232,14 +224,17 @@ export default function TeamChat({ projectId, projectName }: TeamChatProps) {
             placeholder="Type a message..."
             className="w-full px-4 py-2 pr-12 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-safety-orange focus:border-transparent"
           />
-          
+
           {/* Mention suggestions */}
           {showMentions && (
             <div className="absolute bottom-full mb-2 left-0 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-48 overflow-y-auto">
               {onlineMembers
-                .filter(member => 
-                  member.name.toLowerCase().includes(mentionSearch.toLowerCase()) &&
-                  member.id !== user?.id
+                .filter(
+                  member =>
+                    member.name
+                      .toLowerCase()
+                      .includes(mentionSearch.toLowerCase()) &&
+                    member.id !== user?.id
                 )
                 .map(member => (
                   <button
@@ -251,7 +246,9 @@ export default function TeamChat({ projectId, projectName }: TeamChatProps) {
                     <AtSign className="h-4 w-4 text-gray-400" />
                     <div className="flex items-center gap-2">
                       <span className="text-white">{member.name}</span>
-                      <span className="text-xs text-gray-400">{member.role}</span>
+                      <span className="text-xs text-gray-400">
+                        {member.role}
+                      </span>
                       {member.online && (
                         <Circle className="h-2 w-2 fill-green-500 text-green-500" />
                       )}
@@ -260,7 +257,7 @@ export default function TeamChat({ projectId, projectName }: TeamChatProps) {
                 ))}
             </div>
           )}
-          
+
           <button
             type="submit"
             disabled={!newMessage.trim() || isSending}
@@ -273,7 +270,7 @@ export default function TeamChat({ projectId, projectName }: TeamChatProps) {
             )}
           </button>
         </div>
-        
+
         <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
           <div className="flex items-center gap-1">
             <AtSign className="h-3 w-3" />

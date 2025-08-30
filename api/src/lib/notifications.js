@@ -1,8 +1,8 @@
-const prisma = require('./prisma');
-const { emitToUser } = require('./websocket');
-const pushNotificationService = require('../services/pushNotificationService');
-const emailService = require('../services/emailService');
-const { logger } = require('../utils/logger');
+const prisma = require('./prisma')
+const { emitToUser } = require('./websocket')
+const pushNotificationService = require('../services/pushNotificationService')
+const emailService = require('../services/emailService')
+const { logger } = require('../utils/logger')
 
 /**
  * Send a notification to a user
@@ -24,47 +24,48 @@ async function sendNotification(notification) {
         type: notification.type,
         title: notification.title,
         message: notification.message,
-        data: notification.data
-      }
-    });
-    
+        data: notification.data,
+      },
+    })
+
     // Send real-time notification to user if connected
-    emitToUser(notification.userId, 'notification', created);
-    
+    emitToUser(notification.userId, 'notification', created)
+
     // Send push notification if user has enabled them
     try {
       await pushNotificationService.sendToUser(notification.userId, {
         ...created,
-        url: notification.url
-      });
+        url: notification.url,
+      })
     } catch (pushError) {
       // Don't fail if push notification fails
-      logger.error('Push notification failed:', pushError);
+      logger.error('Push notification failed:', pushError)
     }
-    
+
     // Send email notification based on user preferences
     try {
       // Check user's email notification preferences
       const userWithPrefs = await prisma.user.findUnique({
         where: { id: notification.userId },
-        include: { feedPreferences: true }
-      });
-      
+        include: { feedPreferences: true },
+      })
+
       // Default to sending emails unless explicitly disabled
-      const emailEnabled = userWithPrefs?.feedPreferences?.emailNotifications !== false;
-      
+      const emailEnabled =
+        userWithPrefs?.feedPreferences?.emailNotifications !== false
+
       if (emailEnabled && userWithPrefs) {
-        await emailService.sendNotificationEmail(userWithPrefs, created);
+        await emailService.sendNotificationEmail(userWithPrefs, created)
       }
     } catch (emailError) {
       // Don't fail if email notification fails
-      logger.error('Email notification failed:', emailError);
+      logger.error('Email notification failed:', emailError)
     }
-    
-    return created;
+
+    return created
   } catch (error) {
-    logger.error('Failed to send notification:', error);
-    throw error;
+    logger.error('Failed to send notification:', error)
+    throw error
   }
 }
 
@@ -76,17 +77,17 @@ async function sendNotification(notification) {
  */
 async function markNotificationAsRead(notificationId, userId) {
   const notification = await prisma.notification.findFirst({
-    where: { id: notificationId, userId }
-  });
-  
+    where: { id: notificationId, userId },
+  })
+
   if (!notification) {
-    throw new Error('Notification not found');
+    throw new Error('Notification not found')
   }
-  
+
   return prisma.notification.update({
     where: { id: notificationId },
-    data: { read: true }
-  });
+    data: { read: true },
+  })
 }
 
 /**
@@ -97,8 +98,8 @@ async function markNotificationAsRead(notificationId, userId) {
 async function markAllNotificationsAsRead(userId) {
   return prisma.notification.updateMany({
     where: { userId, read: false },
-    data: { read: true }
-  });
+    data: { read: true },
+  })
 }
 
 /**
@@ -108,8 +109,8 @@ async function markAllNotificationsAsRead(userId) {
  */
 async function getUnreadNotificationCount(userId) {
   return prisma.notification.count({
-    where: { userId, read: false }
-  });
+    where: { userId, read: false },
+  })
 }
 
 /**
@@ -125,16 +126,16 @@ async function getUserNotifications(userId, limit = 20, offset = 0) {
       where: { userId },
       orderBy: { createdAt: 'desc' },
       take: limit,
-      skip: offset
+      skip: offset,
     }),
-    prisma.notification.count({ where: { userId } })
-  ]);
-  
+    prisma.notification.count({ where: { userId } }),
+  ])
+
   return {
     notifications,
     total,
-    hasMore: offset + limit < total
-  };
+    hasMore: offset + limit < total,
+  }
 }
 
 /**
@@ -145,20 +146,20 @@ async function getUserNotifications(userId, limit = 20, offset = 0) {
  */
 async function sendNotificationToUsers(userIds, notificationData) {
   const results = await Promise.allSettled(
-    userIds.map(userId => 
+    userIds.map(userId =>
       sendNotification({
         ...notificationData,
-        userId
+        userId,
       })
     )
-  );
-  
+  )
+
   return results.map((result, index) => ({
     userId: userIds[index],
     status: result.status,
     notification: result.value,
-    error: result.reason?.message
-  }));
+    error: result.reason?.message,
+  }))
 }
 
 /**
@@ -167,18 +168,22 @@ async function sendNotificationToUsers(userIds, notificationData) {
  * @param {Object} notificationData - Notification data
  * @param {string} excludeUserId - Optional user ID to exclude
  */
-async function sendNotificationToProjectMembers(projectId, notificationData, excludeUserId = null) {
+async function sendNotificationToProjectMembers(
+  projectId,
+  notificationData,
+  excludeUserId = null
+) {
   // Get all project members
   const members = await prisma.projectMember.findMany({
     where: {
       projectId,
-      userId: excludeUserId ? { not: excludeUserId } : undefined
+      userId: excludeUserId ? { not: excludeUserId } : undefined,
     },
-    select: { userId: true }
-  });
-  
-  const userIds = members.map(member => member.userId);
-  return sendNotificationToUsers(userIds, notificationData);
+    select: { userId: true },
+  })
+
+  const userIds = members.map(member => member.userId)
+  return sendNotificationToUsers(userIds, notificationData)
 }
 
 module.exports = {
@@ -188,5 +193,5 @@ module.exports = {
   getUnreadNotificationCount,
   getUserNotifications,
   sendNotificationToUsers,
-  sendNotificationToProjectMembers
-};
+  sendNotificationToProjectMembers,
+}

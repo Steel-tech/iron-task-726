@@ -6,7 +6,10 @@ interface IconProps {
 }
 
 // Welding Helmet Icon
-export const WeldingHelmetIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+export const WeldingHelmetIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -23,12 +26,23 @@ export const WeldingHelmetIcon: React.FC<IconProps> = ({ className = '', size = 
       strokeLinecap="round"
       strokeLinejoin="round"
     />
-    <rect x="8" y="8" width="8" height="5" rx="1" stroke="currentColor" strokeWidth="2" />
+    <rect
+      x="8"
+      y="8"
+      width="8"
+      height="5"
+      rx="1"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
   </svg>
 )
 
 // Beam Connection Icon
-export const BeamConnectionIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+export const BeamConnectionIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -51,7 +65,10 @@ export const BeamConnectionIcon: React.FC<IconProps> = ({ className = '', size =
 )
 
 // Spud Wrench Icon
-export const SpudWrenchIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+export const SpudWrenchIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -78,7 +95,10 @@ export const SpudWrenchIcon: React.FC<IconProps> = ({ className = '', size = 24 
 )
 
 // Column Base Plate Icon
-export const ColumnBasePlateIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+export const ColumnBasePlateIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -88,15 +108,34 @@ export const ColumnBasePlateIcon: React.FC<IconProps> = ({ className = '', size 
     className={className}
   >
     {/* Placeholder for column base plate - replace with designer SVG */}
-    <rect x="8" y="4" width="8" height="12" stroke="currentColor" strokeWidth="2" />
-    <rect x="4" y="16" width="16" height="4" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.2" />
+    <rect
+      x="8"
+      y="4"
+      width="8"
+      height="12"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+    <rect
+      x="4"
+      y="16"
+      width="16"
+      height="4"
+      stroke="currentColor"
+      strokeWidth="2"
+      fill="currentColor"
+      fillOpacity="0.2"
+    />
     <circle cx="6" cy="18" r="1" fill="currentColor" />
     <circle cx="18" cy="18" r="1" fill="currentColor" />
   </svg>
 )
 
 // Torch Cut Sparks Icon
-export const TorchCutIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+export const TorchCutIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -124,7 +163,10 @@ export const TorchCutIcon: React.FC<IconProps> = ({ className = '', size = 24 })
 )
 
 // Ironworker Silhouette Icon
-export const IronworkerIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+export const IronworkerIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -149,12 +191,9 @@ export const IronworkerIcon: React.FC<IconProps> = ({ className = '', size = 24 
 )
 
 // Animated versions for hover effects
-export const WeldingSparkIcon: React.FC<IconProps & { isAnimating?: boolean }> = ({ 
-  className = '', 
-  size = 24, 
-  isAnimating = false,
-  ...props 
-}) => (
+export const WeldingSparkIcon: React.FC<
+  IconProps & { isAnimating?: boolean }
+> = ({ className = '', size = 24, isAnimating = false, ...props }) => (
   <svg
     width={size}
     height={size}
@@ -170,19 +209,16 @@ export const WeldingSparkIcon: React.FC<IconProps & { isAnimating?: boolean }> =
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
-        opacity={isAnimating ? "1" : "0.3"}
+        opacity={isAnimating ? '1' : '0.3'}
         className={isAnimating ? 'animate-ping' : ''}
       />
     </g>
   </svg>
 )
 
-export const BoltTighteningIcon: React.FC<IconProps & { isAnimating?: boolean }> = ({ 
-  className = '', 
-  size = 24, 
-  isAnimating = false,
-  ...props 
-}) => (
+export const BoltTighteningIcon: React.FC<
+  IconProps & { isAnimating?: boolean }
+> = ({ className = '', size = 24, isAnimating = false, ...props }) => (
   <svg
     width={size}
     height={size}
@@ -203,12 +239,9 @@ export const BoltTighteningIcon: React.FC<IconProps & { isAnimating?: boolean }>
   </svg>
 )
 
-export const BeamLiftingIcon: React.FC<IconProps & { isAnimating?: boolean }> = ({ 
-  className = '', 
-  size = 24, 
-  isAnimating = false,
-  ...props 
-}) => (
+export const BeamLiftingIcon: React.FC<
+  IconProps & { isAnimating?: boolean }
+> = ({ className = '', size = 24, isAnimating = false, ...props }) => (
   <svg
     width={size}
     height={size}
@@ -217,8 +250,20 @@ export const BeamLiftingIcon: React.FC<IconProps & { isAnimating?: boolean }> = 
     xmlns="http://www.w3.org/2000/svg"
     className={className}
   >
-    <g className={isAnimating ? 'translate-y-[-2px]' : ''} style={{ transition: 'transform 0.3s ease' }}>
-      <rect x="6" y="12" width="12" height="4" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.2" />
+    <g
+      className={isAnimating ? 'translate-y-[-2px]' : ''}
+      style={{ transition: 'transform 0.3s ease' }}
+    >
+      <rect
+        x="6"
+        y="12"
+        width="12"
+        height="4"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="currentColor"
+        fillOpacity="0.2"
+      />
       <path
         d="M12 12V6M10 8L12 6L14 8"
         stroke="currentColor"

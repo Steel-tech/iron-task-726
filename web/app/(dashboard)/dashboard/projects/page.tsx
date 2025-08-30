@@ -14,7 +14,7 @@ import {
   Activity,
   Users,
   CheckCircle,
-  Zap
+  Zap,
 } from 'lucide-react'
 
 interface Project {
@@ -50,7 +50,7 @@ export default function ProjectsPage() {
   }, [])
 
   const filteredProjects = projects.filter(
-    (project) =>
+    project =>
       project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.location?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -91,7 +91,7 @@ export default function ProjectsPage() {
           type="text"
           placeholder="Search projects..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={e => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
         />
       </div>
@@ -111,7 +111,7 @@ export default function ProjectsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProjects.map((project) => (
+          {filteredProjects.map(project => (
             <Link
               key={project.id}
               href={`/dashboard/projects/${project.id}`}
@@ -126,8 +126,8 @@ export default function ProjectsPage() {
                         project.status === 'ACTIVE'
                           ? 'bg-green-100 text-green-800'
                           : project.status === 'COMPLETED'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-gray-100 text-gray-800'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-gray-100 text-gray-800'
                       }`}
                     >
                       {project.status}
@@ -136,7 +136,7 @@ export default function ProjectsPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.preventDefault()
                       // TODO: Add dropdown menu
                     }}
@@ -175,46 +175,63 @@ export default function ProjectsPage() {
 
       {/* How It Works Section */}
       <div className="mt-16 bg-gray-800 rounded-lg p-8">
-        <h2 className="text-2xl font-bold text-white mb-6 text-center">How It Works</h2>
-        <p className="text-gray-300 text-center mb-8">So easy the newbie can do it. Just follow these steps!</p>
-        
+        <h2 className="text-2xl font-bold text-white mb-6 text-center">
+          How It Works
+        </h2>
+        <p className="text-gray-300 text-center mb-8">
+          So easy the newbie can do it. Just follow these steps!
+        </p>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="text-center">
             <div className="bg-safety-orange text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 font-bold text-lg">
               1
             </div>
             <h3 className="font-semibold text-white mb-2">Create Project</h3>
-            <p className="text-sm text-gray-400">Create a project in FSW Iron Task for each job.</p>
+            <p className="text-sm text-gray-400">
+              Create a project in FSW Iron Task for each job.
+            </p>
           </div>
-          
+
           <div className="text-center">
             <div className="bg-safety-orange text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 font-bold text-lg">
               2
             </div>
             <h3 className="font-semibold text-white mb-2">Add Crews</h3>
-            <p className="text-sm text-gray-400">Add your crews so all the right people can see and add updates.</p>
+            <p className="text-sm text-gray-400">
+              Add your crews so all the right people can see and add updates.
+            </p>
           </div>
-          
+
           <div className="text-center">
             <div className="bg-safety-orange text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 font-bold text-lg">
               3
             </div>
             <h3 className="font-semibold text-white mb-2">Track Progress</h3>
-            <p className="text-sm text-gray-400">Check out the project feed on your phone or computer to see updates roll in from the field.</p>
+            <p className="text-sm text-gray-400">
+              Check out the project feed on your phone or computer to see
+              updates roll in from the field.
+            </p>
           </div>
-          
+
           <div className="text-center">
             <div className="bg-safety-orange text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 font-bold text-lg">
               4
             </div>
             <h3 className="font-semibold text-white mb-2">Problem Solve</h3>
-            <p className="text-sm text-gray-400">Now that you have live updates from the field, you can problem solve in real time!</p>
+            <p className="text-sm text-gray-400">
+              Now that you have live updates from the field, you can problem
+              solve in real time!
+            </p>
           </div>
         </div>
 
         <div className="mt-8 text-center">
           <Link href="/dashboard/projects/feed">
-            <Button size="lg" className="bg-safety-orange hover:bg-safety-orange/90">
+            <Button
+              size="lg"
+              className="bg-safety-orange hover:bg-safety-orange/90"
+            >
               <Zap className="h-5 w-5 mr-2" />
               View Project Feed
             </Button>

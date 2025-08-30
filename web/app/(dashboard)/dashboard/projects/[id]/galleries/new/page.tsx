@@ -14,7 +14,7 @@ import {
   Calendar,
   Palette,
   Upload,
-  X
+  X,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -36,12 +36,12 @@ export default function NewGalleryPage() {
   const params = useParams()
   const router = useRouter()
   const projectId = params.id as string
-  
+
   const [media, setMedia] = useState<Media[]>([])
   const [selectedMedia, setSelectedMedia] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
-  
+
   // Gallery settings
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -91,21 +91,21 @@ export default function NewGalleryPage() {
       alert('Please enter a gallery name')
       return
     }
-    
+
     if (selectedMedia.size === 0) {
       alert('Please select at least one photo or video')
       return
     }
 
     setIsCreating(true)
-    
+
     try {
       const settings: any = {
         isPublic,
         watermark,
-        captions
+        captions,
       }
-      
+
       if (password) settings.password = password
       if (brandLogo) settings.brandLogo = brandLogo
       if (brandColor) settings.brandColor = brandColor
@@ -115,15 +115,15 @@ export default function NewGalleryPage() {
         expiresAt.setDate(expiresAt.getDate() + days)
         settings.expiresAt = expiresAt.toISOString()
       }
-      
+
       const response = await api.post('/galleries', {
         projectId,
         name,
         description,
         mediaIds: Array.from(selectedMedia),
-        settings
+        settings,
       })
-      
+
       router.push(`/dashboard/projects/${projectId}/galleries`)
     } catch (error) {
       console.error('Failed to create gallery:', error)
@@ -167,7 +167,7 @@ export default function NewGalleryPage() {
                 </Button>
               </div>
             </div>
-            
+
             <p className="text-sm text-muted-foreground mb-4">
               {selectedMedia.size} of {media.length} items selected
             </p>
@@ -175,11 +175,13 @@ export default function NewGalleryPage() {
             {media.length === 0 ? (
               <div className="text-center py-12">
                 <Image className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-muted-foreground">No media in this project yet</p>
+                <p className="text-muted-foreground">
+                  No media in this project yet
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {media.map((item) => (
+                {media.map(item => (
                   <div
                     key={item.id}
                     className={`relative group cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
@@ -190,7 +192,8 @@ export default function NewGalleryPage() {
                     onClick={() => toggleMediaSelection(item.id)}
                   >
                     <div className="aspect-square bg-gray-100">
-                      {item.mediaType === 'VIDEO' || item.mediaType === 'DUAL_VIDEO' ? (
+                      {item.mediaType === 'VIDEO' ||
+                      item.mediaType === 'DUAL_VIDEO' ? (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <Video className="h-8 w-8 text-gray-400" />
                         </div>
@@ -202,13 +205,13 @@ export default function NewGalleryPage() {
                         />
                       )}
                     </div>
-                    
+
                     {selectedMedia.has(item.id) && (
                       <div className="absolute top-2 right-2 bg-primary text-white rounded-full p-1">
                         <Check className="h-4 w-4" />
                       </div>
                     )}
-                    
+
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
                       <p className="text-xs text-white truncate">
                         {new Date(item.timestamp).toLocaleString()}
@@ -225,7 +228,7 @@ export default function NewGalleryPage() {
         <div className="space-y-4">
           <div className="bg-card rounded-lg shadow p-6 space-y-4">
             <h2 className="text-xl font-semibold">Gallery Settings</h2>
-            
+
             <div>
               <label className="block text-sm font-medium mb-2">
                 Gallery Name *
@@ -233,7 +236,7 @@ export default function NewGalleryPage() {
               <input
                 type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
                 placeholder="e.g., Week 1 Progress"
                 className="w-full p-2 border rounded-md"
                 required
@@ -246,7 +249,7 @@ export default function NewGalleryPage() {
               </label>
               <textarea
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 placeholder="Add a description for the gallery..."
                 className="w-full p-2 border rounded-md"
                 rows={3}
@@ -258,7 +261,7 @@ export default function NewGalleryPage() {
                 <input
                   type="checkbox"
                   checked={isPublic}
-                  onChange={(e) => setIsPublic(e.target.checked)}
+                  onChange={e => setIsPublic(e.target.checked)}
                   className="rounded"
                 />
                 <Globe className="h-4 w-4" />
@@ -268,12 +271,14 @@ export default function NewGalleryPage() {
               <div>
                 <label className="flex items-center gap-2 mb-2">
                   <Lock className="h-4 w-4" />
-                  <span className="text-sm font-medium">Password Protection</span>
+                  <span className="text-sm font-medium">
+                    Password Protection
+                  </span>
                 </label>
                 <input
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   placeholder="Optional password"
                   className="w-full p-2 border rounded-md text-sm"
                 />
@@ -286,7 +291,7 @@ export default function NewGalleryPage() {
                 </label>
                 <select
                   value={expiresIn}
-                  onChange={(e) => setExpiresIn(e.target.value)}
+                  onChange={e => setExpiresIn(e.target.value)}
                   className="w-full p-2 border rounded-md text-sm"
                 >
                   <option value="">Never expire</option>
@@ -300,7 +305,7 @@ export default function NewGalleryPage() {
 
           <div className="bg-card rounded-lg shadow p-6 space-y-4">
             <h3 className="font-semibold">Branding</h3>
-            
+
             <div>
               <label className="flex items-center gap-2 mb-2">
                 <Upload className="h-4 w-4" />
@@ -309,7 +314,7 @@ export default function NewGalleryPage() {
               <input
                 type="url"
                 value={brandLogo}
-                onChange={(e) => setBrandLogo(e.target.value)}
+                onChange={e => setBrandLogo(e.target.value)}
                 placeholder="https://example.com/logo.png"
                 className="w-full p-2 border rounded-md text-sm"
               />
@@ -323,7 +328,7 @@ export default function NewGalleryPage() {
               <input
                 type="color"
                 value={brandColor}
-                onChange={(e) => setBrandColor(e.target.value)}
+                onChange={e => setBrandColor(e.target.value)}
                 className="w-full h-10 border rounded-md cursor-pointer"
               />
             </div>
@@ -332,7 +337,7 @@ export default function NewGalleryPage() {
               <input
                 type="checkbox"
                 checked={watermark}
-                onChange={(e) => setWatermark(e.target.checked)}
+                onChange={e => setWatermark(e.target.checked)}
                 className="rounded"
               />
               <span className="text-sm">Add watermark to images</span>

@@ -21,7 +21,7 @@ import {
   Loader2,
   AlertCircle,
   Edit2,
-  MessageCircle
+  MessageCircle,
 } from 'lucide-react'
 import { Button } from '@/components/Button'
 import PhotoAnnotatorModal from '@/components/PhotoAnnotatorModal'
@@ -80,7 +80,7 @@ export default function VideoGalleryViewer({
   allowDownload = true,
   allowShare = true,
   title,
-  subtitle
+  subtitle,
 }: VideoGalleryViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -95,13 +95,15 @@ export default function VideoGalleryViewer({
   const [volume, setVolume] = useState(1)
   const [showAnnotator, setShowAnnotator] = useState(false)
   const [showComments, setShowComments] = useState(false)
-  
+
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  
+
   const currentMedia = media[currentIndex]
-  const isVideo = currentMedia?.mediaType === 'VIDEO' || currentMedia?.mediaType === 'DUAL_VIDEO'
+  const isVideo =
+    currentMedia?.mediaType === 'VIDEO' ||
+    currentMedia?.mediaType === 'DUAL_VIDEO'
 
   // Reset states when media changes
   useEffect(() => {
@@ -272,7 +274,7 @@ export default function VideoGalleryViewer({
   }
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="fixed inset-0 bg-black z-50 flex flex-col"
       onMouseMove={() => setShowControls(true)}
@@ -282,7 +284,9 @@ export default function VideoGalleryViewer({
         <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent p-4 z-10">
           <div className="flex items-center justify-between">
             <div>
-              {title && <h2 className="text-white text-xl font-bold">{title}</h2>}
+              {title && (
+                <h2 className="text-white text-xl font-bold">{title}</h2>
+              )}
               {subtitle && <p className="text-white/70 text-sm">{subtitle}</p>}
             </div>
             <div className="flex items-center gap-2">
@@ -323,7 +327,9 @@ export default function VideoGalleryViewer({
                 title="Comments"
               >
                 <MessageCircle className="h-5 w-5" />
-                {showComments && <span className="absolute top-0 right-0 w-2 h-2 bg-safety-orange rounded-full" />}
+                {showComments && (
+                  <span className="absolute top-0 right-0 w-2 h-2 bg-safety-orange rounded-full" />
+                )}
               </Button>
               {!isVideo && (
                 <Button
@@ -370,7 +376,7 @@ export default function VideoGalleryViewer({
               <Loader2 className="h-12 w-12 text-white animate-spin" />
             </div>
           )}
-          
+
           {error && (
             <div className="flex flex-col items-center gap-4 text-white">
               <AlertCircle className="h-12 w-12 text-red-500" />
@@ -378,8 +384,8 @@ export default function VideoGalleryViewer({
             </div>
           )}
 
-          {!error && (
-            isVideo ? (
+          {!error &&
+            (isVideo ? (
               <video
                 ref={videoRef}
                 src={currentMedia.fileUrl}
@@ -400,8 +406,7 @@ export default function VideoGalleryViewer({
                 onLoad={() => setIsLoading(false)}
                 onError={() => setError('Failed to load image')}
               />
-            )
-          )}
+            ))}
         </div>
 
         {/* Next button */}
@@ -430,7 +435,7 @@ export default function VideoGalleryViewer({
                 onChange={handleSeek}
                 className="flex-1 h-1 bg-white/30 rounded-lg appearance-none cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, #fff ${(currentTime / duration) * 100}%, rgba(255,255,255,0.3) 0%)`
+                  background: `linear-gradient(to right, #fff ${(currentTime / duration) * 100}%, rgba(255,255,255,0.3) 0%)`,
                 }}
               />
               <span>{formatTime(duration)}</span>
@@ -495,7 +500,7 @@ export default function VideoGalleryViewer({
                     onChange={handleVolumeChange}
                     className="w-20 h-1 bg-white/30 rounded-lg appearance-none cursor-pointer"
                     style={{
-                      background: `linear-gradient(to right, #fff ${(isMuted ? 0 : volume) * 100}%, rgba(255,255,255,0.3) 0%)`
+                      background: `linear-gradient(to right, #fff ${(isMuted ? 0 : volume) * 100}%, rgba(255,255,255,0.3) 0%)`,
                     }}
                   />
                 </div>
@@ -534,7 +539,8 @@ export default function VideoGalleryViewer({
                     : 'border-transparent opacity-70 hover:opacity-100'
                 }`}
               >
-                {item.mediaType === 'VIDEO' || item.mediaType === 'DUAL_VIDEO' ? (
+                {item.mediaType === 'VIDEO' ||
+                item.mediaType === 'DUAL_VIDEO' ? (
                   <div className="w-full h-full bg-gray-800 flex items-center justify-center">
                     <Video className="h-6 w-6 text-gray-400" />
                   </div>
@@ -572,9 +578,13 @@ export default function VideoGalleryViewer({
                 <p className="text-white/70">Type</p>
                 <p className="flex items-center gap-2">
                   {isVideo ? (
-                    <><Video className="h-4 w-4" /> Video</>
+                    <>
+                      <Video className="h-4 w-4" /> Video
+                    </>
                   ) : (
-                    <><ImageIcon className="h-4 w-4" /> Photo</>
+                    <>
+                      <ImageIcon className="h-4 w-4" /> Photo
+                    </>
                   )}
                 </p>
               </div>
@@ -615,10 +625,12 @@ export default function VideoGalleryViewer({
                 <p>{formatFileSize(currentMedia.fileSize)}</p>
               </div>
 
-              {(currentMedia.width && currentMedia.height) && (
+              {currentMedia.width && currentMedia.height && (
                 <div>
                   <p className="text-white/70">Dimensions</p>
-                  <p>{currentMedia.width} × {currentMedia.height}</p>
+                  <p>
+                    {currentMedia.width} × {currentMedia.height}
+                  </p>
                 </div>
               )}
 
@@ -634,9 +646,12 @@ export default function VideoGalleryViewer({
                 <MediaTagger
                   mediaId={currentMedia.id}
                   initialTags={currentMedia.mediaTags || []}
-                  onTagsUpdate={(updatedTags) => {
+                  onTagsUpdate={updatedTags => {
                     // Update the current media item's tags
-                    const updatedMedia = { ...currentMedia, mediaTags: updatedTags }
+                    const updatedMedia = {
+                      ...currentMedia,
+                      mediaTags: updatedTags,
+                    }
                     // You might want to update the parent component's media array here
                   }}
                 />
@@ -677,7 +692,7 @@ export default function VideoGalleryViewer({
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            <Comments 
+            <Comments
               mediaId={currentMedia.id}
               projectMembers={currentMedia.project ? [] : []} // TODO: Pass actual project members
             />
@@ -694,7 +709,10 @@ export default function VideoGalleryViewer({
           title={`Edit: ${currentMedia.project?.name || 'Photo'}`}
           onSave={(annotations, imageDataUrl) => {
             // Here you would save the annotated image
-            console.log('Saving annotated image:', { annotations, imageDataUrl })
+            console.log('Saving annotated image:', {
+              annotations,
+              imageDataUrl,
+            })
             // Could make an API call to save the annotated version
           }}
         />

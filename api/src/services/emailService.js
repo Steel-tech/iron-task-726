@@ -1,18 +1,18 @@
-const nodemailer = require('nodemailer');
-const sgMail = require('@sendgrid/mail');
-const env = require('../config/env');
-const { logger } = require('../utils/logger');
-const path = require('path');
-const fs = require('fs').promises;
+const nodemailer = require('nodemailer')
+const sgMail = require('@sendgrid/mail')
+const env = require('../config/env')
+const { logger } = require('../utils/logger')
+const path = require('path')
+const fs = require('fs').promises
 
 class EmailService {
   constructor() {
-    this.provider = env.EMAIL_PROVIDER || 'smtp';
-    this.from = env.EMAIL_FROM || 'FSW Iron Task <noreply@fswirontask.com>';
-    
+    this.provider = env.EMAIL_PROVIDER || 'smtp'
+    this.from = env.EMAIL_FROM || 'FSW Iron Task <noreply@fswirontask.com>'
+
     if (this.provider === 'sendgrid' && env.SENDGRID_API_KEY) {
-      sgMail.setApiKey(env.SENDGRID_API_KEY);
-      this.initialized = true;
+      sgMail.setApiKey(env.SENDGRID_API_KEY)
+      this.initialized = true
     } else if (this.provider === 'smtp' && env.SMTP_HOST) {
       this.transporter = nodemailer.createTransporter({
         host: env.SMTP_HOST,
@@ -20,13 +20,13 @@ class EmailService {
         secure: env.SMTP_SECURE === 'true',
         auth: {
           user: env.SMTP_USER,
-          pass: env.SMTP_PASS
-        }
-      });
-      this.initialized = true;
+          pass: env.SMTP_PASS,
+        },
+      })
+      this.initialized = true
     } else {
-      logger.warn('Email service not configured');
-      this.initialized = false;
+      logger.warn('Email service not configured')
+      this.initialized = false
     }
   }
 
@@ -42,8 +42,8 @@ class EmailService {
    */
   async send(options) {
     if (!this.initialized) {
-      logger.warn('Email service not initialized - skipping email');
-      return { skipped: true };
+      logger.warn('Email service not initialized - skipping email')
+      return { skipped: true }
     }
 
     try {
@@ -54,12 +54,12 @@ class EmailService {
           subject: options.subject,
           text: options.text,
           html: options.html,
-          attachments: options.attachments
-        };
-        
-        const result = await sgMail.send(msg);
-        logger.info(`Email sent via SendGrid to ${options.to}`);
-        return { success: true, messageId: result[0].headers['x-message-id'] };
+          attachments: options.attachments,
+        }
+
+        const result = await sgMail.send(msg)
+        logger.info(`Email sent via SendGrid to ${options.to}`)
+        return { success: true, messageId: result[0].headers['x-message-id'] }
       } else {
         const mailOptions = {
           from: this.from,
@@ -67,16 +67,16 @@ class EmailService {
           subject: options.subject,
           text: options.text,
           html: options.html,
-          attachments: options.attachments
-        };
-        
-        const result = await this.transporter.sendMail(mailOptions);
-        logger.info(`Email sent via SMTP to ${options.to}`);
-        return { success: true, messageId: result.messageId };
+          attachments: options.attachments,
+        }
+
+        const result = await this.transporter.sendMail(mailOptions)
+        logger.info(`Email sent via SMTP to ${options.to}`)
+        return { success: true, messageId: result.messageId }
       }
     } catch (error) {
-      logger.error('Failed to send email:', error);
-      throw error;
+      logger.error('Failed to send email:', error)
+      throw error
     }
   }
 
@@ -86,15 +86,18 @@ class EmailService {
    * @param {Object} notification - Notification object
    */
   async sendNotificationEmail(user, notification) {
-    const template = await this.getEmailTemplate('notification');
-    
+    const template = await this.getEmailTemplate('notification')
+
     const html = template
       .replace('{{userName}}', user.name)
       .replace('{{notificationTitle}}', notification.title)
       .replace('{{notificationMessage}}', notification.message)
       .replace('{{notificationType}}', notification.type)
-      .replace('{{actionUrl}}', `${env.APP_URL}/notifications/${notification.id}`)
-      .replace('{{year}}', new Date().getFullYear());
+      .replace(
+        '{{actionUrl}}',
+        `${env.APP_URL}/notifications/${notification.id}`
+      )
+      .replace('{{year}}', new Date().getFullYear())
 
     const text = `
 Hi ${user.name},
@@ -107,14 +110,14 @@ View in app: ${env.APP_URL}/notifications/${notification.id}
 
 --
 FSW Iron Task
-`;
+`
 
     return this.send({
       to: user.email,
       subject: `[FSW Iron Task] ${notification.title}`,
       html,
-      text
-    });
+      text,
+    })
   }
 
   /**
@@ -124,15 +127,15 @@ FSW Iron Task
    * @param {Object} inviter - User sending invitation
    */
   async sendProjectInvitation(invitee, project, inviter) {
-    const template = await this.getEmailTemplate('project-invitation');
-    
+    const template = await this.getEmailTemplate('project-invitation')
+
     const html = template
       .replace('{{userName}}', invitee.name)
       .replace('{{projectName}}', project.name)
       .replace('{{inviterName}}', inviter.name)
       .replace('{{projectLocation}}', project.location)
       .replace('{{actionUrl}}', `${env.APP_URL}/projects/${project.id}`)
-      .replace('{{year}}', new Date().getFullYear());
+      .replace('{{year}}', new Date().getFullYear())
 
     const text = `
 Hi ${invitee.name},
@@ -143,14 +146,14 @@ Accept invitation: ${env.APP_URL}/projects/${project.id}
 
 --
 FSW Iron Task
-`;
+`
 
     return this.send({
       to: invitee.email,
       subject: `Invitation to join ${project.name}`,
       html,
-      text
-    });
+      text,
+    })
   }
 
   /**
@@ -161,8 +164,8 @@ FSW Iron Task
    * @param {string} shareUrl - Public share URL
    */
   async sendReportShare(recipient, report, sender, shareUrl) {
-    const template = await this.getEmailTemplate('report-share');
-    
+    const template = await this.getEmailTemplate('report-share')
+
     const html = template
       .replace('{{recipientName}}', recipient.name || 'there')
       .replace('{{senderName}}', sender.name)
@@ -170,8 +173,11 @@ FSW Iron Task
       .replace('{{reportType}}', report.type)
       .replace('{{projectName}}', report.project?.name || 'Project')
       .replace('{{shareUrl}}', shareUrl)
-      .replace('{{expiresAt}}', new Date(report.shareExpiresAt).toLocaleDateString())
-      .replace('{{year}}', new Date().getFullYear());
+      .replace(
+        '{{expiresAt}}',
+        new Date(report.shareExpiresAt).toLocaleDateString()
+      )
+      .replace('{{year}}', new Date().getFullYear())
 
     const text = `
 Hi ${recipient.name || 'there'},
@@ -184,14 +190,14 @@ This link expires on ${new Date(report.shareExpiresAt).toLocaleDateString()}.
 
 --
 FSW Iron Task
-`;
+`
 
     return this.send({
       to: recipient.email,
       subject: `${sender.name} shared a report with you`,
       html,
-      text
-    });
+      text,
+    })
   }
 
   /**
@@ -200,13 +206,13 @@ FSW Iron Task
    * @param {string} resetToken - Password reset token
    */
   async sendPasswordReset(user, resetToken) {
-    const template = await this.getEmailTemplate('password-reset');
-    const resetUrl = `${env.APP_URL}/reset-password?token=${resetToken}`;
-    
+    const template = await this.getEmailTemplate('password-reset')
+    const resetUrl = `${env.APP_URL}/reset-password?token=${resetToken}`
+
     const html = template
       .replace('{{userName}}', user.name)
       .replace('{{resetUrl}}', resetUrl)
-      .replace('{{year}}', new Date().getFullYear());
+      .replace('{{year}}', new Date().getFullYear())
 
     const text = `
 Hi ${user.name},
@@ -221,14 +227,14 @@ If you didn't request this, please ignore this email.
 
 --
 FSW Iron Task
-`;
+`
 
     return this.send({
       to: user.email,
       subject: 'Reset your FSW Iron Task password',
       html,
-      text
-    });
+      text,
+    })
   }
 
   /**
@@ -236,12 +242,12 @@ FSW Iron Task
    * @param {Object} user - New user object
    */
   async sendWelcomeEmail(user) {
-    const template = await this.getEmailTemplate('welcome');
-    
+    const template = await this.getEmailTemplate('welcome')
+
     const html = template
       .replace('{{userName}}', user.name)
       .replace('{{loginUrl}}', `${env.APP_URL}/login`)
-      .replace('{{year}}', new Date().getFullYear());
+      .replace('{{year}}', new Date().getFullYear())
 
     const text = `
 Welcome to FSW Iron Task, ${user.name}!
@@ -260,14 +266,14 @@ Need help? Contact support@fswirontask.com
 
 --
 FSW Iron Task
-`;
+`
 
     return this.send({
       to: user.email,
       subject: 'Welcome to FSW Iron Task!',
       html,
-      text
-    });
+      text,
+    })
   }
 
   /**
@@ -277,11 +283,17 @@ FSW Iron Task
    */
   async getEmailTemplate(templateName) {
     try {
-      const templatePath = path.join(__dirname, '..', 'templates', 'emails', `${templateName}.html`);
-      return await fs.readFile(templatePath, 'utf8');
+      const templatePath = path.join(
+        __dirname,
+        '..',
+        'templates',
+        'emails',
+        `${templateName}.html`
+      )
+      return await fs.readFile(templatePath, 'utf8')
     } catch (error) {
       // Return basic template if file not found
-      return this.getBasicTemplate();
+      return this.getBasicTemplate()
     }
   }
 
@@ -323,9 +335,9 @@ FSW Iron Task
   </div>
 </body>
 </html>
-`;
+`
   }
 }
 
 // Export singleton instance
-module.exports = new EmailService();
+module.exports = new EmailService()

@@ -9,7 +9,10 @@ console.log('JWT_SECRET length:', process.env.JWT_SECRET?.length)
 console.log('COOKIE_SECRET exists:', !!process.env.COOKIE_SECRET)
 console.log('COOKIE_SECRET length:', process.env.COOKIE_SECRET?.length)
 console.log('SUPABASE_URL exists:', !!process.env.SUPABASE_URL)
-console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
+console.log(
+  'SUPABASE_SERVICE_ROLE_KEY exists:',
+  !!process.env.SUPABASE_SERVICE_ROLE_KEY
+)
 console.log('SUPABASE_ANON_KEY exists:', !!process.env.SUPABASE_ANON_KEY)
 console.log('CORS_ORIGIN:', process.env.CORS_ORIGIN)
 console.log('=========================')

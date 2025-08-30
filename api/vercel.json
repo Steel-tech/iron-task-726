@@ -4,7 +4,7 @@
   "installCommand": "npm install",
   "builds": [
     {
-      "src": "index.js",
+      "src": "test.js",
       "use": "@vercel/node",
       "config": {
         "maxLambdaSize": "50mb"
@@ -14,7 +14,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/index.js"
+      "dest": "/test.js"
     }
   ],
   "env": {

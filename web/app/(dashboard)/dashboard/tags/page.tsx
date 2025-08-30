@@ -5,11 +5,22 @@ import { Plus, Edit2, Trash2, Tag, Hash, Palette } from 'lucide-react'
 import { Button } from '@/components/Button'
 import { api } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { toast } from '@/components/ui/use-toast'
 
 interface Tag {
@@ -37,7 +48,7 @@ const TAG_CATEGORIES = [
   'Equipment',
   'Safety',
   'Quality',
-  'Other'
+  'Other',
 ]
 
 const PRESET_COLORS = [
@@ -59,17 +70,18 @@ export default function TagsPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [editingTag, setEditingTag] = useState<Tag | null>(null)
-  
+
   // Form state
   const [formData, setFormData] = useState({
     name: '',
     color: '#3B82F6',
     description: '',
     category: '',
-    isSystem: false
+    isSystem: false,
   })
 
-  const canManageTags = user?.role === 'ADMIN' || user?.role === 'PROJECT_MANAGER'
+  const canManageTags =
+    user?.role === 'ADMIN' || user?.role === 'PROJECT_MANAGER'
   const canDeleteTags = user?.role === 'ADMIN'
 
   useEffect(() => {
@@ -79,7 +91,8 @@ export default function TagsPage() {
   const fetchTags = async () => {
     try {
       setIsLoading(true)
-      const params = selectedCategory !== 'all' ? `?category=${selectedCategory}` : ''
+      const params =
+        selectedCategory !== 'all' ? `?category=${selectedCategory}` : ''
       const response = await api.get(`/tags${params}`)
       setTags(response.data)
     } catch (error) {
@@ -87,7 +100,7 @@ export default function TagsPage() {
       toast({
         title: 'Error',
         description: 'Failed to load tags',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     } finally {
       setIsLoading(false)
@@ -102,54 +115,54 @@ export default function TagsPage() {
       resetForm()
       toast({
         title: 'Success',
-        description: 'Tag created successfully'
+        description: 'Tag created successfully',
       })
     } catch (error: any) {
       toast({
         title: 'Error',
         description: error.response?.data?.error || 'Failed to create tag',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
 
   const handleUpdateTag = async () => {
     if (!editingTag) return
-    
+
     try {
       const response = await api.patch(`/tags/${editingTag.id}`, formData)
-      setTags(tags.map(tag => tag.id === editingTag.id ? response.data : tag))
+      setTags(tags.map(tag => (tag.id === editingTag.id ? response.data : tag)))
       setShowEditDialog(false)
       setEditingTag(null)
       resetForm()
       toast({
         title: 'Success',
-        description: 'Tag updated successfully'
+        description: 'Tag updated successfully',
       })
     } catch (error: any) {
       toast({
         title: 'Error',
         description: error.response?.data?.error || 'Failed to update tag',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
 
   const handleDeleteTag = async (tagId: string) => {
     if (!confirm('Are you sure you want to delete this tag?')) return
-    
+
     try {
       await api.delete(`/tags/${tagId}`)
       setTags(tags.filter(tag => tag.id !== tagId))
       toast({
         title: 'Success',
-        description: 'Tag deleted successfully'
+        description: 'Tag deleted successfully',
       })
     } catch (error: any) {
       toast({
         title: 'Error',
         description: error.response?.data?.error || 'Failed to delete tag',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
@@ -160,7 +173,7 @@ export default function TagsPage() {
       color: '#3B82F6',
       description: '',
       category: '',
-      isSystem: false
+      isSystem: false,
     })
   }
 
@@ -171,17 +184,20 @@ export default function TagsPage() {
       color: tag.color,
       description: tag.description || '',
       category: tag.category || '',
-      isSystem: tag.isSystem
+      isSystem: tag.isSystem,
     })
     setShowEditDialog(true)
   }
 
-  const groupedTags = tags.reduce((acc, tag) => {
-    const category = tag.category || 'Other'
-    if (!acc[category]) acc[category] = []
-    acc[category].push(tag)
-    return acc
-  }, {} as Record<string, Tag[]>)
+  const groupedTags = tags.reduce(
+    (acc, tag) => {
+      const category = tag.category || 'Other'
+      if (!acc[category]) acc[category] = []
+      acc[category].push(tag)
+      return acc
+    },
+    {} as Record<string, Tag[]>
+  )
 
   return (
     <div className="space-y-6">
@@ -189,7 +205,9 @@ export default function TagsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Tag className="h-8 w-8 text-safety-orange" />
-          <h1 className="text-3xl font-bold font-shogun text-white">Tag Management</h1>
+          <h1 className="text-3xl font-bold font-shogun text-white">
+            Tag Management
+          </h1>
         </div>
         {canManageTags && (
           <Button
@@ -205,7 +223,9 @@ export default function TagsPage() {
       {/* Category Filter */}
       <div className="brushed-metal rounded-lg shadow-lg p-4">
         <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-gray-400">Filter by category:</span>
+          <span className="text-sm font-medium text-gray-400">
+            Filter by category:
+          </span>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedCategory('all')}
@@ -242,7 +262,10 @@ export default function TagsPage() {
       ) : (
         <div className="space-y-8">
           {Object.entries(groupedTags).map(([category, categoryTags]) => (
-            <div key={category} className="brushed-metal rounded-lg shadow-lg p-6">
+            <div
+              key={category}
+              className="brushed-metal rounded-lg shadow-lg p-6"
+            >
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
                 <Hash className="h-5 w-5 text-safety-orange" />
                 {category}
@@ -267,16 +290,18 @@ export default function TagsPage() {
                         </span>
                       )}
                     </div>
-                    
+
                     {tag.description && (
-                      <p className="text-sm text-gray-400 mb-2">{tag.description}</p>
+                      <p className="text-sm text-gray-400 mb-2">
+                        {tag.description}
+                      </p>
                     )}
-                    
+
                     <div className="flex items-center justify-between mt-3">
                       <span className="text-xs text-gray-500">
                         {tag._count.mediaTags} uses
                       </span>
-                      
+
                       {canManageTags && !tag.isSystem && (
                         <div className="flex items-center gap-1">
                           <Button
@@ -316,43 +341,59 @@ export default function TagsPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name" className="text-white">Name</Label>
+              <Label htmlFor="name" className="text-white">
+                Name
+              </Label>
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="Enter tag name"
                 className="bg-gray-800 border-gray-700 text-white"
               />
             </div>
-            
+
             <div>
-              <Label htmlFor="category" className="text-white">Category</Label>
+              <Label htmlFor="category" className="text-white">
+                Category
+              </Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
+                onValueChange={value =>
+                  setFormData({ ...formData, category: value })
+                }
               >
                 <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-700">
                   {TAG_CATEGORIES.map(category => (
-                    <SelectItem key={category} value={category} className="text-white">
+                    <SelectItem
+                      key={category}
+                      value={category}
+                      className="text-white"
+                    >
                       {category}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
-              <Label htmlFor="color" className="text-white">Color</Label>
+              <Label htmlFor="color" className="text-white">
+                Color
+              </Label>
               <div className="flex items-center gap-2">
                 <Input
                   id="color"
                   type="color"
                   value={formData.color}
-                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, color: e.target.value })
+                  }
                   className="w-20 h-10 bg-gray-800 border-gray-700"
                 />
                 <div className="flex gap-1">
@@ -367,19 +408,23 @@ export default function TagsPage() {
                 </div>
               </div>
             </div>
-            
+
             <div>
-              <Label htmlFor="description" className="text-white">Description (Optional)</Label>
+              <Label htmlFor="description" className="text-white">
+                Description (Optional)
+              </Label>
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Enter tag description"
                 className="bg-gray-800 border-gray-700 text-white"
                 rows={3}
               />
             </div>
-            
+
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
@@ -410,43 +455,59 @@ export default function TagsPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="edit-name" className="text-white">Name</Label>
+              <Label htmlFor="edit-name" className="text-white">
+                Name
+              </Label>
               <Input
                 id="edit-name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="Enter tag name"
                 className="bg-gray-800 border-gray-700 text-white"
               />
             </div>
-            
+
             <div>
-              <Label htmlFor="edit-category" className="text-white">Category</Label>
+              <Label htmlFor="edit-category" className="text-white">
+                Category
+              </Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
+                onValueChange={value =>
+                  setFormData({ ...formData, category: value })
+                }
               >
                 <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-700">
                   {TAG_CATEGORIES.map(category => (
-                    <SelectItem key={category} value={category} className="text-white">
+                    <SelectItem
+                      key={category}
+                      value={category}
+                      className="text-white"
+                    >
                       {category}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
-              <Label htmlFor="edit-color" className="text-white">Color</Label>
+              <Label htmlFor="edit-color" className="text-white">
+                Color
+              </Label>
               <div className="flex items-center gap-2">
                 <Input
                   id="edit-color"
                   type="color"
                   value={formData.color}
-                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, color: e.target.value })
+                  }
                   className="w-20 h-10 bg-gray-800 border-gray-700"
                 />
                 <div className="flex gap-1">
@@ -461,19 +522,23 @@ export default function TagsPage() {
                 </div>
               </div>
             </div>
-            
+
             <div>
-              <Label htmlFor="edit-description" className="text-white">Description (Optional)</Label>
+              <Label htmlFor="edit-description" className="text-white">
+                Description (Optional)
+              </Label>
               <Textarea
                 id="edit-description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Enter tag description"
                 className="bg-gray-800 border-gray-700 text-white"
                 rows={3}
               />
             </div>
-            
+
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"

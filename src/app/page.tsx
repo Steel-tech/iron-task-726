@@ -25,7 +25,8 @@ export default function HomePage() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-2">
-            iron-task-726 <span className="text-muted-foreground">Development Dashboard</span>
+            iron-task-726{' '}
+            <span className="text-muted-foreground">Development Dashboard</span>
           </h1>
           <p className="text-muted-foreground">
             Your Next.js app is running • Ready for development
@@ -42,7 +43,9 @@ export default function HomePage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-2">
-                <Button className="w-full" size="sm">Button</Button>
+                <Button className="w-full" size="sm">
+                  Button
+                </Button>
                 <Input placeholder="Input field" />
                 <Select>
                   <SelectTrigger className="h-8">
@@ -122,10 +125,16 @@ export default function HomePage() {
             <CardContent className="space-y-2">
               <div className="text-xs space-y-1">
                 <div>📄 Edit this page:</div>
-                <div className="font-mono text-muted-foreground">src/app/page.tsx</div>
+                <div className="font-mono text-muted-foreground">
+                  src/app/page.tsx
+                </div>
                 <div className="pt-1">🤖 Ask Claude:</div>
-                <div className="font-mono text-muted-foreground">&quot;Add a contact form&quot;</div>
-                <div className="font-mono text-muted-foreground">&quot;Create a navbar&quot;</div>
+                <div className="font-mono text-muted-foreground">
+                  &quot;Add a contact form&quot;
+                </div>
+                <div className="font-mono text-muted-foreground">
+                  &quot;Create a navbar&quot;
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -133,7 +142,10 @@ export default function HomePage() {
 
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
-            Ready to build? Start by editing <code className="bg-muted px-1 py-0.5 rounded">src/app/page.tsx</code>
+            Ready to build? Start by editing{' '}
+            <code className="bg-muted px-1 py-0.5 rounded">
+              src/app/page.tsx
+            </code>
           </p>
         </div>
       </div>

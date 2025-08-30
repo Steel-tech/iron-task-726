@@ -1,7 +1,19 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Calendar, Users, Cloud, Truck, AlertTriangle, FileText, Save, Car, Wrench, Package, Shield } from 'lucide-react'
+import {
+  Calendar,
+  Users,
+  Cloud,
+  Truck,
+  AlertTriangle,
+  FileText,
+  Save,
+  Car,
+  Wrench,
+  Package,
+  Shield,
+} from 'lucide-react'
 import { Button } from '@/components/Button'
 import { api } from '@/lib/api'
 import { useToast } from '@/components/ui/use-toast'
@@ -127,21 +139,23 @@ interface FSWIronTaskProps {
 
 const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
   const { toast } = useToast()
-  
+
   // State for Daily Timesheet
   const [timesheetData, setTimesheetData] = useState<TimesheetData>({
     date: '',
     foreman: '',
-    employees: Array(5).fill(null).map(() => ({
-      name: '',
-      startTime: '',
-      lunch: false,
-      stopTime: '',
-      extraWork: '',
-      total: '',
-      jobNumber: ''
-    })),
-    issues: ''
+    employees: Array(5)
+      .fill(null)
+      .map(() => ({
+        name: '',
+        startTime: '',
+        lunch: false,
+        stopTime: '',
+        extraWork: '',
+        total: '',
+        jobNumber: '',
+      })),
+    issues: '',
   })
 
   // State to track number of visible employees
@@ -152,7 +166,7 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
     conditions: '',
     windSpeed: '',
     deliveries: '',
-    needs: ''
+    needs: '',
   })
 
   // State for Job Hazard Analysis
@@ -162,61 +176,77 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
     jobNumber: '',
     supervisor: '',
     scopeOfWork: ['', '', '', '', ''],
-    personnel: Array(6).fill(null).map(() => ({ name: '', task: '' })),
+    personnel: Array(6)
+      .fill(null)
+      .map(() => ({ name: '', task: '' })),
     hazards: {
-      workingHeights: { checked: true, preventive: 'Use harness, Safety Lines, Retractables and or Beamers' },
-      tripHazards: { checked: true, preventive: 'Be aware of changes in elevations' },
-      lifting: { checked: true, preventive: 'Utilize proper lifting techniques' }
-    }
+      workingHeights: {
+        checked: true,
+        preventive: 'Use harness, Safety Lines, Retractables and or Beamers',
+      },
+      tripHazards: {
+        checked: true,
+        preventive: 'Be aware of changes in elevations',
+      },
+      lifting: {
+        checked: true,
+        preventive: 'Utilize proper lifting techniques',
+      },
+    },
   })
 
   // State for Vehicle Inspection
-  const [vehicleInspection, setVehicleInspection] = useState<VehicleInspectionData>({
-    operatorName: '',
-    vehicleDescription: '',
-    licenseNumber: '',
-    mileage: '',
-    date: '',
-    conditions: {
-      motorOil: 'good',
-      coolant: 'good',
-      brakes: 'good',
-      tires: 'good',
-      transmission: 'good',
-      battery: 'good',
-      belts: 'good',
-      hoses: 'good',
-      wipers: 'good',
-      mirrors: 'good',
-      windshield: 'good',
-      exhaust: 'good',
-      steering: 'good',
-      suspension: 'good'
-    },
-    lights: {
-      brake: true,
-      head: true,
-      signal: true
-    },
-    notes: ''
-  })
+  const [vehicleInspection, setVehicleInspection] =
+    useState<VehicleInspectionData>({
+      operatorName: '',
+      vehicleDescription: '',
+      licenseNumber: '',
+      mileage: '',
+      date: '',
+      conditions: {
+        motorOil: 'good',
+        coolant: 'good',
+        brakes: 'good',
+        tires: 'good',
+        transmission: 'good',
+        battery: 'good',
+        belts: 'good',
+        hoses: 'good',
+        wipers: 'good',
+        mirrors: 'good',
+        windshield: 'good',
+        exhaust: 'good',
+        steering: 'good',
+        suspension: 'good',
+      },
+      lights: {
+        brake: true,
+        head: true,
+        signal: true,
+      },
+      notes: '',
+    })
 
   // State for Welder Inspection
-  const [welderInspections, setWelderInspections] = useState<WelderInspectionData[]>([{
-    fswNumber: '',
-    description: '',
-    currentHours: '',
-    checks: {
-      coolantLevel: false,
-      fuelLevel: false,
-      engineOil: false,
-      hydraulicFluid: false,
-      cuttingTorch: false,
-      weldingLeads: false,
-      groundCable: false
+  const [welderInspections, setWelderInspections] = useState<
+    WelderInspectionData[]
+  >([
+    {
+      fswNumber: '',
+      description: '',
+      currentHours: '',
+      checks: {
+        coolantLevel: false,
+        fuelLevel: false,
+        engineOil: false,
+        hydraulicFluid: false,
+        cuttingTorch: false,
+        weldingLeads: false,
+        groundCable: false,
+      },
+      notes: '',
     },
-    notes: ''
-  }])
+  ])
 
   // State for Forklift Inspection
   const createEmptyDay = (): ForkliftInspectionDay => ({
@@ -232,21 +262,22 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
       horn: false,
       lights: false,
       seatBelt: false,
-      fireExtinguisher: false
-    }
+      fireExtinguisher: false,
+    },
   })
 
-  const [forkliftInspection, setForkliftInspection] = useState<ForkliftInspectionData>({
-    forkliftId: '',
-    weekStarting: '',
-    weeklyChecks: {
-      monday: createEmptyDay(),
-      tuesday: createEmptyDay(),
-      wednesday: createEmptyDay(),
-      thursday: createEmptyDay(),
-      friday: createEmptyDay()
-    }
-  })
+  const [forkliftInspection, setForkliftInspection] =
+    useState<ForkliftInspectionData>({
+      forkliftId: '',
+      weekStarting: '',
+      weeklyChecks: {
+        monday: createEmptyDay(),
+        tuesday: createEmptyDay(),
+        wednesday: createEmptyDay(),
+        thursday: createEmptyDay(),
+        friday: createEmptyDay(),
+      },
+    })
 
   // State for Safety Meeting
   const [safetyMeeting, setSafetyMeeting] = useState<SafetyMeetingData>({
@@ -254,23 +285,35 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
     meetingDate: '',
     facilitator: '',
     hazardsOnJob: '',
-    topics: ['PPE Requirements', 'Fall Protection', 'Hazard Communication', 'Tool Safety', 'Fire Prevention'],
-    attendees: Array(10).fill(null).map(() => ({ name: '', signature: '' }))
+    topics: [
+      'PPE Requirements',
+      'Fall Protection',
+      'Hazard Communication',
+      'Tool Safety',
+      'Fire Prevention',
+    ],
+    attendees: Array(10)
+      .fill(null)
+      .map(() => ({ name: '', signature: '' })),
   })
 
   const [activeForm, setActiveForm] = useState('timesheet')
 
   // Calculate total hours for timesheet
-  const calculateHours = (start: string, lunch: boolean, stop: string): string => {
+  const calculateHours = (
+    start: string,
+    lunch: boolean,
+    stop: string
+  ): string => {
     if (start && stop) {
       const startTime = new Date(`2000-01-01T${start}`)
       let stopTime = new Date(`2000-01-01T${stop}`)
-      
+
       // Handle overnight shifts - if stop time is earlier than start time, assume next day
       if (stopTime <= startTime) {
         stopTime = new Date(`2000-01-02T${stop}`)
       }
-      
+
       const diffMs = stopTime.getTime() - startTime.getTime()
       const diffHours = diffMs / (1000 * 60 * 60)
       const lunchDeduction = lunch ? 0.5 : 0
@@ -279,10 +322,14 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
     return ''
   }
 
-  const updateEmployee = (index: number, field: keyof TimesheetEmployee, value: any) => {
+  const updateEmployee = (
+    index: number,
+    field: keyof TimesheetEmployee,
+    value: any
+  ) => {
     const newEmployees = [...timesheetData.employees]
     newEmployees[index] = { ...newEmployees[index], [field]: value }
-    
+
     if (field === 'startTime' || field === 'lunch' || field === 'stopTime') {
       newEmployees[index].total = calculateHours(
         newEmployees[index].startTime,
@@ -290,7 +337,7 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
         newEmployees[index].stopTime
       )
     }
-    
+
     setTimesheetData({ ...timesheetData, employees: newEmployees })
   }
 
@@ -302,11 +349,11 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
       stopTime: '',
       extraWork: '',
       total: '',
-      jobNumber: ''
+      jobNumber: '',
     }
     setTimesheetData({
       ...timesheetData,
-      employees: [...timesheetData.employees, newEmployee]
+      employees: [...timesheetData.employees, newEmployee],
     })
   }
 
@@ -327,12 +374,12 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
         welderInspections,
         forkliftInspection,
         safetyMeeting,
-        savedAt: new Date().toISOString()
+        savedAt: new Date().toISOString(),
       }
-      
+
       // Save to the database with projectId
       await api.post(`/projects/${projectId}/forms`, allData)
-      
+
       toast({
         title: 'Success',
         description: 'All forms have been saved successfully!',
@@ -363,7 +410,9 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="text-2xl font-bold">FSW IRON TASK</div>
-            <div className="text-sm text-gray-400">FSW Iron Task Digital Forms</div>
+            <div className="text-sm text-gray-400">
+              FSW Iron Task Digital Forms
+            </div>
           </div>
           <Button
             onClick={saveData}
@@ -379,13 +428,13 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
       <div className="bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto">
           <div className="flex space-x-1 overflow-x-auto">
-            {navigationTabs.map((tab) => (
+            {navigationTabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveForm(tab.id)}
                 className={`flex items-center space-x-2 px-4 py-3 border-b-2 transition-colors whitespace-nowrap ${
-                  activeForm === tab.id 
-                    ? 'border-blue-500 text-blue-400' 
+                  activeForm === tab.id
+                    ? 'border-blue-500 text-blue-400'
                     : 'border-transparent text-gray-400 hover:text-gray-200'
                 }`}
               >
@@ -406,23 +455,34 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
               <Calendar className="mr-2" />
               Daily Timesheet
             </h2>
-            
+
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Date</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Date
+                </label>
                 <input
                   type="date"
                   value={timesheetData.date}
-                  onChange={(e) => setTimesheetData({ ...timesheetData, date: e.target.value })}
+                  onChange={e =>
+                    setTimesheetData({ ...timesheetData, date: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Foreman</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Foreman
+                </label>
                 <input
                   type="text"
                   value={timesheetData.foreman}
-                  onChange={(e) => setTimesheetData({ ...timesheetData, foreman: e.target.value })}
+                  onChange={e =>
+                    setTimesheetData({
+                      ...timesheetData,
+                      foreman: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
@@ -432,14 +492,30 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-gray-800">
-                    <th className="border border-gray-600 px-4 py-2 text-left text-gray-300">Employee</th>
-                    <th className="border border-gray-600 px-4 py-2 text-gray-300">Start Time</th>
-                    <th className="border border-gray-600 px-4 py-2 text-gray-300">Lunch</th>
-                    <th className="border border-gray-600 px-4 py-2 text-gray-300">Stop Time</th>
-                    <th className="border border-gray-600 px-4 py-2 text-gray-300">Extra Work</th>
-                    <th className="border border-gray-600 px-4 py-2 text-gray-300">Total</th>
-                    <th className="border border-gray-600 px-4 py-2 text-gray-300">Job #</th>
-                    <th className="border border-gray-600 px-4 py-2 text-gray-300">Actions</th>
+                    <th className="border border-gray-600 px-4 py-2 text-left text-gray-300">
+                      Employee
+                    </th>
+                    <th className="border border-gray-600 px-4 py-2 text-gray-300">
+                      Start Time
+                    </th>
+                    <th className="border border-gray-600 px-4 py-2 text-gray-300">
+                      Lunch
+                    </th>
+                    <th className="border border-gray-600 px-4 py-2 text-gray-300">
+                      Stop Time
+                    </th>
+                    <th className="border border-gray-600 px-4 py-2 text-gray-300">
+                      Extra Work
+                    </th>
+                    <th className="border border-gray-600 px-4 py-2 text-gray-300">
+                      Total
+                    </th>
+                    <th className="border border-gray-600 px-4 py-2 text-gray-300">
+                      Job #
+                    </th>
+                    <th className="border border-gray-600 px-4 py-2 text-gray-300">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -449,7 +525,9 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                         <input
                           type="text"
                           value={employee.name}
-                          onChange={(e) => updateEmployee(index, 'name', e.target.value)}
+                          onChange={e =>
+                            updateEmployee(index, 'name', e.target.value)
+                          }
                           className="w-full px-2 py-1 bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
                       </td>
@@ -457,7 +535,9 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                         <input
                           type="time"
                           value={employee.startTime}
-                          onChange={(e) => updateEmployee(index, 'startTime', e.target.value)}
+                          onChange={e =>
+                            updateEmployee(index, 'startTime', e.target.value)
+                          }
                           className="w-full px-2 py-1 bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
                       </td>
@@ -465,7 +545,9 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                         <input
                           type="checkbox"
                           checked={employee.lunch}
-                          onChange={(e) => updateEmployee(index, 'lunch', e.target.checked)}
+                          onChange={e =>
+                            updateEmployee(index, 'lunch', e.target.checked)
+                          }
                           className="w-4 h-4"
                         />
                       </td>
@@ -473,7 +555,9 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                         <input
                           type="time"
                           value={employee.stopTime}
-                          onChange={(e) => updateEmployee(index, 'stopTime', e.target.value)}
+                          onChange={e =>
+                            updateEmployee(index, 'stopTime', e.target.value)
+                          }
                           className="w-full px-2 py-1 bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
                       </td>
@@ -481,7 +565,9 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                         <input
                           type="text"
                           value={employee.extraWork}
-                          onChange={(e) => updateEmployee(index, 'extraWork', e.target.value)}
+                          onChange={e =>
+                            updateEmployee(index, 'extraWork', e.target.value)
+                          }
                           className="w-full px-2 py-1 bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
                       </td>
@@ -492,7 +578,9 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                         <input
                           type="text"
                           value={employee.jobNumber}
-                          onChange={(e) => updateEmployee(index, 'jobNumber', e.target.value)}
+                          onChange={e =>
+                            updateEmployee(index, 'jobNumber', e.target.value)
+                          }
                           className="w-full px-2 py-1 bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
                       </td>
@@ -529,7 +617,9 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
               </label>
               <textarea
                 value={timesheetData.issues}
-                onChange={(e) => setTimesheetData({ ...timesheetData, issues: e.target.value })}
+                onChange={e =>
+                  setTimesheetData({ ...timesheetData, issues: e.target.value })
+                }
                 rows={4}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
               />
@@ -546,14 +636,34 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
             </h2>
 
             <div className="mb-6">
-              <h3 className="font-semibold mb-3 text-white">Weather Conditions</h3>
+              <h3 className="font-semibold mb-3 text-white">
+                Weather Conditions
+              </h3>
               <div className="grid grid-cols-3 gap-4">
-                {['Sunny', 'Cloudy', 'Partly Cloudy', 'Rain', 'Thunderstorm', 'Snow', 'Fog', 'Frost', 'Wind'].map((condition) => (
-                  <label key={condition} className="flex items-center text-gray-300">
+                {[
+                  'Sunny',
+                  'Cloudy',
+                  'Partly Cloudy',
+                  'Rain',
+                  'Thunderstorm',
+                  'Snow',
+                  'Fog',
+                  'Frost',
+                  'Wind',
+                ].map(condition => (
+                  <label
+                    key={condition}
+                    className="flex items-center text-gray-300"
+                  >
                     <input
                       type="radio"
                       checked={weatherData.conditions === condition}
-                      onChange={() => setWeatherData({ ...weatherData, conditions: condition })}
+                      onChange={() =>
+                        setWeatherData({
+                          ...weatherData,
+                          conditions: condition,
+                        })
+                      }
                       className="mr-2"
                     />
                     <span>{condition}</span>
@@ -561,11 +671,18 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                 ))}
               </div>
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-300 mb-1">Wind Speed</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Wind Speed
+                </label>
                 <input
                   type="text"
                   value={weatherData.windSpeed}
-                  onChange={(e) => setWeatherData({ ...weatherData, windSpeed: e.target.value })}
+                  onChange={e =>
+                    setWeatherData({
+                      ...weatherData,
+                      windSpeed: e.target.value,
+                    })
+                  }
                   placeholder="mph"
                   className="w-32 px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
@@ -579,7 +696,9 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
               </h3>
               <textarea
                 value={weatherData.deliveries}
-                onChange={(e) => setWeatherData({ ...weatherData, deliveries: e.target.value })}
+                onChange={e =>
+                  setWeatherData({ ...weatherData, deliveries: e.target.value })
+                }
                 placeholder="Describe what was delivered"
                 rows={3}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
@@ -588,10 +707,15 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
 
             <div>
               <h3 className="font-semibold mb-2 text-white">Needs</h3>
-              <p className="text-sm text-gray-400 mb-2">What do you need? (Consumables, Drawings, Tools, Equipment, Manpower, Etc.)</p>
+              <p className="text-sm text-gray-400 mb-2">
+                What do you need? (Consumables, Drawings, Tools, Equipment,
+                Manpower, Etc.)
+              </p>
               <textarea
                 value={weatherData.needs}
-                onChange={(e) => setWeatherData({ ...weatherData, needs: e.target.value })}
+                onChange={e =>
+                  setWeatherData({ ...weatherData, needs: e.target.value })
+                }
                 rows={4}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
               />
@@ -609,38 +733,54 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
 
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Date</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Date
+                </label>
                 <input
                   type="date"
                   value={jhaData.date}
-                  onChange={(e) => setJhaData({ ...jhaData, date: e.target.value })}
+                  onChange={e =>
+                    setJhaData({ ...jhaData, date: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Job Name</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Job Name
+                </label>
                 <input
                   type="text"
                   value={jhaData.jobName}
-                  onChange={(e) => setJhaData({ ...jhaData, jobName: e.target.value })}
+                  onChange={e =>
+                    setJhaData({ ...jhaData, jobName: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Job Number</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Job Number
+                </label>
                 <input
                   type="text"
                   value={jhaData.jobNumber}
-                  onChange={(e) => setJhaData({ ...jhaData, jobNumber: e.target.value })}
+                  onChange={e =>
+                    setJhaData({ ...jhaData, jobNumber: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Supervisor</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Supervisor
+                </label>
                 <input
                   type="text"
                   value={jhaData.supervisor}
-                  onChange={(e) => setJhaData({ ...jhaData, supervisor: e.target.value })}
+                  onChange={e =>
+                    setJhaData({ ...jhaData, supervisor: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
@@ -653,7 +793,7 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                   <input
                     type="text"
                     value={scope}
-                    onChange={(e) => {
+                    onChange={e => {
                       const newScope = [...jhaData.scopeOfWork]
                       newScope[index] = e.target.value
                       setJhaData({ ...jhaData, scopeOfWork: newScope })
@@ -673,19 +813,27 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                     <input
                       type="checkbox"
                       checked={jhaData.hazards.workingHeights.checked}
-                      onChange={(e) => setJhaData({
-                        ...jhaData,
-                        hazards: {
-                          ...jhaData.hazards,
-                          workingHeights: { ...jhaData.hazards.workingHeights, checked: e.target.checked }
-                        }
-                      })}
+                      onChange={e =>
+                        setJhaData({
+                          ...jhaData,
+                          hazards: {
+                            ...jhaData.hazards,
+                            workingHeights: {
+                              ...jhaData.hazards.workingHeights,
+                              checked: e.target.checked,
+                            },
+                          },
+                        })
+                      }
                       className="mt-1 mr-3"
                     />
                     <div className="flex-1">
-                      <h4 className="font-medium text-white">Working in heights over 6&apos; - Falling Hazard</h4>
+                      <h4 className="font-medium text-white">
+                        Working in heights over 6&apos; - Falling Hazard
+                      </h4>
                       <p className="text-sm text-gray-400 mt-1">
-                        Preventive Action: {jhaData.hazards.workingHeights.preventive}
+                        Preventive Action:{' '}
+                        {jhaData.hazards.workingHeights.preventive}
                       </p>
                     </div>
                   </div>
@@ -696,19 +844,25 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                     <input
                       type="checkbox"
                       checked={jhaData.hazards.tripHazards.checked}
-                      onChange={(e) => setJhaData({
-                        ...jhaData,
-                        hazards: {
-                          ...jhaData.hazards,
-                          tripHazards: { ...jhaData.hazards.tripHazards, checked: e.target.checked }
-                        }
-                      })}
+                      onChange={e =>
+                        setJhaData({
+                          ...jhaData,
+                          hazards: {
+                            ...jhaData.hazards,
+                            tripHazards: {
+                              ...jhaData.hazards.tripHazards,
+                              checked: e.target.checked,
+                            },
+                          },
+                        })
+                      }
                       className="mt-1 mr-3"
                     />
                     <div className="flex-1">
                       <h4 className="font-medium text-white">Trip Hazards</h4>
                       <p className="text-sm text-gray-400 mt-1">
-                        Preventive Action: {jhaData.hazards.tripHazards.preventive}
+                        Preventive Action:{' '}
+                        {jhaData.hazards.tripHazards.preventive}
                       </p>
                     </div>
                   </div>
@@ -719,13 +873,18 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                     <input
                       type="checkbox"
                       checked={jhaData.hazards.lifting.checked}
-                      onChange={(e) => setJhaData({
-                        ...jhaData,
-                        hazards: {
-                          ...jhaData.hazards,
-                          lifting: { ...jhaData.hazards.lifting, checked: e.target.checked }
-                        }
-                      })}
+                      onChange={e =>
+                        setJhaData({
+                          ...jhaData,
+                          hazards: {
+                            ...jhaData.hazards,
+                            lifting: {
+                              ...jhaData.hazards.lifting,
+                              checked: e.target.checked,
+                            },
+                          },
+                        })
+                      }
                       className="mt-1 mr-3"
                     />
                     <div className="flex-1">
@@ -751,106 +910,169 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
 
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Operator Name</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Operator Name
+                </label>
                 <input
                   type="text"
                   value={vehicleInspection.operatorName}
-                  onChange={(e) => setVehicleInspection({ ...vehicleInspection, operatorName: e.target.value })}
+                  onChange={e =>
+                    setVehicleInspection({
+                      ...vehicleInspection,
+                      operatorName: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Vehicle Description</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Vehicle Description
+                </label>
                 <input
                   type="text"
                   value={vehicleInspection.vehicleDescription}
-                  onChange={(e) => setVehicleInspection({ ...vehicleInspection, vehicleDescription: e.target.value })}
+                  onChange={e =>
+                    setVehicleInspection({
+                      ...vehicleInspection,
+                      vehicleDescription: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">License Number</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  License Number
+                </label>
                 <input
                   type="text"
                   value={vehicleInspection.licenseNumber}
-                  onChange={(e) => setVehicleInspection({ ...vehicleInspection, licenseNumber: e.target.value })}
+                  onChange={e =>
+                    setVehicleInspection({
+                      ...vehicleInspection,
+                      licenseNumber: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Mileage</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Mileage
+                </label>
                 <input
                   type="text"
                   value={vehicleInspection.mileage}
-                  onChange={(e) => setVehicleInspection({ ...vehicleInspection, mileage: e.target.value })}
+                  onChange={e =>
+                    setVehicleInspection({
+                      ...vehicleInspection,
+                      mileage: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Date</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Date
+                </label>
                 <input
                   type="date"
                   value={vehicleInspection.date}
-                  onChange={(e) => setVehicleInspection({ ...vehicleInspection, date: e.target.value })}
+                  onChange={e =>
+                    setVehicleInspection({
+                      ...vehicleInspection,
+                      date: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
             </div>
 
             <div className="mb-6">
-              <h3 className="font-semibold mb-3 text-white">Vehicle Condition Checklist</h3>
+              <h3 className="font-semibold mb-3 text-white">
+                Vehicle Condition Checklist
+              </h3>
               <div className="grid grid-cols-2 gap-4">
-                {Object.entries(vehicleInspection.conditions).map(([item, condition]) => (
-                  <div key={item} className="flex items-center justify-between border border-gray-600 rounded p-3">
-                    <span className="text-gray-300 capitalize">{item.replace(/([A-Z])/g, ' $1').trim()}</span>
-                    <select
-                      value={condition}
-                      onChange={(e) => setVehicleInspection({
-                        ...vehicleInspection,
-                        conditions: {
-                          ...vehicleInspection.conditions,
-                          [item]: e.target.value as 'good' | 'fair' | 'poor'
-                        }
-                      })}
-                      className="ml-2 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-white"
+                {Object.entries(vehicleInspection.conditions).map(
+                  ([item, condition]) => (
+                    <div
+                      key={item}
+                      className="flex items-center justify-between border border-gray-600 rounded p-3"
                     >
-                      <option value="good">Good</option>
-                      <option value="fair">Fair</option>
-                      <option value="poor">Poor</option>
-                    </select>
-                  </div>
-                ))}
+                      <span className="text-gray-300 capitalize">
+                        {item.replace(/([A-Z])/g, ' $1').trim()}
+                      </span>
+                      <select
+                        value={condition}
+                        onChange={e =>
+                          setVehicleInspection({
+                            ...vehicleInspection,
+                            conditions: {
+                              ...vehicleInspection.conditions,
+                              [item]: e.target.value as
+                                | 'good'
+                                | 'fair'
+                                | 'poor',
+                            },
+                          })
+                        }
+                        className="ml-2 px-2 py-1 bg-gray-800 border border-gray-600 rounded text-white"
+                      >
+                        <option value="good">Good</option>
+                        <option value="fair">Fair</option>
+                        <option value="poor">Poor</option>
+                      </select>
+                    </div>
+                  )
+                )}
               </div>
             </div>
 
             <div className="mb-6">
               <h3 className="font-semibold mb-3 text-white">Lights Check</h3>
               <div className="grid grid-cols-3 gap-4">
-                {Object.entries(vehicleInspection.lights).map(([light, checked]) => (
-                  <label key={light} className="flex items-center text-gray-300">
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={(e) => setVehicleInspection({
-                        ...vehicleInspection,
-                        lights: {
-                          ...vehicleInspection.lights,
-                          [light]: e.target.checked
+                {Object.entries(vehicleInspection.lights).map(
+                  ([light, checked]) => (
+                    <label
+                      key={light}
+                      className="flex items-center text-gray-300"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={e =>
+                          setVehicleInspection({
+                            ...vehicleInspection,
+                            lights: {
+                              ...vehicleInspection.lights,
+                              [light]: e.target.checked,
+                            },
+                          })
                         }
-                      })}
-                      className="mr-2"
-                    />
-                    <span className="capitalize">{light} Lights</span>
-                  </label>
-                ))}
+                        className="mr-2"
+                      />
+                      <span className="capitalize">{light} Lights</span>
+                    </label>
+                  )
+                )}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Notes</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Notes
+              </label>
               <textarea
                 value={vehicleInspection.notes}
-                onChange={(e) => setVehicleInspection({ ...vehicleInspection, notes: e.target.value })}
+                onChange={e =>
+                  setVehicleInspection({
+                    ...vehicleInspection,
+                    notes: e.target.value,
+                  })
+                }
                 rows={4}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
               />
@@ -867,14 +1089,19 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
             </h2>
 
             {welderInspections.map((welder, welderIndex) => (
-              <div key={welderIndex} className="mb-8 p-4 border border-gray-600 rounded-lg">
+              <div
+                key={welderIndex}
+                className="mb-8 p-4 border border-gray-600 rounded-lg"
+              >
                 <div className="grid grid-cols-3 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">FSW Number</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      FSW Number
+                    </label>
                     <input
                       type="text"
                       value={welder.fswNumber}
-                      onChange={(e) => {
+                      onChange={e => {
                         const newWelders = [...welderInspections]
                         newWelders[welderIndex].fswNumber = e.target.value
                         setWelderInspections(newWelders)
@@ -883,11 +1110,13 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Machine Description</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Machine Description
+                    </label>
                     <input
                       type="text"
                       value={welder.description}
-                      onChange={(e) => {
+                      onChange={e => {
                         const newWelders = [...welderInspections]
                         newWelders[welderIndex].description = e.target.value
                         setWelderInspections(newWelders)
@@ -896,11 +1125,13 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Current Hours</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Current Hours
+                    </label>
                     <input
                       type="text"
                       value={welder.currentHours}
-                      onChange={(e) => {
+                      onChange={e => {
                         const newWelders = [...welderInspections]
                         newWelders[welderIndex].currentHours = e.target.value
                         setWelderInspections(newWelders)
@@ -911,31 +1142,42 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                 </div>
 
                 <div className="mb-4">
-                  <h4 className="font-medium mb-2 text-white">Inspection Checklist</h4>
+                  <h4 className="font-medium mb-2 text-white">
+                    Inspection Checklist
+                  </h4>
                   <div className="grid grid-cols-2 gap-3">
                     {Object.entries(welder.checks).map(([check, checked]) => (
-                      <label key={check} className="flex items-center text-gray-300">
+                      <label
+                        key={check}
+                        className="flex items-center text-gray-300"
+                      >
                         <input
                           type="checkbox"
                           checked={checked}
-                          onChange={(e) => {
+                          onChange={e => {
                             const newWelders = [...welderInspections]
-                            newWelders[welderIndex].checks[check as keyof typeof welder.checks] = e.target.checked
+                            newWelders[welderIndex].checks[
+                              check as keyof typeof welder.checks
+                            ] = e.target.checked
                             setWelderInspections(newWelders)
                           }}
                           className="mr-2"
                         />
-                        <span className="capitalize">{check.replace(/([A-Z])/g, ' $1').trim()}</span>
+                        <span className="capitalize">
+                          {check.replace(/([A-Z])/g, ' $1').trim()}
+                        </span>
                       </label>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Notes</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                    Notes
+                  </label>
                   <textarea
                     value={welder.notes}
-                    onChange={(e) => {
+                    onChange={e => {
                       const newWelders = [...welderInspections]
                       newWelders[welderIndex].notes = e.target.value
                       setWelderInspections(newWelders)
@@ -948,21 +1190,26 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
             ))}
 
             <Button
-              onClick={() => setWelderInspections([...welderInspections, {
-                fswNumber: '',
-                description: '',
-                currentHours: '',
-                checks: {
-                  coolantLevel: false,
-                  fuelLevel: false,
-                  engineOil: false,
-                  hydraulicFluid: false,
-                  cuttingTorch: false,
-                  weldingLeads: false,
-                  groundCable: false
-                },
-                notes: ''
-              }])}
+              onClick={() =>
+                setWelderInspections([
+                  ...welderInspections,
+                  {
+                    fswNumber: '',
+                    description: '',
+                    currentHours: '',
+                    checks: {
+                      coolantLevel: false,
+                      fuelLevel: false,
+                      engineOil: false,
+                      hydraulicFluid: false,
+                      cuttingTorch: false,
+                      weldingLeads: false,
+                      groundCable: false,
+                    },
+                    notes: '',
+                  },
+                ])
+              }
               variant="outline"
             >
               Add Another Welder
@@ -980,88 +1227,127 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
 
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Forklift ID</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Forklift ID
+                </label>
                 <input
                   type="text"
                   value={forkliftInspection.forkliftId}
-                  onChange={(e) => setForkliftInspection({ ...forkliftInspection, forkliftId: e.target.value })}
+                  onChange={e =>
+                    setForkliftInspection({
+                      ...forkliftInspection,
+                      forkliftId: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Week Starting</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Week Starting
+                </label>
                 <input
                   type="date"
                   value={forkliftInspection.weekStarting}
-                  onChange={(e) => setForkliftInspection({ ...forkliftInspection, weekStarting: e.target.value })}
+                  onChange={e =>
+                    setForkliftInspection({
+                      ...forkliftInspection,
+                      weekStarting: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
             </div>
 
             <div className="space-y-4">
-              {Object.entries(forkliftInspection.weeklyChecks).map(([day, dayData]) => (
-                <div key={day} className="border border-gray-600 rounded-lg p-4">
-                  <h4 className="font-medium mb-3 text-white capitalize">{day}</h4>
-                  <div className="grid grid-cols-2 gap-4 mb-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">Date</label>
-                      <input
-                        type="date"
-                        value={dayData.date}
-                        onChange={(e) => setForkliftInspection({
-                          ...forkliftInspection,
-                          weeklyChecks: {
-                            ...forkliftInspection.weeklyChecks,
-                            [day]: { ...dayData, date: e.target.value }
-                          }
-                        })}
-                        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">Inspector</label>
-                      <input
-                        type="text"
-                        value={dayData.inspector}
-                        onChange={(e) => setForkliftInspection({
-                          ...forkliftInspection,
-                          weeklyChecks: {
-                            ...forkliftInspection.weeklyChecks,
-                            [day]: { ...dayData, inspector: e.target.value }
-                          }
-                        })}
-                        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {Object.entries(dayData.items).map(([item, checked]) => (
-                      <label key={item} className="flex items-center text-gray-300">
+              {Object.entries(forkliftInspection.weeklyChecks).map(
+                ([day, dayData]) => (
+                  <div
+                    key={day}
+                    className="border border-gray-600 rounded-lg p-4"
+                  >
+                    <h4 className="font-medium mb-3 text-white capitalize">
+                      {day}
+                    </h4>
+                    <div className="grid grid-cols-2 gap-4 mb-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-1">
+                          Date
+                        </label>
                         <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={(e) => setForkliftInspection({
-                            ...forkliftInspection,
-                            weeklyChecks: {
-                              ...forkliftInspection.weeklyChecks,
-                              [day]: {
-                                ...dayData,
-                                items: {
-                                  ...dayData.items,
-                                  [item]: e.target.checked
-                                }
-                              }
-                            }
-                          })}
-                          className="mr-2"
+                          type="date"
+                          value={dayData.date}
+                          onChange={e =>
+                            setForkliftInspection({
+                              ...forkliftInspection,
+                              weeklyChecks: {
+                                ...forkliftInspection.weeklyChecks,
+                                [day]: { ...dayData, date: e.target.value },
+                              },
+                            })
+                          }
+                          className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                         />
-                        <span className="capitalize text-sm">{item.replace(/([A-Z])/g, ' $1').trim()}</span>
-                      </label>
-                    ))}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-1">
+                          Inspector
+                        </label>
+                        <input
+                          type="text"
+                          value={dayData.inspector}
+                          onChange={e =>
+                            setForkliftInspection({
+                              ...forkliftInspection,
+                              weeklyChecks: {
+                                ...forkliftInspection.weeklyChecks,
+                                [day]: {
+                                  ...dayData,
+                                  inspector: e.target.value,
+                                },
+                              },
+                            })
+                          }
+                          className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.entries(dayData.items).map(([item, checked]) => (
+                        <label
+                          key={item}
+                          className="flex items-center text-gray-300"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={e =>
+                              setForkliftInspection({
+                                ...forkliftInspection,
+                                weeklyChecks: {
+                                  ...forkliftInspection.weeklyChecks,
+                                  [day]: {
+                                    ...dayData,
+                                    items: {
+                                      ...dayData.items,
+                                      [item]: e.target.checked,
+                                    },
+                                  },
+                                },
+                              })
+                            }
+                            className="mr-2"
+                          />
+                          <span className="capitalize text-sm">
+                            {item.replace(/([A-Z])/g, ' $1').trim()}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </div>
         )}
@@ -1076,29 +1362,50 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
 
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Project</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Project
+                </label>
                 <input
                   type="text"
                   value={safetyMeeting.project}
-                  onChange={(e) => setSafetyMeeting({ ...safetyMeeting, project: e.target.value })}
+                  onChange={e =>
+                    setSafetyMeeting({
+                      ...safetyMeeting,
+                      project: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Meeting Date</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Meeting Date
+                </label>
                 <input
                   type="date"
                   value={safetyMeeting.meetingDate}
-                  onChange={(e) => setSafetyMeeting({ ...safetyMeeting, meetingDate: e.target.value })}
+                  onChange={e =>
+                    setSafetyMeeting({
+                      ...safetyMeeting,
+                      meetingDate: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Facilitator</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Facilitator
+                </label>
                 <input
                   type="text"
                   value={safetyMeeting.facilitator}
-                  onChange={(e) => setSafetyMeeting({ ...safetyMeeting, facilitator: e.target.value })}
+                  onChange={e =>
+                    setSafetyMeeting({
+                      ...safetyMeeting,
+                      facilitator: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                 />
               </div>
@@ -1110,14 +1417,21 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
               </label>
               <textarea
                 value={safetyMeeting.hazardsOnJob}
-                onChange={(e) => setSafetyMeeting({ ...safetyMeeting, hazardsOnJob: e.target.value })}
+                onChange={e =>
+                  setSafetyMeeting({
+                    ...safetyMeeting,
+                    hazardsOnJob: e.target.value,
+                  })
+                }
                 rows={3}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
               />
             </div>
 
             <div className="mb-6">
-              <h3 className="font-semibold mb-3 text-white">Topics Discussed</h3>
+              <h3 className="font-semibold mb-3 text-white">
+                Topics Discussed
+              </h3>
               <div className="grid grid-cols-2 gap-3">
                 {safetyMeeting.topics.map((topic, index) => (
                   <div key={index} className="flex items-center">
@@ -1133,8 +1447,12 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="bg-gray-800">
-                      <th className="border border-gray-600 px-4 py-2 text-left text-gray-300">Name</th>
-                      <th className="border border-gray-600 px-4 py-2 text-left text-gray-300">Signature</th>
+                      <th className="border border-gray-600 px-4 py-2 text-left text-gray-300">
+                        Name
+                      </th>
+                      <th className="border border-gray-600 px-4 py-2 text-left text-gray-300">
+                        Signature
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1144,10 +1462,13 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                           <input
                             type="text"
                             value={attendee.name}
-                            onChange={(e) => {
+                            onChange={e => {
                               const newAttendees = [...safetyMeeting.attendees]
                               newAttendees[index].name = e.target.value
-                              setSafetyMeeting({ ...safetyMeeting, attendees: newAttendees })
+                              setSafetyMeeting({
+                                ...safetyMeeting,
+                                attendees: newAttendees,
+                              })
                             }}
                             className="w-full px-2 py-1 bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                           />
@@ -1157,10 +1478,13 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                             type="text"
                             value={attendee.signature}
                             placeholder="Type name to sign"
-                            onChange={(e) => {
+                            onChange={e => {
                               const newAttendees = [...safetyMeeting.attendees]
                               newAttendees[index].signature = e.target.value
-                              setSafetyMeeting({ ...safetyMeeting, attendees: newAttendees })
+                              setSafetyMeeting({
+                                ...safetyMeeting,
+                                attendees: newAttendees,
+                              })
                             }}
                             className="w-full px-2 py-1 bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                           />

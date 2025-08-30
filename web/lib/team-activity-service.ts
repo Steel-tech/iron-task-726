@@ -28,7 +28,14 @@ export interface ActivityEvent {
   userRole: string
   projectId: string
   projectName: string
-  type: 'photo_upload' | 'safety_check' | 'progress_update' | 'check_in' | 'check_out' | 'comment' | 'report_generated'
+  type:
+    | 'photo_upload'
+    | 'safety_check'
+    | 'progress_update'
+    | 'check_in'
+    | 'check_out'
+    | 'comment'
+    | 'report_generated'
   description: string
   timestamp: Date
   metadata?: {
@@ -63,13 +70,13 @@ class TeamActivityService {
 
     this.socket = io(apiUrl, {
       auth: {
-        token: authToken
+        token: authToken,
       },
-      transports: ['websocket', 'polling']
+      transports: ['websocket', 'polling'],
     })
 
     this.setupEventListeners()
-    
+
     return new Promise<void>((resolve, reject) => {
       if (!this.socket) {
         reject(new Error('Socket not initialized'))
@@ -81,7 +88,7 @@ class TeamActivityService {
         resolve()
       })
 
-      this.socket.on('connect_error', (error) => {
+      this.socket.on('connect_error', error => {
         this.isConnected = false
         reject(error)
       })
@@ -106,9 +113,12 @@ class TeamActivityService {
       this.notifyMemberCallbacks()
     })
 
-    this.socket.on('member_location_update', (data: { userId: string; location: TeamMember['location'] }) => {
-      this.notifyMemberCallbacks()
-    })
+    this.socket.on(
+      'member_location_update',
+      (data: { userId: string; location: TeamMember['location'] }) => {
+        this.notifyMemberCallbacks()
+      }
+    )
 
     // Activity updates
     this.socket.on('new_activity', (activity: ActivityEvent) => {
@@ -132,12 +142,17 @@ class TeamActivityService {
   }
 
   // Activity tracking methods
-  async trackActivity(activity: Omit<ActivityEvent, 'id' | 'timestamp' | 'userId' | 'userName' | 'userRole'>) {
+  async trackActivity(
+    activity: Omit<
+      ActivityEvent,
+      'id' | 'timestamp' | 'userId' | 'userName' | 'userRole'
+    >
+  ) {
     if (!this.socket || !this.isConnected) return
 
     const activityData: Partial<ActivityEvent> = {
       ...activity,
-      timestamp: new Date()
+      timestamp: new Date(),
     }
 
     this.socket.emit('track_activity', activityData)
@@ -170,27 +185,33 @@ class TeamActivityService {
 
   // Check in/out functionality
   async checkIn(projectId: string, location?: TeamMember['location']) {
-    const activity: Omit<ActivityEvent, 'id' | 'timestamp' | 'userId' | 'userName' | 'userRole'> = {
+    const activity: Omit<
+      ActivityEvent,
+      'id' | 'timestamp' | 'userId' | 'userName' | 'userRole'
+    > = {
       projectId,
       projectName: '', // Will be filled by server
       type: 'check_in',
       description: 'Checked in to project',
-      metadata: location ? { location: location.address } : undefined
+      metadata: location ? { location: location.address } : undefined,
     }
 
     await this.trackActivity(activity)
-    
+
     if (location) {
       await this.updateLocation(location)
     }
   }
 
   async checkOut(projectId: string) {
-    const activity: Omit<ActivityEvent, 'id' | 'timestamp' | 'userId' | 'userName' | 'userRole'> = {
+    const activity: Omit<
+      ActivityEvent,
+      'id' | 'timestamp' | 'userId' | 'userName' | 'userRole'
+    > = {
       projectId,
       projectName: '', // Will be filled by server
       type: 'check_out',
-      description: 'Checked out of project'
+      description: 'Checked out of project',
     }
 
     await this.trackActivity(activity)
@@ -199,7 +220,7 @@ class TeamActivityService {
   // Callback registration
   onActivityUpdate(callback: (activity: ActivityEvent) => void) {
     this.activityCallbacks.push(callback)
-    
+
     return () => {
       const index = this.activityCallbacks.indexOf(callback)
       if (index > -1) {
@@ -210,7 +231,7 @@ class TeamActivityService {
 
   onPresenceUpdate(callback: (presence: ProjectPresence[]) => void) {
     this.presenceCallbacks.push(callback)
-    
+
     return () => {
       const index = this.presenceCallbacks.indexOf(callback)
       if (index > -1) {
@@ -221,7 +242,7 @@ class TeamActivityService {
 
   onMemberUpdate(callback: (members: TeamMember[]) => void) {
     this.memberCallbacks.push(callback)
-    
+
     return () => {
       const index = this.memberCallbacks.indexOf(callback)
       if (index > -1) {
@@ -231,33 +252,45 @@ class TeamActivityService {
   }
 
   // Quick activity helpers for common construction tasks
-  async trackPhotoUpload(projectId: string, mediaCount: number, location?: string) {
+  async trackPhotoUpload(
+    projectId: string,
+    mediaCount: number,
+    location?: string
+  ) {
     return this.trackActivity({
       projectId,
       projectName: '',
       type: 'photo_upload',
       description: `Uploaded ${mediaCount} ${mediaCount === 1 ? 'photo' : 'photos'}`,
-      metadata: { mediaCount, location }
+      metadata: { mediaCount, location },
     })
   }
 
-  async trackSafetyCheck(projectId: string, safetyScore: number, location?: string) {
+  async trackSafetyCheck(
+    projectId: string,
+    safetyScore: number,
+    location?: string
+  ) {
     return this.trackActivity({
       projectId,
       projectName: '',
       type: 'safety_check',
       description: `Completed safety check (Score: ${safetyScore}/100)`,
-      metadata: { safetyScore, location }
+      metadata: { safetyScore, location },
     })
   }
 
-  async trackProgressUpdate(projectId: string, progressPercentage: number, description?: string) {
+  async trackProgressUpdate(
+    projectId: string,
+    progressPercentage: number,
+    description?: string
+  ) {
     return this.trackActivity({
       projectId,
       projectName: '',
       type: 'progress_update',
       description: description || `Updated progress to ${progressPercentage}%`,
-      metadata: { progressPercentage }
+      metadata: { progressPercentage },
     })
   }
 
@@ -276,25 +309,55 @@ class TeamActivityService {
 
   // Mock data generators for development
   generateMockTeamMembers(count: number = 5): TeamMember[] {
-    const roles = ['FOREMAN', 'IRONWORKER', 'WELDER', 'SAFETY_OFFICER', 'INSPECTOR']
-    const names = ['Mike Johnson', 'Sarah Chen', 'Roberto Martinez', 'Dave Thompson', 'Lisa Anderson']
-    
+    const roles = [
+      'FOREMAN',
+      'IRONWORKER',
+      'WELDER',
+      'SAFETY_OFFICER',
+      'INSPECTOR',
+    ]
+    const names = [
+      'Mike Johnson',
+      'Sarah Chen',
+      'Roberto Martinez',
+      'Dave Thompson',
+      'Lisa Anderson',
+    ]
+
     return Array.from({ length: count }, (_, i) => ({
       id: `user_${i + 1}`,
       name: names[i] || `Worker ${i + 1}`,
       role: roles[i % roles.length],
       isOnline: Math.random() > 0.3,
       lastSeen: new Date(Date.now() - Math.random() * 3600000),
-      currentProject: Math.random() > 0.5 ? `project_${Math.floor(Math.random() * 3) + 1}` : undefined,
-      currentActivity: Math.random() > 0.5 ? ['Welding', 'Erection', 'Safety Check'][Math.floor(Math.random() * 3)] : undefined
+      currentProject:
+        Math.random() > 0.5
+          ? `project_${Math.floor(Math.random() * 3) + 1}`
+          : undefined,
+      currentActivity:
+        Math.random() > 0.5
+          ? ['Welding', 'Erection', 'Safety Check'][
+              Math.floor(Math.random() * 3)
+            ]
+          : undefined,
     }))
   }
 
   generateMockActivities(count: number = 10): ActivityEvent[] {
-    const types: ActivityEvent['type'][] = ['photo_upload', 'safety_check', 'progress_update', 'check_in', 'check_out']
-    const projects = ['Downtown Office Complex', 'Highway Bridge Project', 'Industrial Warehouse']
+    const types: ActivityEvent['type'][] = [
+      'photo_upload',
+      'safety_check',
+      'progress_update',
+      'check_in',
+      'check_out',
+    ]
+    const projects = [
+      'Downtown Office Complex',
+      'Highway Bridge Project',
+      'Industrial Warehouse',
+    ]
     const users = ['Mike Johnson', 'Sarah Chen', 'Roberto Martinez']
-    
+
     return Array.from({ length: count }, (_, i) => ({
       id: `activity_${i + 1}`,
       userId: `user_${(i % 3) + 1}`,
@@ -306,8 +369,8 @@ class TeamActivityService {
       description: `Mock activity ${i + 1}`,
       timestamp: new Date(Date.now() - Math.random() * 86400000),
       metadata: {
-        location: 'Bay 3, Level 2'
-      }
+        location: 'Bay 3, Level 2',
+      },
     }))
   }
 }

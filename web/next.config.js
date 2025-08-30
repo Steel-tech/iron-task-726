@@ -1,11 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  
+
   // Production optimizations - DISABLE STANDALONE FOR DEV
   // output: 'standalone',
   poweredByHeader: false,
-  
+
   // Build configuration
   eslint: {
     // Temporarily ignore during builds for deployment
@@ -15,38 +15,36 @@ const nextConfig = {
     // Enable strict TypeScript checking in all environments
     ignoreBuildErrors: false,
   },
-  
-  // Performance optimizations  
+
+  // Performance optimizations
   compress: true,
-  
+
   // Image optimization
   images: {
     domains: [
-      'localhost', 
+      'localhost',
       '127.0.0.1',
       // Supabase storage domains
-      ...(process.env.NEXT_PUBLIC_SUPABASE_URL 
-        ? [new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname] 
-        : []
-      ),
+      ...(process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? [new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname]
+        : []),
       // Production domains
-      ...(process.env.NODE_ENV === 'production' 
-        ? process.env.NEXT_PUBLIC_APP_URL 
+      ...(process.env.NODE_ENV === 'production'
+        ? process.env.NEXT_PUBLIC_APP_URL
           ? [new URL(process.env.NEXT_PUBLIC_APP_URL).hostname]
           : []
-        : []
-      )
+        : []),
     ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: false,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  
+
   // Security headers
   async headers() {
-    const headers = [];
-    
+    const headers = []
+
     if (process.env.NODE_ENV === 'production') {
       headers.push({
         source: '/(.*)',
@@ -66,17 +64,17 @@ const nextConfig = {
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(self)',
-          }
+          },
         ],
-      });
+      })
     }
-    
-    return headers;
+
+    return headers
   },
-  
+
   // Redirects for production - DISABLE FOR DEV DEBUGGING
   async redirects() {
-    return [];
+    return []
     // return [
     //   // Redirect root to dashboard if authenticated
     //   {
@@ -92,26 +90,27 @@ const nextConfig = {
     //   },
     // ];
   },
-  
+
   // Environment variables
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+    NEXT_PUBLIC_API_URL:
+      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
     NEXT_PUBLIC_APP_VERSION: process.env.npm_package_version || '1.0.0',
   },
-  
+
   // Bundle analyzer (development only)
   ...(process.env.ANALYZE === 'true' && {
-    webpack: (config) => {
+    webpack: config => {
       if (process.env.NODE_ENV === 'development') {
-        const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+        const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
         config.plugins.push(
           new BundleAnalyzerPlugin({
             analyzerMode: 'static',
             openAnalyzer: false,
           })
-        );
+        )
       }
-      return config;
+      return config
     },
   }),
 }

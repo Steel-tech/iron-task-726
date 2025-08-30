@@ -1,35 +1,35 @@
-const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcrypt');
-const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
+const { PrismaClient } = require('@prisma/client')
+const bcrypt = require('bcrypt')
+const crypto = require('crypto')
+const fs = require('fs')
+const path = require('path')
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 function generateSecurePassword() {
-  const randomBytes = crypto.randomBytes(16);
-  return randomBytes.toString('base64').slice(0, 12) + '!A1';
+  const randomBytes = crypto.randomBytes(16)
+  return randomBytes.toString('base64').slice(0, 12) + '!A1'
 }
 
 async function main() {
-  const adminPassword = generateSecurePassword();
-  const pmPassword = generateSecurePassword();
-  const foremanPassword = generateSecurePassword();
-  const workerPassword = generateSecurePassword();
+  const adminPassword = generateSecurePassword()
+  const pmPassword = generateSecurePassword()
+  const foremanPassword = generateSecurePassword()
+  const workerPassword = generateSecurePassword()
 
-  const adminHash = await bcrypt.hash(adminPassword, 14);
-  const pmHash = await bcrypt.hash(pmPassword, 14);
-  const foremanHash = await bcrypt.hash(foremanPassword, 14);
-  const workerHash = await bcrypt.hash(workerPassword, 14);
+  const adminHash = await bcrypt.hash(adminPassword, 14)
+  const pmHash = await bcrypt.hash(pmPassword, 14)
+  const foremanHash = await bcrypt.hash(foremanPassword, 14)
+  const workerHash = await bcrypt.hash(workerPassword, 14)
 
   const company = await prisma.company.upsert({
     where: { id: 'fsw-production-company' },
     update: {},
     create: {
       id: 'fsw-production-company',
-      name: 'FSW Iron Task Production'
-    }
-  });
+      name: 'FSW Iron Task Production',
+    },
+  })
 
   const users = [
     {
@@ -37,30 +37,30 @@ async function main() {
       name: 'System Administrator',
       role: 'ADMIN',
       password: adminHash,
-      plainPassword: adminPassword
+      plainPassword: adminPassword,
     },
     {
-      email: 'pm@fsw-denver.com', 
+      email: 'pm@fsw-denver.com',
       name: 'Project Manager',
       role: 'PROJECT_MANAGER',
       password: pmHash,
-      plainPassword: pmPassword
+      plainPassword: pmPassword,
     },
     {
       email: 'foreman@fsw-denver.com',
-      name: 'Site Foreman', 
+      name: 'Site Foreman',
       role: 'FOREMAN',
       password: foremanHash,
-      plainPassword: foremanPassword
+      plainPassword: foremanPassword,
     },
     {
       email: 'worker@fsw-denver.com',
       name: 'Construction Worker',
-      role: 'WORKER', 
+      role: 'WORKER',
       password: workerHash,
-      plainPassword: workerPassword
-    }
-  ];
+      plainPassword: workerPassword,
+    },
+  ]
 
   for (const userData of users) {
     await prisma.user.upsert({
@@ -68,7 +68,7 @@ async function main() {
       update: {
         password: userData.password,
         name: userData.name,
-        role: userData.role
+        role: userData.role,
       },
       create: {
         email: userData.email,
@@ -76,12 +76,12 @@ async function main() {
         name: userData.name,
         role: userData.role,
         companyId: company.id,
-        unionMember: false
-      }
-    });
+        unionMember: false,
+      },
+    })
   }
 
-  const credentialsFile = path.join(__dirname, 'PRODUCTION_CREDENTIALS.txt');
+  const credentialsFile = path.join(__dirname, 'PRODUCTION_CREDENTIALS.txt')
   const credentialsContent = `FSW Iron Task - Production Credentials
 Generated: ${new Date().toISOString()}
 
@@ -94,9 +94,9 @@ SECURITY NOTES:
 - Enable 2FA for admin accounts  
 - Delete this file immediately after copying credentials
 - Monitor for unauthorized access attempts
-`;
+`
 
-  fs.writeFileSync(credentialsFile, credentialsContent, { mode: 0o600 });
+  fs.writeFileSync(credentialsFile, credentialsContent, { mode: 0o600 })
 
   await prisma.project.upsert({
     where: { id: 'welcome-project' },
@@ -110,17 +110,18 @@ SECURITY NOTES:
       status: 'ACTIVE',
       companyId: company.id,
       metadata: {
-        description: 'Initial setup project - can be deleted after creating real projects',
-        isSystemProject: true
-      }
-    }
-  });
+        description:
+          'Initial setup project - can be deleted after creating real projects',
+        isSystemProject: true,
+      },
+    },
+  })
 }
 
 main()
-  .catch((e) => {
-    process.exit(1);
+  .catch(e => {
+    process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect();
-  });
+    await prisma.$disconnect()
+  })

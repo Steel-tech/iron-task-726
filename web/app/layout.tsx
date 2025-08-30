@@ -6,7 +6,7 @@ import PWAInstallPrompt from '@/components/PWAInstallPrompt'
 import Script from 'next/script'
 
 // Using Shojumaru for headings (Japanese-style decorative font)
-const shojumaru = Shojumaru({ 
+const shojumaru = Shojumaru({
   weight: '400',
   subsets: ['latin'],
   variable: '--font-shojumaru',
@@ -14,7 +14,7 @@ const shojumaru = Shojumaru({
 })
 
 // Keep Inter for body text for readability
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   display: 'swap',
@@ -22,11 +22,19 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: 'FSW Iron Task',
-  description: 'Professional Construction Documentation System built by ironworkers, for ironworkers. Document your projects, ensure safety compliance, and track progress with the most trusted platform in steel construction.',
+  description:
+    'Professional Construction Documentation System built by ironworkers, for ironworkers. Document your projects, ensure safety compliance, and track progress with the most trusted platform in steel construction.',
   generator: 'Next.js',
   applicationName: 'FSW Iron Task',
   referrer: 'origin-when-cross-origin',
-  keywords: ['construction', 'ironworker', 'documentation', 'safety', 'steel construction', 'project management'],
+  keywords: [
+    'construction',
+    'ironworker',
+    'documentation',
+    'safety',
+    'steel construction',
+    'project management',
+  ],
   authors: [{ name: 'FSW Iron Task Team' }],
   creator: 'FSW Iron Task',
   publisher: 'FSW Iron Task',
@@ -35,7 +43,9 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  ),
   alternates: {
     canonical: '/',
   },
@@ -44,13 +54,15 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: '/',
     title: 'FSW Iron Task',
-    description: 'Professional Construction Documentation System for Ironworkers',
+    description:
+      'Professional Construction Documentation System for Ironworkers',
     siteName: 'FSW Iron Task',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'FSW Iron Task',
-    description: 'Professional Construction Documentation System for Ironworkers',
+    description:
+      'Professional Construction Documentation System for Ironworkers',
   },
   robots: {
     index: true,
@@ -110,18 +122,22 @@ export default function RootLayout({
         <meta name="msapplication-config" content="/browserconfig.xml" />
         <meta name="msapplication-TileColor" content="#1f2937" />
         <meta name="msapplication-tap-highlight" content="no" />
-        
+
         {/* Preload critical resources */}
         <link rel="preload" href="/service-worker.js" as="script" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
       </head>
       <body className={`${inter.variable} ${shojumaru.variable} font-sans`}>
         <Providers>
           {children}
           {/* <PWAInstallPrompt /> */}
         </Providers>
-        
+
         {/* Service Worker Registration - TEMPORARILY DISABLED FOR DEBUGGING */}
         {/* <Script
           id="sw-registration"

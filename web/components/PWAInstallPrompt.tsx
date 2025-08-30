@@ -14,7 +14,8 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function PWAInstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null)
   const [showPrompt, setShowPrompt] = useState(false)
   const [isIOS, setIsIOS] = useState(false)
   const [isStandalone, setIsStandalone] = useState(false)
@@ -25,7 +26,7 @@ export default function PWAInstallPrompt() {
 
     // Check if app is already installed (running in standalone mode)
     setIsStandalone(window.matchMedia('(display-mode: standalone)').matches)
-    
+
     // Check if iOS
     setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent))
 
@@ -45,11 +46,17 @@ export default function PWAInstallPrompt() {
       setShowPrompt(false)
     }
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener)
+    window.addEventListener(
+      'beforeinstallprompt',
+      handleBeforeInstallPrompt as EventListener
+    )
     window.addEventListener('appinstalled', handleAppInstalled)
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener)
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handleBeforeInstallPrompt as EventListener
+      )
       window.removeEventListener('appinstalled', handleAppInstalled)
     }
   }, [])
@@ -57,7 +64,7 @@ export default function PWAInstallPrompt() {
   // Separate effect for iOS install prompt to avoid dependency issues
   useEffect(() => {
     if (typeof window === 'undefined') return
-    
+
     // Check if we should show iOS install instructions
     if (isIOS && !isStandalone) {
       // Show iOS install prompt after delay if not already installed
@@ -73,7 +80,7 @@ export default function PWAInstallPrompt() {
 
     // Wait for the user to respond to the prompt
     const { outcome } = await deferredPrompt.userChoice
-    
+
     // Clear the deferredPrompt
     setDeferredPrompt(null)
     setShowPrompt(false)
@@ -93,7 +100,11 @@ export default function PWAInstallPrompt() {
   }
 
   // Don't show if already installed or user dismissed this session
-  if (isStandalone || (typeof window !== 'undefined' && sessionStorage.getItem('pwa-prompt-dismissed'))) {
+  if (
+    isStandalone ||
+    (typeof window !== 'undefined' &&
+      sessionStorage.getItem('pwa-prompt-dismissed'))
+  ) {
     return null
   }
 
@@ -120,17 +131,18 @@ export default function PWAInstallPrompt() {
         </div>
 
         <p className="text-sm text-gray-600 mb-4">
-          {isIOS ? 
-            'Add to your home screen for quick access and offline capabilities.' :
-            'Install our app for faster access, offline support, and a better mobile experience.'
-          }
+          {isIOS
+            ? 'Add to your home screen for quick access and offline capabilities.'
+            : 'Install our app for faster access, offline support, and a better mobile experience.'}
         </p>
 
         {isIOS ? (
           <div className="space-y-3">
             <div className="text-xs text-gray-500 space-y-1">
               <p>To install on iOS:</p>
-              <p>1. Tap the Share button <span className="font-mono">□↑</span></p>
+              <p>
+                1. Tap the Share button <span className="font-mono">□↑</span>
+              </p>
               <p>2. Select "Add to Home Screen"</p>
               <p>3. Tap "Add" to confirm</p>
             </div>

@@ -17,44 +17,47 @@ export async function sendNotification(notification: NotificationData) {
       type: notification.type,
       title: notification.title,
       message: notification.message,
-      data: notification.data
-    }
+      data: notification.data,
+    },
   })
-  
+
   // Send real-time notification to user if connected
   emitToUser(notification.userId, 'notification', created)
-  
+
   // TODO: Send push notification if user has enabled them
   // TODO: Send email notification based on user preferences
-  
+
   return created
 }
 
-export async function markNotificationAsRead(notificationId: string, userId: string) {
+export async function markNotificationAsRead(
+  notificationId: string,
+  userId: string
+) {
   const notification = await prisma.notification.findFirst({
-    where: { id: notificationId, userId }
+    where: { id: notificationId, userId },
   })
-  
+
   if (!notification) {
     throw new Error('Notification not found')
   }
-  
+
   return prisma.notification.update({
     where: { id: notificationId },
-    data: { read: true }
+    data: { read: true },
   })
 }
 
 export async function markAllNotificationsAsRead(userId: string) {
   return prisma.notification.updateMany({
     where: { userId, read: false },
-    data: { read: true }
+    data: { read: true },
   })
 }
 
 export async function getUnreadNotificationCount(userId: string) {
   return prisma.notification.count({
-    where: { userId, read: false }
+    where: { userId, read: false },
   })
 }
 
@@ -68,14 +71,14 @@ export async function getUserNotifications(
       where: { userId },
       orderBy: { createdAt: 'desc' },
       take: limit,
-      skip: offset
+      skip: offset,
     }),
-    prisma.notification.count({ where: { userId } })
+    prisma.notification.count({ where: { userId } }),
   ])
-  
+
   return {
     notifications,
     total,
-    hasMore: offset + limit < total
+    hasMore: offset + limit < total,
   }
 }

@@ -3,9 +3,23 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Shield, Copy, Download, AlertTriangle, CheckCircle, Eye, EyeOff } from 'lucide-react'
+import {
+  Shield,
+  Copy,
+  Download,
+  AlertTriangle,
+  CheckCircle,
+  Eye,
+  EyeOff,
+} from 'lucide-react'
 import { api } from '@/lib/api'
 
 interface TwoFactorSetupProps {
@@ -13,8 +27,13 @@ interface TwoFactorSetupProps {
   onCancel?: () => void
 }
 
-export default function TwoFactorSetup({ onSetupComplete, onCancel }: TwoFactorSetupProps) {
-  const [step, setStep] = useState<'password' | 'scan' | 'verify' | 'backup'>('password')
+export default function TwoFactorSetup({
+  onSetupComplete,
+  onCancel,
+}: TwoFactorSetupProps) {
+  const [step, setStep] = useState<'password' | 'scan' | 'verify' | 'backup'>(
+    'password'
+  )
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [qrCode, setQrCode] = useState('')
@@ -48,7 +67,9 @@ export default function TwoFactorSetup({ onSetupComplete, onCancel }: TwoFactorS
     setIsLoading(true)
 
     try {
-      const response = await api.post('/auth/2fa/verify', { token: verificationCode })
+      const response = await api.post('/auth/2fa/verify', {
+        token: verificationCode,
+      })
       setBackupCodes(response.data.backupCodes)
       setStep('backup')
     } catch (err: any) {
@@ -108,7 +129,10 @@ Store these codes securely and do not share them with anyone.`
           <CardContent>
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
               <div>
-                <label htmlFor="password" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium mb-2"
+                >
                   Current Password
                 </label>
                 <div className="relative">
@@ -116,7 +140,7 @@ Store these codes securely and do not share them with anyone.`
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={e => setPassword(e.target.value)}
                     required
                     className="pr-10"
                   />
@@ -125,18 +149,22 @@ Store these codes securely and do not share them with anyone.`
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>
-              
+
               {error && (
                 <div className="flex items-center gap-2 text-red-600 text-sm">
                   <AlertTriangle className="h-4 w-4" />
                   {error}
                 </div>
               )}
-              
+
               <div className="flex gap-2">
                 <Button type="submit" disabled={isLoading} className="flex-1">
                   {isLoading ? 'Verifying...' : 'Continue'}
@@ -158,18 +186,25 @@ Store these codes securely and do not share them with anyone.`
           <CardHeader>
             <CardTitle>Scan QR Code</CardTitle>
             <CardDescription>
-              Use your authenticator app to scan this QR code or enter the manual key.
+              Use your authenticator app to scan this QR code or enter the
+              manual key.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-center">
               <img src={qrCode} alt="2FA QR Code" className="border rounded" />
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium mb-2">Manual Entry Key:</label>
+              <label className="block text-sm font-medium mb-2">
+                Manual Entry Key:
+              </label>
               <div className="flex items-center gap-2">
-                <Input value={manualKey} readOnly className="font-mono text-sm" />
+                <Input
+                  value={manualKey}
+                  readOnly
+                  className="font-mono text-sm"
+                />
                 <Button
                   type="button"
                   variant="outline"
@@ -180,11 +215,12 @@ Store these codes securely and do not share them with anyone.`
                 </Button>
               </div>
             </div>
-            
+
             <div className="text-sm text-gray-600">
-              Popular authenticator apps: Google Authenticator, Authy, Microsoft Authenticator
+              Popular authenticator apps: Google Authenticator, Authy, Microsoft
+              Authenticator
             </div>
-            
+
             <Button onClick={() => setStep('verify')} className="w-full">
               I've Added the Account
             </Button>
@@ -198,39 +234,55 @@ Store these codes securely and do not share them with anyone.`
           <CardHeader>
             <CardTitle>Verify Setup</CardTitle>
             <CardDescription>
-              Enter the 6-digit code from your authenticator app to complete setup.
+              Enter the 6-digit code from your authenticator app to complete
+              setup.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleVerificationSubmit} className="space-y-4">
               <div>
-                <label htmlFor="verification" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="verification"
+                  className="block text-sm font-medium mb-2"
+                >
                   Verification Code
                 </label>
                 <Input
                   id="verification"
                   type="text"
                   value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  onChange={e =>
+                    setVerificationCode(
+                      e.target.value.replace(/\D/g, '').slice(0, 6)
+                    )
+                  }
                   placeholder="123456"
                   maxLength={6}
                   className="text-center font-mono text-lg"
                   required
                 />
               </div>
-              
+
               {error && (
                 <div className="flex items-center gap-2 text-red-600 text-sm">
                   <AlertTriangle className="h-4 w-4" />
                   {error}
                 </div>
               )}
-              
+
               <div className="flex gap-2">
-                <Button type="submit" disabled={isLoading || verificationCode.length !== 6} className="flex-1">
+                <Button
+                  type="submit"
+                  disabled={isLoading || verificationCode.length !== 6}
+                  className="flex-1"
+                >
                   {isLoading ? 'Verifying...' : 'Verify & Enable 2FA'}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => setStep('scan')}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setStep('scan')}
+                >
                   Back
                 </Button>
               </div>
@@ -248,40 +300,54 @@ Store these codes securely and do not share them with anyone.`
               2FA Enabled Successfully!
             </CardTitle>
             <CardDescription>
-              Save these backup codes securely. You can use them to access your account if you lose your authenticator device.
+              Save these backup codes securely. You can use them to access your
+              account if you lose your authenticator device.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="bg-gray-50 p-4 rounded border">
               <div className="grid grid-cols-2 gap-2 font-mono text-sm">
                 {backupCodes.map((code, index) => (
-                  <div key={index} className="p-2 bg-white rounded border text-center">
+                  <div
+                    key={index}
+                    className="p-2 bg-white rounded border text-center"
+                  >
                     {code}
                   </div>
                 ))}
               </div>
             </div>
-            
+
             <div className="flex gap-2">
-              <Button onClick={copyBackupCodes} variant="outline" className="flex-1">
+              <Button
+                onClick={copyBackupCodes}
+                variant="outline"
+                className="flex-1"
+              >
                 <Copy className="h-4 w-4 mr-2" />
                 {copiedCodes ? 'Copied!' : 'Copy Codes'}
               </Button>
-              <Button onClick={downloadBackupCodes} variant="outline" className="flex-1">
+              <Button
+                onClick={downloadBackupCodes}
+                variant="outline"
+                className="flex-1"
+              >
                 <Download className="h-4 w-4 mr-2" />
                 Download
               </Button>
             </div>
-            
+
             <div className="bg-amber-50 border border-amber-200 rounded p-4">
               <div className="flex items-start gap-2">
                 <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-amber-800">
-                  <strong>Important:</strong> Store these codes securely. Each code can only be used once, and they cannot be recovered if lost.
+                  <strong>Important:</strong> Store these codes securely. Each
+                  code can only be used once, and they cannot be recovered if
+                  lost.
                 </div>
               </div>
             </div>
-            
+
             <Button onClick={handleComplete} className="w-full">
               Complete Setup
             </Button>

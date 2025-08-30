@@ -23,6 +23,8 @@ describe('HomePage', () => {
 
     expect(screen.getByRole('button', { name: 'Button' })).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Input field')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Dialog Example' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Dialog Example' })
+    ).toBeInTheDocument()
   })
 })

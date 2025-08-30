@@ -20,7 +20,7 @@ import {
   Download,
   FileText,
   Sparkles,
-  ClipboardList
+  ClipboardList,
 } from 'lucide-react'
 
 interface Project {
@@ -57,11 +57,13 @@ interface Media {
 export default function ProjectDetailPage() {
   const params = useParams()
   const projectId = params.id as string
-  
+
   const [project, setProject] = useState<Project | null>(null)
   const [media, setMedia] = useState<Media[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'media' | 'galleries' | 'timeline'>('media')
+  const [activeTab, setActiveTab] = useState<
+    'media' | 'galleries' | 'timeline'
+  >('media')
 
   useEffect(() => {
     fetchProject()
@@ -72,13 +74,15 @@ export default function ProjectDetailPage() {
     try {
       const response = await api.get(`/projects/${projectId}`)
       setProject(response.data)
-      
+
       // Try to fetch timeline info
       try {
-        const timelineResponse = await api.get(`/projects/${projectId}/timeline`)
+        const timelineResponse = await api.get(
+          `/projects/${projectId}/timeline`
+        )
         setProject(prev => ({
           ...prev!,
-          timeline: timelineResponse.data
+          timeline: timelineResponse.data,
         }))
       } catch (error) {
         // Timeline might not exist yet
@@ -115,7 +119,9 @@ export default function ProjectDetailPage() {
           <div>
             <h1 className="text-3xl font-bold mb-2">{project.name}</h1>
             {project.description && (
-              <p className="text-muted-foreground mb-4">{project.description}</p>
+              <p className="text-muted-foreground mb-4">
+                {project.description}
+              </p>
             )}
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               {project.location && (
@@ -126,15 +132,19 @@ export default function ProjectDetailPage() {
               )}
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
-                <span>Created {new Date(project.createdAt).toLocaleDateString()}</span>
+                <span>
+                  Created {new Date(project.createdAt).toLocaleDateString()}
+                </span>
               </div>
-              <span className={`px-2 py-1 text-xs rounded-full ${
-                project.status === 'ACTIVE'
-                  ? 'bg-green-100 text-green-800'
-                  : project.status === 'COMPLETED'
-                  ? 'bg-blue-100 text-blue-800'
-                  : 'bg-gray-100 text-gray-800'
-              }`}>
+              <span
+                className={`px-2 py-1 text-xs rounded-full ${
+                  project.status === 'ACTIVE'
+                    ? 'bg-green-100 text-green-800'
+                    : project.status === 'COMPLETED'
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-gray-100 text-gray-800'
+                }`}
+              >
                 {project.status}
               </span>
             </div>
@@ -155,10 +165,12 @@ export default function ProjectDetailPage() {
           <div className="bg-card rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer">
             <Camera className="h-8 w-8 text-primary mb-2" />
             <h3 className="font-semibold">Capture Media</h3>
-            <p className="text-sm text-muted-foreground">Take photos or videos</p>
+            <p className="text-sm text-muted-foreground">
+              Take photos or videos
+            </p>
           </div>
         </Link>
-        
+
         <Link href="/dashboard/upload" className="block">
           <div className="bg-card rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer">
             <Upload className="h-8 w-8 text-primary mb-2" />
@@ -166,33 +178,46 @@ export default function ProjectDetailPage() {
             <p className="text-sm text-muted-foreground">Batch upload media</p>
           </div>
         </Link>
-        
-        <Link href={`/dashboard/projects/${projectId}/galleries`} className="block">
+
+        <Link
+          href={`/dashboard/projects/${projectId}/galleries`}
+          className="block"
+        >
           <div className="bg-card rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer">
             <Share2 className="h-8 w-8 text-primary mb-2" />
             <h3 className="font-semibold">Galleries</h3>
-            <p className="text-sm text-muted-foreground">{project._count.galleries} galleries</p>
+            <p className="text-sm text-muted-foreground">
+              {project._count.galleries} galleries
+            </p>
           </div>
         </Link>
-        
-        <Link href={`/dashboard/projects/${projectId}/timeline`} className="block">
+
+        <Link
+          href={`/dashboard/projects/${projectId}/timeline`}
+          className="block"
+        >
           <div className="bg-card rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer">
             <Clock className="h-8 w-8 text-primary mb-2" />
             <h3 className="font-semibold">Timeline</h3>
             <p className="text-sm text-muted-foreground">
-              {project.timeline ? `${project.timeline.viewCount} views` : 'Not configured'}
+              {project.timeline
+                ? `${project.timeline.viewCount} views`
+                : 'Not configured'}
             </p>
           </div>
         </Link>
-        
-        <Link href={`/dashboard/projects/${projectId}/calendar`} className="block">
+
+        <Link
+          href={`/dashboard/projects/${projectId}/calendar`}
+          className="block"
+        >
           <div className="bg-card rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer">
             <Calendar className="h-8 w-8 text-primary mb-2" />
             <h3 className="font-semibold">Schedule</h3>
             <p className="text-sm text-muted-foreground">Production calendar</p>
           </div>
         </Link>
-        
+
         <Link href={`/dashboard/projects/${projectId}/forms`} className="block">
           <div className="bg-card rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer">
             <ClipboardList className="h-8 w-8 text-primary mb-2" />
@@ -200,15 +225,20 @@ export default function ProjectDetailPage() {
             <p className="text-sm text-muted-foreground">Daily documentation</p>
           </div>
         </Link>
-        
-        <Link href={`/dashboard/projects/${projectId}/reports`} className="block">
+
+        <Link
+          href={`/dashboard/projects/${projectId}/reports`}
+          className="block"
+        >
           <div className="bg-card rounded-lg shadow p-6 hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden">
             <div className="absolute top-2 right-2">
               <Sparkles className="h-4 w-4 text-yellow-500" />
             </div>
             <FileText className="h-8 w-8 text-primary mb-2" />
             <h3 className="font-semibold">AI Reports</h3>
-            <p className="text-sm text-muted-foreground">Generate reports with AI</p>
+            <p className="text-sm text-muted-foreground">
+              Generate reports with AI
+            </p>
           </div>
         </Link>
       </div>
@@ -224,7 +254,7 @@ export default function ProjectDetailPage() {
             <Image className="h-8 w-8 text-muted-foreground" />
           </div>
         </div>
-        
+
         <div className="bg-card rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -234,12 +264,14 @@ export default function ProjectDetailPage() {
             <Share2 className="h-8 w-8 text-muted-foreground" />
           </div>
         </div>
-        
+
         <div className="bg-card rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Timeline Views</p>
-              <p className="text-2xl font-bold">{project.timeline?.viewCount || 0}</p>
+              <p className="text-2xl font-bold">
+                {project.timeline?.viewCount || 0}
+              </p>
             </div>
             <Eye className="h-8 w-8 text-muted-foreground" />
           </div>
@@ -251,10 +283,12 @@ export default function ProjectDetailPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Recent Media</h2>
           <Link href={`/dashboard/media?project=${projectId}`}>
-            <Button variant="outline" size="sm">View All</Button>
+            <Button variant="outline" size="sm">
+              View All
+            </Button>
           </Link>
         </div>
-        
+
         {media.length === 0 ? (
           <div className="text-center py-12">
             <Image className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -276,13 +310,14 @@ export default function ProjectDetailPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {media.map((item) => (
+            {media.map(item => (
               <Link
                 key={item.id}
                 href={`/dashboard/media/${item.id}`}
                 className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden hover:opacity-90 transition-opacity"
               >
-                {item.mediaType === 'VIDEO' || item.mediaType === 'DUAL_VIDEO' ? (
+                {item.mediaType === 'VIDEO' ||
+                item.mediaType === 'DUAL_VIDEO' ? (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Video className="h-8 w-8 text-gray-400" />
                   </div>

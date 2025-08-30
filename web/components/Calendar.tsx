@@ -1,7 +1,14 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, MapPin, Users } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar as CalendarIcon,
+  Clock,
+  MapPin,
+  Users,
+} from 'lucide-react'
 import { Button } from './Button'
 
 interface CalendarEvent {
@@ -23,7 +30,7 @@ const mockEvents: CalendarEvent[] = [
     time: '09:00 AM',
     location: 'Site A - Tower Foundation',
     attendees: 5,
-    type: 'inspection'
+    type: 'inspection',
   },
   {
     id: '2',
@@ -32,7 +39,7 @@ const mockEvents: CalendarEvent[] = [
     time: '07:00 AM',
     location: 'Site A - Floor 15',
     attendees: 8,
-    type: 'deadline'
+    type: 'deadline',
   },
   {
     id: '3',
@@ -41,7 +48,7 @@ const mockEvents: CalendarEvent[] = [
     time: '02:00 PM',
     location: 'Conference Room',
     attendees: 12,
-    type: 'meeting'
+    type: 'meeting',
   },
   {
     id: '4',
@@ -50,13 +57,23 @@ const mockEvents: CalendarEvent[] = [
     time: '10:00 AM',
     location: 'Training Center',
     attendees: 15,
-    type: 'safety'
-  }
+    type: 'safety',
+  },
 ]
 
 const monthNames = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ]
 
 const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -76,22 +93,30 @@ export default function Calendar() {
   const daysInMonth = lastDayOfMonth.getDate()
 
   // Get events for current month
-  const monthEvents = mockEvents.filter(event => 
-    event.date.getMonth() === currentMonth && 
-    event.date.getFullYear() === currentYear
+  const monthEvents = mockEvents.filter(
+    event =>
+      event.date.getMonth() === currentMonth &&
+      event.date.getFullYear() === currentYear
   )
 
   const navigateMonth = (direction: 'prev' | 'next') => {
-    setCurrentDate(new Date(currentYear, currentMonth + (direction === 'next' ? 1 : -1), 1))
+    setCurrentDate(
+      new Date(currentYear, currentMonth + (direction === 'next' ? 1 : -1), 1)
+    )
   }
 
   const getEventTypeColor = (type: CalendarEvent['type']) => {
     switch (type) {
-      case 'meeting': return 'bg-blue-500'
-      case 'inspection': return 'bg-safety-orange'
-      case 'deadline': return 'bg-red-500'
-      case 'safety': return 'bg-green-500'
-      default: return 'bg-gray-500'
+      case 'meeting':
+        return 'bg-blue-500'
+      case 'inspection':
+        return 'bg-safety-orange'
+      case 'deadline':
+        return 'bg-red-500'
+      case 'safety':
+        return 'bg-green-500'
+      default:
+        return 'bg-gray-500'
     }
   }
 
@@ -101,21 +126,25 @@ export default function Calendar() {
 
   const renderCalendarDays = () => {
     const days = []
-    
+
     // Empty cells for days before the first day of the month
     for (let i = 0; i < firstDayWeekday; i++) {
-      days.push(<div key={`empty-${i}`} className="h-24 border border-gray-700"></div>)
+      days.push(
+        <div key={`empty-${i}`} className="h-24 border border-gray-700"></div>
+      )
     }
 
     // Days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const dayEvents = getDayEvents(day)
-      const isToday = today.getDate() === day && 
-                     today.getMonth() === currentMonth && 
-                     today.getFullYear() === currentYear
-      const isSelected = selectedDate?.getDate() === day &&
-                        selectedDate?.getMonth() === currentMonth &&
-                        selectedDate?.getFullYear() === currentYear
+      const isToday =
+        today.getDate() === day &&
+        today.getMonth() === currentMonth &&
+        today.getFullYear() === currentYear
+      const isSelected =
+        selectedDate?.getDate() === day &&
+        selectedDate?.getMonth() === currentMonth &&
+        selectedDate?.getFullYear() === currentYear
 
       days.push(
         <div
@@ -123,11 +152,15 @@ export default function Calendar() {
           className={`h-24 border border-gray-700 p-1 cursor-pointer hover:bg-gray-700 transition-colors ${
             isToday ? 'bg-safety-orange/20 border-safety-orange' : ''
           } ${isSelected ? 'bg-gray-600' : ''}`}
-          onClick={() => setSelectedDate(new Date(currentYear, currentMonth, day))}
+          onClick={() =>
+            setSelectedDate(new Date(currentYear, currentMonth, day))
+          }
         >
-          <div className={`text-sm font-medium mb-1 ${
-            isToday ? 'text-safety-orange' : 'text-white'
-          }`}>
+          <div
+            className={`text-sm font-medium mb-1 ${
+              isToday ? 'text-safety-orange' : 'text-white'
+            }`}
+          >
             {day}
           </div>
           <div className="space-y-1">
@@ -153,7 +186,9 @@ export default function Calendar() {
     return days
   }
 
-  const selectedDateEvents = selectedDate ? getDayEvents(selectedDate.getDate()) : []
+  const selectedDateEvents = selectedDate
+    ? getDayEvents(selectedDate.getDate())
+    : []
 
   return (
     <div className="brushed-metal rounded-lg shadow-lg">
@@ -190,7 +225,10 @@ export default function Calendar() {
           {/* Day Headers */}
           <div className="grid grid-cols-7 gap-0 mb-2">
             {dayNames.map(day => (
-              <div key={day} className="text-center text-sm font-medium text-gray-400 py-2">
+              <div
+                key={day}
+                className="text-center text-sm font-medium text-gray-400 py-2"
+              >
                 {day}
               </div>
             ))}
@@ -226,22 +264,26 @@ export default function Calendar() {
         {selectedDate && (
           <div className="w-80 border-l border-gray-700 p-4">
             <h3 className="text-lg font-semibold text-white mb-4">
-              {selectedDate.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+              {selectedDate.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
               })}
             </h3>
-            
+
             {selectedDateEvents.length > 0 ? (
               <div className="space-y-3">
                 {selectedDateEvents.map(event => (
                   <div key={event.id} className="p-3 bg-gray-800 rounded-lg">
                     <div className="flex items-start gap-3">
-                      <div className={`w-3 h-3 rounded-full mt-1 ${getEventTypeColor(event.type)}`}></div>
+                      <div
+                        className={`w-3 h-3 rounded-full mt-1 ${getEventTypeColor(event.type)}`}
+                      ></div>
                       <div className="flex-1">
-                        <h4 className="font-medium text-white">{event.title}</h4>
+                        <h4 className="font-medium text-white">
+                          {event.title}
+                        </h4>
                         <div className="flex items-center gap-2 mt-1 text-sm text-gray-400">
                           <Clock className="h-3 w-3" />
                           {event.time}

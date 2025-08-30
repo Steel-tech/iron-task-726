@@ -14,7 +14,7 @@ import {
   Lock,
   Calendar,
   BarChart,
-  ExternalLink
+  ExternalLink,
 } from 'lucide-react'
 import NextLink from 'next/link'
 
@@ -44,7 +44,7 @@ export default function ProjectGalleriesPage() {
   const params = useParams()
   const router = useRouter()
   const projectId = params.id as string
-  
+
   const [galleries, setGalleries] = useState<Gallery[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [project, setProject] = useState<any>(null)
@@ -76,7 +76,7 @@ export default function ProjectGalleriesPage() {
 
   const deleteGallery = async (galleryId: string) => {
     if (!confirm('Are you sure you want to delete this gallery?')) return
-    
+
     try {
       await api.delete(`/galleries/${galleryId}`)
       await fetchGalleries()
@@ -121,7 +121,8 @@ export default function ProjectGalleriesPage() {
           <Share2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-lg text-muted-foreground mb-4">No galleries yet</p>
           <p className="text-sm text-muted-foreground mb-6">
-            Create galleries to share curated collections of photos and videos with clients
+            Create galleries to share curated collections of photos and videos
+            with clients
           </p>
           <NextLink href={`/dashboard/projects/${projectId}/galleries/new`}>
             <Button>Create your first gallery</Button>
@@ -129,23 +130,24 @@ export default function ProjectGalleriesPage() {
         </div>
       ) : (
         <div className="grid gap-6">
-          {galleries.map((gallery) => (
-            <div
-              key={gallery.id}
-              className="bg-card rounded-lg shadow p-6"
-            >
+          {galleries.map(gallery => (
+            <div key={gallery.id} className="bg-card rounded-lg shadow p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold mb-1">{gallery.name}</h3>
                   {gallery.description && (
-                    <p className="text-muted-foreground">{gallery.description}</p>
+                    <p className="text-muted-foreground">
+                      {gallery.description}
+                    </p>
                   )}
                   <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                     <span>{gallery._count.items} items</span>
                     <span>•</span>
                     <span>{gallery._count.views} views</span>
                     <span>•</span>
-                    <span>Created {new Date(gallery.createdAt).toLocaleDateString()}</span>
+                    <span>
+                      Created {new Date(gallery.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -166,12 +168,16 @@ export default function ProjectGalleriesPage() {
                       <ExternalLink className="h-4 w-4" />
                     </Button>
                   </NextLink>
-                  <NextLink href={`/dashboard/projects/${projectId}/galleries/${gallery.id}/analytics`}>
+                  <NextLink
+                    href={`/dashboard/projects/${projectId}/galleries/${gallery.id}/analytics`}
+                  >
                     <Button variant="outline" size="icon" title="Analytics">
                       <BarChart className="h-4 w-4" />
                     </Button>
                   </NextLink>
-                  <NextLink href={`/dashboard/projects/${projectId}/galleries/${gallery.id}/edit`}>
+                  <NextLink
+                    href={`/dashboard/projects/${projectId}/galleries/${gallery.id}/edit`}
+                  >
                     <Button variant="outline" size="icon" title="Edit">
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -210,14 +216,20 @@ export default function ProjectGalleriesPage() {
                 {gallery.expiresAt && (
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
-                    <span>Expires {new Date(gallery.expiresAt).toLocaleDateString()}</span>
+                    <span>
+                      Expires {new Date(gallery.expiresAt).toLocaleDateString()}
+                    </span>
                   </div>
                 )}
               </div>
 
               <div className="mt-4 p-3 bg-muted rounded-md">
-                <p className="text-xs text-muted-foreground mb-1">Share link:</p>
-                <p className="text-sm font-mono break-all">{gallery.shareUrl}</p>
+                <p className="text-xs text-muted-foreground mb-1">
+                  Share link:
+                </p>
+                <p className="text-sm font-mono break-all">
+                  {gallery.shareUrl}
+                </p>
               </div>
             </div>
           ))}

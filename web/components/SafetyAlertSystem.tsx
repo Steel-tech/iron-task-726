@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/Button'
-import { safetyIncidentService, type SafetyIncident } from '@/lib/safety-incident-service'
+import {
+  safetyIncidentService,
+  type SafetyIncident,
+} from '@/lib/safety-incident-service'
 import {
   AlertTriangle,
   Siren,
@@ -20,12 +23,18 @@ import {
   Settings,
   Send,
   Eye,
-  CheckCircle
+  CheckCircle,
 } from 'lucide-react'
 
 interface SafetyAlert {
   id: string
-  type: 'critical_incident' | 'emergency' | 'safety_violation' | 'evacuation' | 'weather' | 'equipment_failure'
+  type:
+    | 'critical_incident'
+    | 'emergency'
+    | 'safety_violation'
+    | 'evacuation'
+    | 'weather'
+    | 'equipment_failure'
   severity: 'low' | 'medium' | 'high' | 'critical'
   title: string
   message: string
@@ -66,8 +75,10 @@ export default function SafetyAlertSystem() {
   const [isCreatingAlert, setIsCreatingAlert] = useState(false)
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
-  const [emergencyContacts, setEmergencyContacts] = useState<SafetyContact[]>([])
-  
+  const [emergencyContacts, setEmergencyContacts] = useState<SafetyContact[]>(
+    []
+  )
+
   // Alert creation form
   const [newAlert, setNewAlert] = useState({
     type: 'critical_incident' as SafetyAlert['type'],
@@ -77,7 +88,7 @@ export default function SafetyAlertSystem() {
     location: { area: '' },
     actionRequired: true,
     broadcastChannels: ['push', 'sms'] as SafetyAlert['broadcastChannels'],
-    recipients: [] as string[]
+    recipients: [] as string[],
   })
 
   const audioRef = useRef<HTMLAudioElement>(null)
@@ -87,9 +98,9 @@ export default function SafetyAlertSystem() {
     // Initialize mock data and load alerts
     initializeMockData()
     loadActiveAlerts()
-    
+
     // Listen for new incidents that might trigger alerts
-    const unsubscribe = safetyIncidentService.onIncidentsUpdate((incidents) => {
+    const unsubscribe = safetyIncidentService.onIncidentsUpdate(incidents => {
       checkForCriticalIncidents(incidents)
     })
 
@@ -116,7 +127,7 @@ export default function SafetyAlertSystem() {
         email: 'emergency@local.gov',
         priority: 'emergency',
         departments: ['emergency'],
-        onDuty: true
+        onDuty: true,
       },
       {
         id: 'contact_2',
@@ -126,7 +137,7 @@ export default function SafetyAlertSystem() {
         email: 'sarah.chen@company.com',
         priority: 'emergency',
         departments: ['safety', 'management'],
-        onDuty: true
+        onDuty: true,
       },
       {
         id: 'contact_3',
@@ -136,7 +147,7 @@ export default function SafetyAlertSystem() {
         email: 'mike.johnson@company.com',
         priority: 'high',
         departments: ['management', 'operations'],
-        onDuty: true
+        onDuty: true,
       },
       {
         id: 'contact_4',
@@ -146,8 +157,8 @@ export default function SafetyAlertSystem() {
         email: 'security@company.com',
         priority: 'high',
         departments: ['security'],
-        onDuty: true
-      }
+        onDuty: true,
+      },
     ]
 
     const mockAlerts: SafetyAlert[] = [
@@ -156,7 +167,8 @@ export default function SafetyAlertSystem() {
         type: 'critical_incident',
         severity: 'critical',
         title: 'Critical Injury Reported',
-        message: 'Serious injury reported at Bay 3, Level 2. Emergency services have been contacted. All non-essential personnel should clear the area immediately.',
+        message:
+          'Serious injury reported at Bay 3, Level 2. Emergency services have been contacted. All non-essential personnel should clear the area immediately.',
         location: { area: 'Bay 3, Level 2' },
         triggeredBy: { id: 'user_1', name: 'Mike Johnson', role: 'FOREMAN' },
         timestamp: new Date(Date.now() - 10 * 60 * 1000),
@@ -164,15 +176,17 @@ export default function SafetyAlertSystem() {
         actionRequired: true,
         broadcastChannels: ['push', 'sms', 'email'],
         recipients: ['all_site_personnel'],
-        resolved: false
-      }
+        resolved: false,
+      },
     ]
 
     setEmergencyContacts(mockContacts)
     setAlerts(mockAlerts)
-    
+
     // Set active alert if there's a critical one
-    const criticalAlert = mockAlerts.find(a => a.severity === 'critical' && !a.resolved)
+    const criticalAlert = mockAlerts.find(
+      a => a.severity === 'critical' && !a.resolved
+    )
     if (criticalAlert) {
       setActiveAlert(criticalAlert)
       playAlertSound()
@@ -186,7 +200,10 @@ export default function SafetyAlertSystem() {
 
   const checkForCriticalIncidents = (incidents: SafetyIncident[]) => {
     incidents.forEach(incident => {
-      if (incident.severity === 'critical' && incident.createdAt > new Date(Date.now() - 60000)) {
+      if (
+        incident.severity === 'critical' &&
+        incident.createdAt > new Date(Date.now() - 60000)
+      ) {
         // New critical incident in the last minute
         triggerAutomaticAlert(incident)
       }
@@ -208,23 +225,28 @@ export default function SafetyAlertSystem() {
       broadcastChannels: ['push', 'sms', 'email'],
       recipients: ['all_site_personnel'],
       relatedIncidentId: incident.id,
-      resolved: false
+      resolved: false,
     }
 
     createAlert(alert)
   }
 
-  const createAlert = async (alertData: Omit<SafetyAlert, 'id' | 'timestamp' | 'acknowledged' | 'resolved'>) => {
+  const createAlert = async (
+    alertData: Omit<
+      SafetyAlert,
+      'id' | 'timestamp' | 'acknowledged' | 'resolved'
+    >
+  ) => {
     const alert: SafetyAlert = {
       ...alertData,
       id: `alert_${Date.now()}`,
       timestamp: new Date(),
       acknowledged: false,
-      resolved: false
+      resolved: false,
     }
 
     setAlerts(prev => [alert, ...prev])
-    
+
     // Set as active alert if critical
     if (alert.severity === 'critical') {
       setActiveAlert(alert)
@@ -237,12 +259,16 @@ export default function SafetyAlertSystem() {
 
   const broadcastAlert = async (alert: SafetyAlert) => {
     // Browser notification
-    if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
+    if (
+      notificationsEnabled &&
+      'Notification' in window &&
+      Notification.permission === 'granted'
+    ) {
       new Notification(`🚨 ${alert.title}`, {
         body: alert.message,
         icon: '/favicon.ico',
         tag: alert.id,
-        requireInteraction: alert.severity === 'critical'
+        requireInteraction: alert.severity === 'critical',
       })
     }
 
@@ -268,15 +294,17 @@ export default function SafetyAlertSystem() {
   }
 
   const acknowledgeAlert = (alertId: string) => {
-    setAlerts(prev => prev.map(alert => 
-      alert.id === alertId 
-        ? { 
-            ...alert, 
-            acknowledged: true,
-            acknowledgedBy: [...(alert.acknowledgedBy || []), 'Current User']
-          }
-        : alert
-    ))
+    setAlerts(prev =>
+      prev.map(alert =>
+        alert.id === alertId
+          ? {
+              ...alert,
+              acknowledged: true,
+              acknowledgedBy: [...(alert.acknowledgedBy || []), 'Current User'],
+            }
+          : alert
+      )
+    )
 
     if (activeAlert?.id === alertId) {
       stopAlertSound()
@@ -285,9 +313,11 @@ export default function SafetyAlertSystem() {
   }
 
   const resolveAlert = (alertId: string) => {
-    setAlerts(prev => prev.map(alert => 
-      alert.id === alertId ? { ...alert, resolved: true } : alert
-    ))
+    setAlerts(prev =>
+      prev.map(alert =>
+        alert.id === alertId ? { ...alert, resolved: true } : alert
+      )
+    )
 
     if (activeAlert?.id === alertId) {
       stopAlertSound()
@@ -303,8 +333,8 @@ export default function SafetyAlertSystem() {
       triggeredBy: {
         id: 'current_user',
         name: 'Current User',
-        role: 'FOREMAN'
-      }
+        role: 'FOREMAN',
+      },
     })
 
     // Reset form
@@ -316,37 +346,51 @@ export default function SafetyAlertSystem() {
       location: { area: '' },
       actionRequired: true,
       broadcastChannels: ['push', 'sms'],
-      recipients: []
+      recipients: [],
     })
     setIsCreatingAlert(false)
   }
 
   const getAlertIcon = (type: SafetyAlert['type']) => {
     switch (type) {
-      case 'critical_incident': return <AlertTriangle className="h-5 w-5" />
-      case 'emergency': return <Siren className="h-5 w-5" />
-      case 'safety_violation': return <Shield className="h-5 w-5" />
-      case 'evacuation': return <MapPin className="h-5 w-5" />
-      case 'weather': return <Clock className="h-5 w-5" />
-      case 'equipment_failure': return <Settings className="h-5 w-5" />
+      case 'critical_incident':
+        return <AlertTriangle className="h-5 w-5" />
+      case 'emergency':
+        return <Siren className="h-5 w-5" />
+      case 'safety_violation':
+        return <Shield className="h-5 w-5" />
+      case 'evacuation':
+        return <MapPin className="h-5 w-5" />
+      case 'weather':
+        return <Clock className="h-5 w-5" />
+      case 'equipment_failure':
+        return <Settings className="h-5 w-5" />
     }
   }
 
   const getAlertColor = (severity: SafetyAlert['severity']) => {
     switch (severity) {
-      case 'low': return 'border-l-green-500 bg-green-50'
-      case 'medium': return 'border-l-yellow-500 bg-yellow-50'
-      case 'high': return 'border-l-orange-500 bg-orange-50'
-      case 'critical': return 'border-l-red-500 bg-red-50'
+      case 'low':
+        return 'border-l-green-500 bg-green-50'
+      case 'medium':
+        return 'border-l-yellow-500 bg-yellow-50'
+      case 'high':
+        return 'border-l-orange-500 bg-orange-50'
+      case 'critical':
+        return 'border-l-red-500 bg-red-50'
     }
   }
 
   const getSeverityTextColor = (severity: SafetyAlert['severity']) => {
     switch (severity) {
-      case 'low': return 'text-green-800'
-      case 'medium': return 'text-yellow-800'
-      case 'high': return 'text-orange-800'
-      case 'critical': return 'text-red-800'
+      case 'low':
+        return 'text-green-800'
+      case 'medium':
+        return 'text-yellow-800'
+      case 'high':
+        return 'text-orange-800'
+      case 'critical':
+        return 'text-red-800'
     }
   }
 
@@ -356,11 +400,7 @@ export default function SafetyAlertSystem() {
   return (
     <div className="space-y-6">
       {/* Audio element for alert sounds */}
-      <audio
-        ref={audioRef}
-        loop
-        onEnded={() => setIsPlaying(false)}
-      >
+      <audio ref={audioRef} loop onEnded={() => setIsPlaying(false)}>
         <source src="/sounds/alert.mp3" type="audio/mpeg" />
         <source src="/sounds/alert.wav" type="audio/wav" />
       </audio>
@@ -376,10 +416,12 @@ export default function SafetyAlertSystem() {
                 </div>
                 <div>
                   <h3 className="font-bold">CRITICAL SAFETY ALERT</h3>
-                  <p className="text-sm">{activeAlert.title} - {activeAlert.location?.area}</p>
+                  <p className="text-sm">
+                    {activeAlert.title} - {activeAlert.location?.area}
+                  </p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 {isPlaying && (
                   <Button
@@ -414,34 +456,45 @@ export default function SafetyAlertSystem() {
       )}
 
       {/* Header */}
-      <div className={`flex items-center justify-between ${activeAlert ? 'mt-20' : ''}`}>
+      <div
+        className={`flex items-center justify-between ${activeAlert ? 'mt-20' : ''}`}
+      >
         <div className="flex items-center gap-3">
           <AlertTriangle className="h-6 w-6 text-red-600" />
           <h2 className="text-2xl font-bold">Safety Alert System</h2>
           {criticalAlerts.length > 0 && (
             <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
-              {criticalAlerts.length} Critical Alert{criticalAlerts.length > 1 ? 's' : ''}
+              {criticalAlerts.length} Critical Alert
+              {criticalAlerts.length > 1 ? 's' : ''}
             </span>
           )}
         </div>
-        
+
         <div className="flex items-center gap-3">
           <Button
-            variant={soundEnabled ? "outline" : "ghost"}
+            variant={soundEnabled ? 'outline' : 'ghost'}
             size="sm"
             onClick={() => setSoundEnabled(!soundEnabled)}
           >
-            {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            {soundEnabled ? (
+              <Volume2 className="h-4 w-4" />
+            ) : (
+              <VolumeX className="h-4 w-4" />
+            )}
           </Button>
-          
+
           <Button
-            variant={notificationsEnabled ? "outline" : "ghost"}
+            variant={notificationsEnabled ? 'outline' : 'ghost'}
             size="sm"
             onClick={() => setNotificationsEnabled(!notificationsEnabled)}
           >
-            {notificationsEnabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+            {notificationsEnabled ? (
+              <Bell className="h-4 w-4" />
+            ) : (
+              <BellOff className="h-4 w-4" />
+            )}
           </Button>
-          
+
           <Button
             variant="construction-primary"
             onClick={() => setIsCreatingAlert(true)}
@@ -454,48 +507,60 @@ export default function SafetyAlertSystem() {
       {/* Quick Emergency Actions */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { 
-            label: 'Emergency Services', 
-            action: () => window.open('tel:911'), 
-            color: 'bg-red-600 hover:bg-red-700', 
-            icon: <Phone className="h-5 w-5" /> 
+          {
+            label: 'Emergency Services',
+            action: () => window.open('tel:911'),
+            color: 'bg-red-600 hover:bg-red-700',
+            icon: <Phone className="h-5 w-5" />,
           },
-          { 
-            label: 'Site Evacuation', 
-            action: () => createAlert({
-              type: 'evacuation',
-              severity: 'critical',
-              title: 'Site Evacuation Order',
-              message: 'All personnel must evacuate the site immediately. Report to designated assembly point.',
-              triggeredBy: { id: 'current_user', name: 'Current User', role: 'FOREMAN' },
-              actionRequired: true,
-              broadcastChannels: ['push', 'sms', 'email'],
-              recipients: ['all_site_personnel']
-            }), 
-            color: 'bg-orange-600 hover:bg-orange-700', 
-            icon: <MapPin className="h-5 w-5" /> 
+          {
+            label: 'Site Evacuation',
+            action: () =>
+              createAlert({
+                type: 'evacuation',
+                severity: 'critical',
+                title: 'Site Evacuation Order',
+                message:
+                  'All personnel must evacuate the site immediately. Report to designated assembly point.',
+                triggeredBy: {
+                  id: 'current_user',
+                  name: 'Current User',
+                  role: 'FOREMAN',
+                },
+                actionRequired: true,
+                broadcastChannels: ['push', 'sms', 'email'],
+                recipients: ['all_site_personnel'],
+              }),
+            color: 'bg-orange-600 hover:bg-orange-700',
+            icon: <MapPin className="h-5 w-5" />,
           },
-          { 
-            label: 'Safety Officer', 
-            action: () => window.open('tel:555-0101'), 
-            color: 'bg-blue-600 hover:bg-blue-700', 
-            icon: <Shield className="h-5 w-5" /> 
+          {
+            label: 'Safety Officer',
+            action: () => window.open('tel:555-0101'),
+            color: 'bg-blue-600 hover:bg-blue-700',
+            icon: <Shield className="h-5 w-5" />,
           },
-          { 
-            label: 'First Aid Team', 
-            action: () => createAlert({
-              type: 'emergency',
-              severity: 'high',
-              title: 'First Aid Assistance Needed',
-              message: 'First aid assistance requested. Responders please report to specified location.',
-              triggeredBy: { id: 'current_user', name: 'Current User', role: 'FOREMAN' },
-              actionRequired: true,
-              broadcastChannels: ['push', 'sms'],
-              recipients: ['first_aid_team', 'safety_officers']
-            }), 
-            color: 'bg-green-600 hover:bg-green-700', 
-            icon: <User className="h-5 w-5" /> 
-          }
+          {
+            label: 'First Aid Team',
+            action: () =>
+              createAlert({
+                type: 'emergency',
+                severity: 'high',
+                title: 'First Aid Assistance Needed',
+                message:
+                  'First aid assistance requested. Responders please report to specified location.',
+                triggeredBy: {
+                  id: 'current_user',
+                  name: 'Current User',
+                  role: 'FOREMAN',
+                },
+                actionRequired: true,
+                broadcastChannels: ['push', 'sms'],
+                recipients: ['first_aid_team', 'safety_officers'],
+              }),
+            color: 'bg-green-600 hover:bg-green-700',
+            icon: <User className="h-5 w-5" />,
+          },
         ].map((action, index) => (
           <Button
             key={index}
@@ -511,9 +576,13 @@ export default function SafetyAlertSystem() {
       {/* Active Alerts */}
       <div className="card-construction">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold">Active Alerts ({activeAlerts.length})</h3>
+          <h3 className="text-lg font-semibold">
+            Active Alerts ({activeAlerts.length})
+          </h3>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">Auto-refresh every 30s</span>
+            <span className="text-sm text-gray-500">
+              Auto-refresh every 30s
+            </span>
             <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
           </div>
         </div>
@@ -526,7 +595,7 @@ export default function SafetyAlertSystem() {
               <p className="text-sm">All systems normal</p>
             </div>
           ) : (
-            activeAlerts.map((alert) => (
+            activeAlerts.map(alert => (
               <div
                 key={alert.id}
                 className={`p-6 border-l-4 ${getAlertColor(alert.severity)} ${
@@ -538,18 +607,25 @@ export default function SafetyAlertSystem() {
                     <div className={getSeverityTextColor(alert.severity)}>
                       {getAlertIcon(alert.type)}
                     </div>
-                    
+
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <h4 className={`font-semibold ${getSeverityTextColor(alert.severity)}`}>
+                        <h4
+                          className={`font-semibold ${getSeverityTextColor(alert.severity)}`}
+                        >
                           {alert.title}
                         </h4>
-                        <span className={`px-2 py-1 text-xs font-medium rounded ${
-                          alert.severity === 'critical' ? 'bg-red-200 text-red-800' :
-                          alert.severity === 'high' ? 'bg-orange-200 text-orange-800' :
-                          alert.severity === 'medium' ? 'bg-yellow-200 text-yellow-800' :
-                          'bg-green-200 text-green-800'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded ${
+                            alert.severity === 'critical'
+                              ? 'bg-red-200 text-red-800'
+                              : alert.severity === 'high'
+                                ? 'bg-orange-200 text-orange-800'
+                                : alert.severity === 'medium'
+                                  ? 'bg-yellow-200 text-yellow-800'
+                                  : 'bg-green-200 text-green-800'
+                          }`}
+                        >
                           {alert.severity.toUpperCase()}
                         </span>
                         {alert.acknowledged && (
@@ -558,12 +634,16 @@ export default function SafetyAlertSystem() {
                           </span>
                         )}
                       </div>
-                      
-                      <p className={`mb-3 ${getSeverityTextColor(alert.severity)}`}>
+
+                      <p
+                        className={`mb-3 ${getSeverityTextColor(alert.severity)}`}
+                      >
                         {alert.message}
                       </p>
-                      
-                      <div className={`flex items-center gap-4 text-sm ${getSeverityTextColor(alert.severity)} opacity-75`}>
+
+                      <div
+                        className={`flex items-center gap-4 text-sm ${getSeverityTextColor(alert.severity)} opacity-75`}
+                      >
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
                           <span>{alert.timestamp.toLocaleString()}</span>
@@ -579,15 +659,16 @@ export default function SafetyAlertSystem() {
                           </div>
                         )}
                       </div>
-                      
-                      {alert.acknowledgedBy && alert.acknowledgedBy.length > 0 && (
-                        <div className="mt-2 text-sm text-gray-600">
-                          Acknowledged by: {alert.acknowledgedBy.join(', ')}
-                        </div>
-                      )}
+
+                      {alert.acknowledgedBy &&
+                        alert.acknowledgedBy.length > 0 && (
+                          <div className="mt-2 text-sm text-gray-600">
+                            Acknowledged by: {alert.acknowledgedBy.join(', ')}
+                          </div>
+                        )}
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-2 ml-4">
                     {!alert.acknowledged && (
                       <Button
@@ -607,10 +688,7 @@ export default function SafetyAlertSystem() {
                       Resolve
                     </Button>
                     {alert.relatedIncidentId && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                      >
+                      <Button variant="outline" size="sm">
                         <Eye className="h-4 w-4 mr-1" />
                         View Incident
                       </Button>
@@ -632,13 +710,18 @@ export default function SafetyAlertSystem() {
             Manage
           </Button>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-6">
-          {emergencyContacts.map((contact) => (
-            <div key={contact.id} className="border border-gray-200 rounded-lg p-4">
+          {emergencyContacts.map(contact => (
+            <div
+              key={contact.id}
+              className="border border-gray-200 rounded-lg p-4"
+            >
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-medium">{contact.name}</h4>
-                <div className={`w-2 h-2 rounded-full ${contact.onDuty ? 'bg-green-400' : 'bg-gray-400'}`} />
+                <div
+                  className={`w-2 h-2 rounded-full ${contact.onDuty ? 'bg-green-400' : 'bg-gray-400'}`}
+                />
               </div>
               <p className="text-sm text-gray-600 mb-2">{contact.role}</p>
               <div className="space-y-1">
@@ -680,7 +763,7 @@ export default function SafetyAlertSystem() {
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -689,7 +772,12 @@ export default function SafetyAlertSystem() {
                   </label>
                   <select
                     value={newAlert.type}
-                    onChange={(e) => setNewAlert(prev => ({ ...prev, type: e.target.value as any }))}
+                    onChange={e =>
+                      setNewAlert(prev => ({
+                        ...prev,
+                        type: e.target.value as any,
+                      }))
+                    }
                     className="input-construction w-full"
                   >
                     <option value="critical_incident">Critical Incident</option>
@@ -700,14 +788,19 @@ export default function SafetyAlertSystem() {
                     <option value="equipment_failure">Equipment Failure</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Severity
                   </label>
                   <select
                     value={newAlert.severity}
-                    onChange={(e) => setNewAlert(prev => ({ ...prev, severity: e.target.value as any }))}
+                    onChange={e =>
+                      setNewAlert(prev => ({
+                        ...prev,
+                        severity: e.target.value as any,
+                      }))
+                    }
                     className="input-construction w-full"
                   >
                     <option value="low">Low</option>
@@ -717,7 +810,7 @@ export default function SafetyAlertSystem() {
                   </select>
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Alert Title
@@ -725,24 +818,28 @@ export default function SafetyAlertSystem() {
                 <input
                   type="text"
                   value={newAlert.title}
-                  onChange={(e) => setNewAlert(prev => ({ ...prev, title: e.target.value }))}
+                  onChange={e =>
+                    setNewAlert(prev => ({ ...prev, title: e.target.value }))
+                  }
                   className="input-construction w-full"
                   placeholder="Brief alert title"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Message
                 </label>
                 <textarea
                   value={newAlert.message}
-                  onChange={(e) => setNewAlert(prev => ({ ...prev, message: e.target.value }))}
+                  onChange={e =>
+                    setNewAlert(prev => ({ ...prev, message: e.target.value }))
+                  }
                   className="input-construction w-full h-24"
                   placeholder="Detailed alert message"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Location
@@ -750,28 +847,35 @@ export default function SafetyAlertSystem() {
                 <input
                   type="text"
                   value={newAlert.location.area}
-                  onChange={(e) => setNewAlert(prev => ({ 
-                    ...prev, 
-                    location: { ...prev.location, area: e.target.value }
-                  }))}
+                  onChange={e =>
+                    setNewAlert(prev => ({
+                      ...prev,
+                      location: { ...prev.location, area: e.target.value },
+                    }))
+                  }
                   className="input-construction w-full"
                   placeholder="Alert location/area"
                 />
               </div>
-              
+
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={newAlert.actionRequired}
-                    onChange={(e) => setNewAlert(prev => ({ ...prev, actionRequired: e.target.checked }))}
+                    onChange={e =>
+                      setNewAlert(prev => ({
+                        ...prev,
+                        actionRequired: e.target.checked,
+                      }))
+                    }
                     className="rounded border-gray-300 text-red-600 focus:ring-red-500"
                   />
                   <span className="text-sm text-gray-700">Action Required</span>
                 </label>
               </div>
             </div>
-            
+
             <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
               <Button
                 variant="outline"

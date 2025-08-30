@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/Button'
-import { safetyIncidentService, type SafetyIncident } from '@/lib/safety-incident-service'
+import {
+  safetyIncidentService,
+  type SafetyIncident,
+} from '@/lib/safety-incident-service'
 import {
   AlertTriangle,
   Clock,
@@ -19,7 +22,7 @@ import {
   Send,
   Eye,
   Download,
-  Filter
+  Filter,
 } from 'lucide-react'
 
 interface IncidentWorkflowManagerProps {
@@ -27,16 +30,21 @@ interface IncidentWorkflowManagerProps {
   onIncidentUpdate?: (incident: SafetyIncident) => void
 }
 
-export default function IncidentWorkflowManager({ 
+export default function IncidentWorkflowManager({
   incidentId,
-  onIncidentUpdate 
+  onIncidentUpdate,
 }: IncidentWorkflowManagerProps) {
   const [incidents, setIncidents] = useState<SafetyIncident[]>([])
-  const [selectedIncident, setSelectedIncident] = useState<SafetyIncident | null>(null)
+  const [selectedIncident, setSelectedIncident] =
+    useState<SafetyIncident | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [filterStatus, setFilterStatus] = useState<SafetyIncident['status'] | 'all'>('all')
-  const [filterSeverity, setFilterSeverity] = useState<SafetyIncident['severity'] | 'all'>('all')
-  
+  const [filterStatus, setFilterStatus] = useState<
+    SafetyIncident['status'] | 'all'
+  >('all')
+  const [filterSeverity, setFilterSeverity] = useState<
+    SafetyIncident['severity'] | 'all'
+  >('all')
+
   // Workflow management state
   const [assignToUser, setAssignToUser] = useState('')
   const [newComment, setNewComment] = useState('')
@@ -66,7 +74,7 @@ export default function IncidentWorkflowManager({
 
       const incidentList = await safetyIncidentService.getIncidents(filters)
       setIncidents(incidentList)
-      
+
       // Auto-select first incident if none selected
       if (!selectedIncident && incidentList.length > 0) {
         setSelectedIncident(incidentList[0])
@@ -95,8 +103,12 @@ export default function IncidentWorkflowManager({
   const populateWorkflowForm = (incident: SafetyIncident) => {
     setAssignToUser(incident.assignedTo?.name || '')
     setRootCauseAnalysis(incident.rootCause || '')
-    setCorrectiveActions(incident.correctiveActions?.length ? incident.correctiveActions : [''])
-    setPreventiveMeasures(incident.preventiveMeasures?.length ? incident.preventiveMeasures : [''])
+    setCorrectiveActions(
+      incident.correctiveActions?.length ? incident.correctiveActions : ['']
+    )
+    setPreventiveMeasures(
+      incident.preventiveMeasures?.length ? incident.preventiveMeasures : ['']
+    )
   }
 
   const handleStatusUpdate = async (newStatus: SafetyIncident['status']) => {
@@ -106,7 +118,7 @@ export default function IncidentWorkflowManager({
     try {
       const updates: Partial<SafetyIncident> = {
         status: newStatus,
-        ...(newStatus === 'resolved' && { resolvedAt: new Date() })
+        ...(newStatus === 'resolved' && { resolvedAt: new Date() }),
       }
 
       const updatedIncident = await safetyIncidentService.updateIncident(
@@ -135,9 +147,12 @@ export default function IncidentWorkflowManager({
         assignedTo: {
           id: 'assigned_user',
           name: assignToUser,
-          role: 'SAFETY_OFFICER'
+          role: 'SAFETY_OFFICER',
         },
-        status: selectedIncident.status === 'reported' ? 'investigating' : selectedIncident.status
+        status:
+          selectedIncident.status === 'reported'
+            ? 'investigating'
+            : selectedIncident.status,
       }
 
       const updatedIncident = await safetyIncidentService.updateIncident(
@@ -165,8 +180,13 @@ export default function IncidentWorkflowManager({
       const updates: Partial<SafetyIncident> = {
         rootCause: rootCauseAnalysis,
         correctiveActions: correctiveActions.filter(action => action.trim()),
-        preventiveMeasures: preventiveMeasures.filter(measure => measure.trim()),
-        status: selectedIncident.status === 'reported' ? 'investigating' : selectedIncident.status
+        preventiveMeasures: preventiveMeasures.filter(measure =>
+          measure.trim()
+        ),
+        status:
+          selectedIncident.status === 'reported'
+            ? 'investigating'
+            : selectedIncident.status,
       }
 
       const updatedIncident = await safetyIncidentService.updateIncident(
@@ -187,9 +207,11 @@ export default function IncidentWorkflowManager({
   }
 
   const updateIncidentInList = (updatedIncident: SafetyIncident) => {
-    setIncidents(prev => prev.map(incident => 
-      incident.id === updatedIncident.id ? updatedIncident : incident
-    ))
+    setIncidents(prev =>
+      prev.map(incident =>
+        incident.id === updatedIncident.id ? updatedIncident : incident
+      )
+    )
   }
 
   const addCorrectiveAction = () => {
@@ -197,7 +219,9 @@ export default function IncidentWorkflowManager({
   }
 
   const updateCorrectiveAction = (index: number, value: string) => {
-    setCorrectiveActions(prev => prev.map((action, i) => i === index ? value : action))
+    setCorrectiveActions(prev =>
+      prev.map((action, i) => (i === index ? value : action))
+    )
   }
 
   const removeCorrectiveAction = (index: number) => {
@@ -209,7 +233,9 @@ export default function IncidentWorkflowManager({
   }
 
   const updatePreventiveMeasure = (index: number, value: string) => {
-    setPreventiveMeasures(prev => prev.map((measure, i) => i === index ? value : measure))
+    setPreventiveMeasures(prev =>
+      prev.map((measure, i) => (i === index ? value : measure))
+    )
   }
 
   const removePreventiveMeasure = (index: number) => {
@@ -218,19 +244,27 @@ export default function IncidentWorkflowManager({
 
   const getStatusColor = (status: SafetyIncident['status']) => {
     switch (status) {
-      case 'reported': return 'bg-blue-100 text-blue-800'
-      case 'investigating': return 'bg-orange-100 text-orange-800'
-      case 'resolved': return 'bg-green-100 text-green-800'
-      case 'closed': return 'bg-gray-100 text-gray-800'
+      case 'reported':
+        return 'bg-blue-100 text-blue-800'
+      case 'investigating':
+        return 'bg-orange-100 text-orange-800'
+      case 'resolved':
+        return 'bg-green-100 text-green-800'
+      case 'closed':
+        return 'bg-gray-100 text-gray-800'
     }
   }
 
   const getSeverityColor = (severity: SafetyIncident['severity']) => {
     switch (severity) {
-      case 'low': return 'bg-green-100 text-green-800'
-      case 'medium': return 'bg-yellow-100 text-yellow-800'
-      case 'high': return 'bg-orange-100 text-orange-800'
-      case 'critical': return 'bg-red-100 text-red-800'
+      case 'low':
+        return 'bg-green-100 text-green-800'
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'high':
+        return 'bg-orange-100 text-orange-800'
+      case 'critical':
+        return 'bg-red-100 text-red-800'
     }
   }
 
@@ -238,21 +272,45 @@ export default function IncidentWorkflowManager({
     switch (status) {
       case 'reported':
         return [
-          { label: 'Start Investigation', action: () => handleStatusUpdate('investigating'), color: 'bg-orange-600' },
-          { label: 'Mark Resolved', action: () => handleStatusUpdate('resolved'), color: 'bg-green-600' }
+          {
+            label: 'Start Investigation',
+            action: () => handleStatusUpdate('investigating'),
+            color: 'bg-orange-600',
+          },
+          {
+            label: 'Mark Resolved',
+            action: () => handleStatusUpdate('resolved'),
+            color: 'bg-green-600',
+          },
         ]
       case 'investigating':
         return [
-          { label: 'Mark Resolved', action: () => handleStatusUpdate('resolved'), color: 'bg-green-600' }
+          {
+            label: 'Mark Resolved',
+            action: () => handleStatusUpdate('resolved'),
+            color: 'bg-green-600',
+          },
         ]
       case 'resolved':
         return [
-          { label: 'Close Incident', action: () => handleStatusUpdate('closed'), color: 'bg-gray-600' },
-          { label: 'Reopen Investigation', action: () => handleStatusUpdate('investigating'), color: 'bg-orange-600' }
+          {
+            label: 'Close Incident',
+            action: () => handleStatusUpdate('closed'),
+            color: 'bg-gray-600',
+          },
+          {
+            label: 'Reopen Investigation',
+            action: () => handleStatusUpdate('investigating'),
+            color: 'bg-orange-600',
+          },
         ]
       case 'closed':
         return [
-          { label: 'Reopen', action: () => handleStatusUpdate('investigating'), color: 'bg-orange-600' }
+          {
+            label: 'Reopen',
+            action: () => handleStatusUpdate('investigating'),
+            color: 'bg-orange-600',
+          },
         ]
     }
   }
@@ -273,11 +331,11 @@ export default function IncidentWorkflowManager({
           <AlertTriangle className="h-6 w-6 text-orange-600" />
           <h2 className="text-2xl font-bold">Incident Workflow Management</h2>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as any)}
+            onChange={e => setFilterStatus(e.target.value as any)}
             className="input-construction text-sm"
           >
             <option value="all">All Status</option>
@@ -286,10 +344,10 @@ export default function IncidentWorkflowManager({
             <option value="resolved">Resolved</option>
             <option value="closed">Closed</option>
           </select>
-          
+
           <select
             value={filterSeverity}
-            onChange={(e) => setFilterSeverity(e.target.value as any)}
+            onChange={e => setFilterSeverity(e.target.value as any)}
             className="input-construction text-sm"
           >
             <option value="all">All Severity</option>
@@ -309,7 +367,7 @@ export default function IncidentWorkflowManager({
               <h3 className="font-semibold">Incidents ({incidents.length})</h3>
               <Filter className="h-4 w-4 text-gray-400" />
             </div>
-            
+
             <div className="max-h-96 overflow-y-auto">
               {incidents.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
@@ -318,7 +376,7 @@ export default function IncidentWorkflowManager({
                 </div>
               ) : (
                 <div className="divide-y divide-gray-200">
-                  {incidents.map((incident) => (
+                  {incidents.map(incident => (
                     <div
                       key={incident.id}
                       onClick={() => {
@@ -326,7 +384,9 @@ export default function IncidentWorkflowManager({
                         populateWorkflowForm(incident)
                       }}
                       className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
-                        selectedIncident?.id === incident.id ? 'bg-blue-50 border-r-2 border-blue-500' : ''
+                        selectedIncident?.id === incident.id
+                          ? 'bg-blue-50 border-r-2 border-blue-500'
+                          : ''
                       }`}
                     >
                       <div className="flex items-start justify-between mb-2">
@@ -334,15 +394,19 @@ export default function IncidentWorkflowManager({
                           {incident.title}
                         </h4>
                         <div className="flex flex-col gap-1 ml-2">
-                          <span className={`px-2 py-1 text-xs font-medium rounded ${getSeverityColor(incident.severity)}`}>
+                          <span
+                            className={`px-2 py-1 text-xs font-medium rounded ${getSeverityColor(incident.severity)}`}
+                          >
                             {incident.severity.toUpperCase()}
                           </span>
-                          <span className={`px-2 py-1 text-xs font-medium rounded ${getStatusColor(incident.status)}`}>
+                          <span
+                            className={`px-2 py-1 text-xs font-medium rounded ${getStatusColor(incident.status)}`}
+                          >
                             {incident.status.replace('_', ' ').toUpperCase()}
                           </span>
                         </div>
                       </div>
-                      
+
                       <div className="text-xs text-gray-500 space-y-1">
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
@@ -376,39 +440,57 @@ export default function IncidentWorkflowManager({
                 <div className="flex items-start justify-between p-6 border-b border-gray-200">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-gray-900">{selectedIncident.title}</h3>
-                      <span className={`px-3 py-1 text-sm font-medium rounded ${getSeverityColor(selectedIncident.severity)}`}>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        {selectedIncident.title}
+                      </h3>
+                      <span
+                        className={`px-3 py-1 text-sm font-medium rounded ${getSeverityColor(selectedIncident.severity)}`}
+                      >
                         {selectedIncident.severity.toUpperCase()}
                       </span>
-                      <span className={`px-3 py-1 text-sm font-medium rounded ${getStatusColor(selectedIncident.status)}`}>
-                        {selectedIncident.status.replace('_', ' ').toUpperCase()}
+                      <span
+                        className={`px-3 py-1 text-sm font-medium rounded ${getStatusColor(selectedIncident.status)}`}
+                      >
+                        {selectedIncident.status
+                          .replace('_', ' ')
+                          .toUpperCase()}
                       </span>
                     </div>
-                    
-                    <p className="text-gray-700 mb-4">{selectedIncident.description}</p>
-                    
+
+                    <p className="text-gray-700 mb-4">
+                      {selectedIncident.description}
+                    </p>
+
                     <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
                       <div>
-                        <span className="font-medium">Project:</span> {selectedIncident.projectName}
+                        <span className="font-medium">Project:</span>{' '}
+                        {selectedIncident.projectName}
                       </div>
                       <div>
-                        <span className="font-medium">Location:</span> {selectedIncident.location.area}
+                        <span className="font-medium">Location:</span>{' '}
+                        {selectedIncident.location.area}
                       </div>
                       <div>
-                        <span className="font-medium">Reported by:</span> {selectedIncident.reportedBy.name}
+                        <span className="font-medium">Reported by:</span>{' '}
+                        {selectedIncident.reportedBy.name}
                       </div>
                       <div>
-                        <span className="font-medium">Date:</span> {selectedIncident.datetime.toLocaleString()}
+                        <span className="font-medium">Date:</span>{' '}
+                        {selectedIncident.datetime.toLocaleString()}
                       </div>
                       <div>
-                        <span className="font-medium">Risk Score:</span> {selectedIncident.riskScore}/100
+                        <span className="font-medium">Risk Score:</span>{' '}
+                        {selectedIncident.riskScore}/100
                       </div>
                       <div>
-                        <span className="font-medium">Follow-up:</span> {selectedIncident.followUpRequired ? 'Required' : 'Not required'}
+                        <span className="font-medium">Follow-up:</span>{' '}
+                        {selectedIncident.followUpRequired
+                          ? 'Required'
+                          : 'Not required'}
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-2 ml-4">
                     <Button variant="outline" size="sm">
                       <Eye className="h-4 w-4 mr-1" />
@@ -425,16 +507,18 @@ export default function IncidentWorkflowManager({
                 <div className="p-6">
                   <h4 className="font-semibold mb-3">Workflow Actions</h4>
                   <div className="flex gap-3">
-                    {getWorkflowActions(selectedIncident.status).map((action, index) => (
-                      <Button
-                        key={index}
-                        onClick={action.action}
-                        disabled={isUpdating}
-                        className={`text-white ${action.color} hover:opacity-90`}
-                      >
-                        {action.label}
-                      </Button>
-                    ))}
+                    {getWorkflowActions(selectedIncident.status).map(
+                      (action, index) => (
+                        <Button
+                          key={index}
+                          onClick={action.action}
+                          disabled={isUpdating}
+                          className={`text-white ${action.color} hover:opacity-90`}
+                        >
+                          {action.label}
+                        </Button>
+                      )
+                    )}
                   </div>
                 </div>
               </div>
@@ -446,27 +530,29 @@ export default function IncidentWorkflowManager({
                     <User className="h-5 w-5" />
                     Assignment
                   </h4>
-                  
+
                   <div className="flex gap-3">
                     <input
                       type="text"
                       value={assignToUser}
-                      onChange={(e) => setAssignToUser(e.target.value)}
+                      onChange={e => setAssignToUser(e.target.value)}
                       placeholder="Assign to team member..."
                       className="input-construction flex-1"
                     />
-                    <Button 
+                    <Button
                       onClick={handleAssignIncident}
                       disabled={isUpdating || !assignToUser.trim()}
                     >
                       Assign
                     </Button>
                   </div>
-                  
+
                   {selectedIncident.assignedTo && (
                     <div className="mt-3 p-3 bg-blue-50 rounded-lg">
                       <p className="text-sm text-blue-800">
-                        Currently assigned to: <strong>{selectedIncident.assignedTo.name}</strong> ({selectedIncident.assignedTo.role})
+                        Currently assigned to:{' '}
+                        <strong>{selectedIncident.assignedTo.name}</strong> (
+                        {selectedIncident.assignedTo.role})
                       </p>
                     </div>
                   )}
@@ -480,7 +566,7 @@ export default function IncidentWorkflowManager({
                     <FileText className="h-5 w-5" />
                     Investigation & Resolution
                   </h4>
-                  
+
                   <div className="space-y-4">
                     {/* Root Cause Analysis */}
                     <div>
@@ -489,12 +575,12 @@ export default function IncidentWorkflowManager({
                       </label>
                       <textarea
                         value={rootCauseAnalysis}
-                        onChange={(e) => setRootCauseAnalysis(e.target.value)}
+                        onChange={e => setRootCauseAnalysis(e.target.value)}
                         className="input-construction w-full h-20"
                         placeholder="Identify the root cause of this incident..."
                       />
                     </div>
-                    
+
                     {/* Corrective Actions */}
                     <div>
                       <div className="flex items-center justify-between mb-2">
@@ -510,13 +596,15 @@ export default function IncidentWorkflowManager({
                           Add Action
                         </Button>
                       </div>
-                      
+
                       {correctiveActions.map((action, index) => (
                         <div key={index} className="flex gap-2 mb-2">
                           <input
                             type="text"
                             value={action}
-                            onChange={(e) => updateCorrectiveAction(index, e.target.value)}
+                            onChange={e =>
+                              updateCorrectiveAction(index, e.target.value)
+                            }
                             className="input-construction flex-1"
                             placeholder="Describe corrective action..."
                           />
@@ -533,7 +621,7 @@ export default function IncidentWorkflowManager({
                         </div>
                       ))}
                     </div>
-                    
+
                     {/* Preventive Measures */}
                     <div>
                       <div className="flex items-center justify-between mb-2">
@@ -549,13 +637,15 @@ export default function IncidentWorkflowManager({
                           Add Measure
                         </Button>
                       </div>
-                      
+
                       {preventiveMeasures.map((measure, index) => (
                         <div key={index} className="flex gap-2 mb-2">
                           <input
                             type="text"
                             value={measure}
-                            onChange={(e) => updatePreventiveMeasure(index, e.target.value)}
+                            onChange={e =>
+                              updatePreventiveMeasure(index, e.target.value)
+                            }
                             className="input-construction flex-1"
                             placeholder="Describe preventive measure..."
                           />
@@ -572,7 +662,7 @@ export default function IncidentWorkflowManager({
                         </div>
                       ))}
                     </div>
-                    
+
                     <div className="flex justify-end">
                       <Button
                         onClick={handleInvestigationUpdate}
@@ -587,35 +677,47 @@ export default function IncidentWorkflowManager({
               </div>
 
               {/* People Involved & Actions Taken */}
-              {(selectedIncident.peopleInvolved.length > 0 || selectedIncident.immediateActions) && (
+              {(selectedIncident.peopleInvolved.length > 0 ||
+                selectedIncident.immediateActions) && (
                 <div className="card-construction">
                   <div className="p-6">
                     <h4 className="font-semibold mb-4">Incident Details</h4>
-                    
+
                     {selectedIncident.peopleInvolved.length > 0 && (
                       <div className="mb-4">
                         <h5 className="font-medium mb-2">People Involved</h5>
                         <div className="space-y-2">
-                          {selectedIncident.peopleInvolved.map((person, index) => (
-                            <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                              <div>
-                                <span className="font-medium">{person.name}</span>
-                                <span className="text-sm text-gray-600 ml-2">({person.role})</span>
+                          {selectedIncident.peopleInvolved.map(
+                            (person, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                              >
+                                <div>
+                                  <span className="font-medium">
+                                    {person.name}
+                                  </span>
+                                  <span className="text-sm text-gray-600 ml-2">
+                                    ({person.role})
+                                  </span>
+                                </div>
+                                {person.medicalAttention && (
+                                  <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded">
+                                    Medical Attention
+                                  </span>
+                                )}
                               </div>
-                              {person.medicalAttention && (
-                                <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded">
-                                  Medical Attention
-                                </span>
-                              )}
-                            </div>
-                          ))}
+                            )
+                          )}
                         </div>
                       </div>
                     )}
-                    
+
                     {selectedIncident.immediateActions && (
                       <div>
-                        <h5 className="font-medium mb-2">Immediate Actions Taken</h5>
+                        <h5 className="font-medium mb-2">
+                          Immediate Actions Taken
+                        </h5>
                         <p className="text-gray-700 bg-gray-50 p-3 rounded">
                           {selectedIncident.immediateActions}
                         </p>
@@ -629,8 +731,13 @@ export default function IncidentWorkflowManager({
             <div className="card-construction">
               <div className="p-8 text-center text-gray-500">
                 <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-medium mb-2">No Incident Selected</h3>
-                <p>Select an incident from the list to view details and manage workflow</p>
+                <h3 className="text-lg font-medium mb-2">
+                  No Incident Selected
+                </h3>
+                <p>
+                  Select an incident from the list to view details and manage
+                  workflow
+                </p>
               </div>
             </div>
           )}

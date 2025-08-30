@@ -1,7 +1,15 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Users, MessageCircle, Settings, Globe, AtSign, Bell, Camera } from 'lucide-react'
+import {
+  Users,
+  MessageCircle,
+  Settings,
+  Globe,
+  AtSign,
+  Bell,
+  Camera,
+} from 'lucide-react'
 import TeamChat from '@/components/TeamChat'
 import Comments from '@/components/Comments'
 import NotificationBell from '@/components/NotificationBell'
@@ -17,12 +25,13 @@ interface Project {
 // Demo data for communication features
 const demoMedia = {
   id: 'demo-media-1',
-  fileUrl: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=2000',
+  fileUrl:
+    'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=2000',
   mediaType: 'PHOTO' as const,
   project: {
     id: 'demo-project-1',
-    name: 'Downtown Tower Construction'
-  }
+    name: 'Downtown Tower Construction',
+  },
 }
 
 const demoProjectMembers = [
@@ -31,7 +40,7 @@ const demoProjectMembers = [
   { id: '3', name: 'Sarah Safety', role: 'SAFETY_INSPECTOR' },
   { id: '4', name: 'Tom Manager', role: 'PROJECT_MANAGER' },
   { id: '5', name: 'Carlos Constructor', role: 'STEEL_ERECTOR' },
-  { id: '6', name: 'Maria Engineer', role: 'ADMIN' }
+  { id: '6', name: 'Maria Engineer', role: 'ADMIN' },
 ]
 
 export default function ChatPage() {
@@ -46,9 +55,11 @@ export default function ChatPage() {
       try {
         const projectsData = await api.get('/projects')
         setProjects(projectsData.data || [])
-        
+
         // Select first active project by default
-        const activeProject = projectsData.data?.find((p: Project) => p.status === 'ACTIVE')
+        const activeProject = projectsData.data?.find(
+          (p: Project) => p.status === 'ACTIVE'
+        )
         if (activeProject) {
           setSelectedProject(activeProject.id)
           setShowCompanyChat(false)
@@ -59,7 +70,7 @@ export default function ChatPage() {
         const mockProjects = [
           { id: 'company-general', name: 'Company General', status: 'ACTIVE' },
           { id: '1', name: 'Denver Convention Center', status: 'ACTIVE' },
-          { id: '2', name: 'Boulder Tech Campus', status: 'PLANNING' }
+          { id: '2', name: 'Boulder Tech Campus', status: 'PLANNING' },
         ]
         setProjects(mockProjects)
         setSelectedProject('company-general')
@@ -89,12 +100,16 @@ export default function ChatPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <MessageCircle className="h-6 w-6 text-safety-orange" />
-            <h1 className="text-xl font-shogun text-white">Team Communication</h1>
+            <h1 className="text-xl font-shogun text-white">
+              Team Communication
+            </h1>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <Globe className="h-4 w-4 text-aisc-blue" />
-              <span className="text-sm text-gray-400">Auto-Translation Enabled</span>
+              <span className="text-sm text-gray-400">
+                Auto-Translation Enabled
+              </span>
             </div>
             <NotificationBell />
           </div>
@@ -107,22 +122,32 @@ export default function ChatPage() {
           <div className="flex items-center gap-3">
             <Globe className="h-8 w-8 text-safety-orange" />
             <div>
-              <h3 className="font-medium text-white text-sm">Auto-Translation</h3>
-              <p className="text-xs text-gray-400">Messages translated to your language</p>
+              <h3 className="font-medium text-white text-sm">
+                Auto-Translation
+              </h3>
+              <p className="text-xs text-gray-400">
+                Messages translated to your language
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <AtSign className="h-8 w-8 text-safety-orange" />
             <div>
               <h3 className="font-medium text-white text-sm">@Mentions</h3>
-              <p className="text-xs text-gray-400">Tag team members for urgent messages</p>
+              <p className="text-xs text-gray-400">
+                Tag team members for urgent messages
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Bell className="h-8 w-8 text-safety-orange" />
             <div>
-              <h3 className="font-medium text-white text-sm">Smart Notifications</h3>
-              <p className="text-xs text-gray-400">Get notified of mentions and replies</p>
+              <h3 className="font-medium text-white text-sm">
+                Smart Notifications
+              </h3>
+              <p className="text-xs text-gray-400">
+                Get notified of mentions and replies
+              </p>
             </div>
           </div>
         </div>
@@ -165,7 +190,7 @@ export default function ChatPage() {
               Chat Rooms
             </h2>
           </div>
-          
+
           <div className="flex-1 overflow-y-auto">
             {/* Company-wide chat option */}
             <button
@@ -174,8 +199,8 @@ export default function ChatPage() {
                 setSelectedProject('company-general')
               }}
               className={`w-full p-3 text-left hover:bg-gray-700 transition-colors border-b border-gray-700 ${
-                showCompanyChat && selectedProject === 'company-general' 
-                  ? 'bg-safety-orange/10 border-l-2 border-l-safety-orange' 
+                showCompanyChat && selectedProject === 'company-general'
+                  ? 'bg-safety-orange/10 border-l-2 border-l-safety-orange'
                   : ''
               }`}
             >
@@ -189,39 +214,43 @@ export default function ChatPage() {
             </button>
 
             {/* Project-specific chats */}
-            {projects.filter(p => p.id !== 'company-general').map((project) => (
-              <button
-                key={project.id}
-                onClick={() => {
-                  setSelectedProject(project.id)
-                  setShowCompanyChat(false)
-                }}
-                className={`w-full p-3 text-left hover:bg-gray-700 transition-colors border-b border-gray-700 ${
-                  !showCompanyChat && selectedProject === project.id 
-                    ? 'bg-safety-orange/10 border-l-2 border-l-safety-orange' 
-                    : ''
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${
-                    project.status === 'ACTIVE' ? 'bg-green-500' : 'bg-yellow-500'
-                  }`}></div>
-                  <div>
-                    <p className="text-white font-medium">{project.name}</p>
-                    <p className="text-xs text-gray-400 capitalize">{project.status}</p>
+            {projects
+              .filter(p => p.id !== 'company-general')
+              .map(project => (
+                <button
+                  key={project.id}
+                  onClick={() => {
+                    setSelectedProject(project.id)
+                    setShowCompanyChat(false)
+                  }}
+                  className={`w-full p-3 text-left hover:bg-gray-700 transition-colors border-b border-gray-700 ${
+                    !showCompanyChat && selectedProject === project.id
+                      ? 'bg-safety-orange/10 border-l-2 border-l-safety-orange'
+                      : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        project.status === 'ACTIVE'
+                          ? 'bg-green-500'
+                          : 'bg-yellow-500'
+                      }`}
+                    ></div>
+                    <div>
+                      <p className="text-white font-medium">{project.name}</p>
+                      <p className="text-xs text-gray-400 capitalize">
+                        {project.status}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              ))}
           </div>
 
           {/* Chat Settings */}
           <div className="p-4 border-t border-gray-700">
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-            >
+            <Button variant="outline" size="sm" className="w-full">
               <Settings className="h-4 w-4 mr-2" />
               Chat Settings
             </Button>
@@ -233,10 +262,10 @@ export default function ChatPage() {
           {activeTab === 'chat' ? (
             // Team Chat View
             selectedProject ? (
-              <TeamChat 
+              <TeamChat
                 projectId={selectedProject}
                 projectName={
-                  selectedProject === 'company-general' 
+                  selectedProject === 'company-general'
                     ? 'Company General Chat'
                     : projects.find(p => p.id === selectedProject)?.name
                 }
@@ -261,14 +290,18 @@ export default function ChatPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Photo Preview */}
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-4">Construction Photo</h3>
+                    <h3 className="text-lg font-semibold text-white mb-4">
+                      Construction Photo
+                    </h3>
                     <img
                       src={demoMedia.fileUrl}
                       alt="Construction site"
                       className="w-full rounded-lg shadow-lg"
                     />
                     <div className="mt-4 p-4 bg-gray-800 rounded-lg">
-                      <h4 className="font-medium text-white mb-2">Photo Comment Features:</h4>
+                      <h4 className="font-medium text-white mb-2">
+                        Photo Comment Features:
+                      </h4>
                       <ul className="space-y-2 text-sm text-gray-400">
                         <li>• Type @ to mention team members</li>
                         <li>• Add reactions to comments (👍 ❤️ ❓ ✓)</li>
@@ -281,7 +314,7 @@ export default function ChatPage() {
 
                   {/* Comments Section */}
                   <div>
-                    <Comments 
+                    <Comments
                       mediaId={demoMedia.id}
                       projectMembers={demoProjectMembers}
                     />

@@ -5,7 +5,20 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/Button'
 import { authApi } from '@/lib/api'
-import { Shield, Mail, Lock, User, Phone, AlertTriangle, Loader2, CheckCircle, Users, HardHat, Zap, Wrench } from 'lucide-react'
+import {
+  Shield,
+  Mail,
+  Lock,
+  User,
+  Phone,
+  AlertTriangle,
+  Loader2,
+  CheckCircle,
+  Users,
+  HardHat,
+  Zap,
+  Wrench,
+} from 'lucide-react'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -16,53 +29,63 @@ export default function RegisterPage() {
     name: '',
     phoneNumber: '',
     role: 'WORKER',
-    unionMember: false
+    unionMember: false,
   })
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
-  
+
   // Password strength calculation
   const calculatePasswordStrength = (password: string) => {
     let score = 0
     const feedback = []
-    
+
     if (password.length >= 8) score += 1
     else feedback.push('At least 8 characters')
-    
+
     if (/[a-z]/.test(password)) score += 1
     else feedback.push('Lowercase letter')
-    
+
     if (/[A-Z]/.test(password)) score += 1
     else feedback.push('Uppercase letter')
-    
+
     if (/[0-9]/.test(password)) score += 1
     else feedback.push('Number')
-    
+
     if (/[^A-Za-z0-9]/.test(password)) score += 1
     else feedback.push('Special character')
-    
+
     return { score, feedback }
   }
-  
+
   const passwordStrength = calculatePasswordStrength(formData.password)
   const strengthLabels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong']
-  const strengthColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-blue-500', 'bg-green-500']
-  
+  const strengthColors = [
+    'bg-red-500',
+    'bg-orange-500',
+    'bg-yellow-500',
+    'bg-blue-500',
+    'bg-green-500',
+  ]
+
   // Calculate form completion progress
   const calculateFormProgress = () => {
     const requiredFields = ['name', 'email', 'password', 'confirmPassword']
-    const completedFields = requiredFields.filter(field => formData[field as keyof typeof formData])
+    const completedFields = requiredFields.filter(
+      field => formData[field as keyof typeof formData]
+    )
     return Math.round((completedFields.length / requiredFields.length) * 100)
   }
-  
+
   const formProgress = calculateFormProgress()
-  
+
   // Real-time field validation
   const validateField = (field: string, value: string) => {
     switch (field) {
       case 'email':
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : 'Please enter a valid email address'
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+          ? ''
+          : 'Please enter a valid email address'
       case 'name':
         return value.length >= 2 ? '' : 'Name must be at least 2 characters'
       case 'password':
@@ -77,19 +100,19 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    
+
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
       return
     }
-    
+
     // Validate password strength
     if (formData.password.length < 8) {
       setError('Password must be at least 8 characters long')
       return
     }
-    
+
     setIsLoading(true)
 
     try {
@@ -99,37 +122,47 @@ export default function RegisterPage() {
         name: formData.name,
         phoneNumber: formData.phoneNumber || undefined,
         role: formData.role,
-        unionMember: formData.unionMember
+        unionMember: formData.unionMember,
       })
-      
+
       setShowSuccess(true)
       setTimeout(() => {
         router.push('/login')
       }, 2000)
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Registration failed. Please try again.')
+      setError(
+        err.response?.data?.error || 'Registration failed. Please try again.'
+      )
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value, type } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+      [name]:
+        type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
     }))
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row" style={{ backgroundColor: '#0a0a0a' }}>
+    <div
+      className="min-h-screen flex flex-col lg:flex-row"
+      style={{ backgroundColor: '#0a0a0a' }}
+    >
       {/* Left side - Form */}
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
         <div className="w-full max-w-md space-y-8">
           {/* Logo */}
           <div className="text-center">
             <Users className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
-            <h1 className="text-3xl font-shogun text-yellow-400">Join Iron Task</h1>
+            <h1 className="text-3xl font-shogun text-yellow-400">
+              Join Iron Task
+            </h1>
             <p className="mt-2 text-sm text-gray-400">
               Create your account to start documenting projects
             </p>
@@ -144,7 +177,7 @@ export default function RegisterPage() {
                   <span>No credit card required</span>
                 </div>
               </div>
-              
+
               {/* Form Progress Indicator */}
               <div className="w-full max-w-xs mx-auto">
                 <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
@@ -152,7 +185,7 @@ export default function RegisterPage() {
                   <span>{formProgress}%</span>
                 </div>
                 <div className="w-full bg-gray-700 rounded-full h-2">
-                  <div 
+                  <div
                     className="bg-gradient-to-r from-orange-500 to-yellow-400 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${formProgress}%` }}
                   ></div>
@@ -169,11 +202,15 @@ export default function RegisterPage() {
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   <span className="text-green-400">Live</span>
                 </div>
-                <span className="text-gray-300">Join <span className="font-bold text-orange-500">50+</span> construction professionals</span>
+                <span className="text-gray-300">
+                  Join <span className="font-bold text-orange-500">50+</span>{' '}
+                  construction professionals
+                </span>
               </div>
-              
+
               <div className="text-xs text-gray-400">
-                <span className="font-medium text-yellow-400">12 people</span> signed up in the last hour
+                <span className="font-medium text-yellow-400">12 people</span>{' '}
+                signed up in the last hour
               </div>
             </div>
           </div>
@@ -181,7 +218,9 @@ export default function RegisterPage() {
           {showSuccess ? (
             <div className="brushed-metal rounded-lg shadow-2xl p-8 text-center space-y-4">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-              <h2 className="text-2xl font-shogun text-white">Registration Successful!</h2>
+              <h2 className="text-2xl font-shogun text-white">
+                Registration Successful!
+              </h2>
               <p className="text-gray-400">Redirecting you to sign in...</p>
               <Zap className="h-12 w-12 text-yellow-400 mx-auto animate-pulse" />
             </div>
@@ -190,7 +229,10 @@ export default function RegisterPage() {
               <form className="space-y-4" onSubmit={handleSubmit}>
                 {/* Name */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
                     Full Name
                   </label>
                   <div className="relative">
@@ -209,20 +251,25 @@ export default function RegisterPage() {
                         formData.name && validateField('name', formData.name)
                           ? 'border-red-500 focus:ring-red-500'
                           : formData.name
-                          ? 'border-green-500 focus:ring-green-500'
-                          : 'border-gray-700 focus:ring-orange-500'
+                            ? 'border-green-500 focus:ring-green-500'
+                            : 'border-gray-700 focus:ring-orange-500'
                       }`}
                       placeholder="John Steel"
                     />
                     {formData.name && validateField('name', formData.name) && (
-                      <p className="mt-1 text-xs text-red-400">{validateField('name', formData.name)}</p>
+                      <p className="mt-1 text-xs text-red-400">
+                        {validateField('name', formData.name)}
+                      </p>
                     )}
                   </div>
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
                     Email Address
                   </label>
                   <div className="relative">
@@ -241,20 +288,26 @@ export default function RegisterPage() {
                         formData.email && validateField('email', formData.email)
                           ? 'border-red-500 focus:ring-red-500'
                           : formData.email
-                          ? 'border-green-500 focus:ring-green-500'
-                          : 'border-gray-700 focus:ring-orange-500'
+                            ? 'border-green-500 focus:ring-green-500'
+                            : 'border-gray-700 focus:ring-orange-500'
                       }`}
                       placeholder="john@construction-company.com"
                     />
-                    {formData.email && validateField('email', formData.email) && (
-                      <p className="mt-1 text-xs text-red-400">{validateField('email', formData.email)}</p>
-                    )}
+                    {formData.email &&
+                      validateField('email', formData.email) && (
+                        <p className="mt-1 text-xs text-red-400">
+                          {validateField('email', formData.email)}
+                        </p>
+                      )}
                   </div>
                 </div>
 
                 {/* Phone */}
                 <div>
-                  <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label
+                    htmlFor="phoneNumber"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
                     Phone Number (Optional)
                   </label>
                   <div className="relative">
@@ -276,7 +329,10 @@ export default function RegisterPage() {
 
                 {/* Role */}
                 <div>
-                  <label htmlFor="role" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label
+                    htmlFor="role"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
                     Role
                   </label>
                   <select
@@ -294,7 +350,10 @@ export default function RegisterPage() {
 
                 {/* Password */}
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
                     Password
                   </label>
                   <div className="relative">
@@ -310,18 +369,19 @@ export default function RegisterPage() {
                       value={formData.password}
                       onChange={handleChange}
                       className={`w-full pl-10 pr-3 py-3 bg-gray-800 border rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:border-transparent transition-all ${
-                        formData.password && validateField('password', formData.password)
+                        formData.password &&
+                        validateField('password', formData.password)
                           ? 'border-red-500 focus:ring-red-500'
                           : formData.password && passwordStrength.score >= 3
-                          ? 'border-green-500 focus:ring-green-500'
-                          : formData.password
-                          ? 'border-yellow-500 focus:ring-yellow-500'
-                          : 'border-gray-700 focus:ring-orange-500'
+                            ? 'border-green-500 focus:ring-green-500'
+                            : formData.password
+                              ? 'border-yellow-500 focus:ring-yellow-500'
+                              : 'border-gray-700 focus:ring-orange-500'
                       }`}
                       placeholder="Create a strong password"
                     />
                   </div>
-                  
+
                   {/* Password Strength Indicator */}
                   {formData.password && (
                     <div className="mt-2 space-y-2">
@@ -331,19 +391,24 @@ export default function RegisterPage() {
                             <div
                               key={i}
                               className={`h-1 flex-1 rounded ${
-                                i < passwordStrength.score 
-                                  ? strengthColors[passwordStrength.score - 1] 
+                                i < passwordStrength.score
+                                  ? strengthColors[passwordStrength.score - 1]
                                   : 'bg-gray-600'
                               }`}
                             />
                           ))}
                         </div>
-                        <span className={`text-xs font-medium ${
-                          passwordStrength.score <= 2 ? 'text-red-400' :
-                          passwordStrength.score <= 3 ? 'text-yellow-400' :
-                          'text-green-400'
-                        }`}>
-                          {strengthLabels[passwordStrength.score - 1] || 'Very Weak'}
+                        <span
+                          className={`text-xs font-medium ${
+                            passwordStrength.score <= 2
+                              ? 'text-red-400'
+                              : passwordStrength.score <= 3
+                                ? 'text-yellow-400'
+                                : 'text-green-400'
+                          }`}
+                        >
+                          {strengthLabels[passwordStrength.score - 1] ||
+                            'Very Weak'}
                         </span>
                       </div>
                       {passwordStrength.feedback.length > 0 && (
@@ -357,7 +422,10 @@ export default function RegisterPage() {
 
                 {/* Confirm Password */}
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-sm font-medium text-gray-300 mb-2"
+                  >
                     Confirm Password
                   </label>
                   <div className="relative">
@@ -373,19 +441,33 @@ export default function RegisterPage() {
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       className={`w-full pl-10 pr-3 py-3 bg-gray-800 border rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:border-transparent transition-all ${
-                        formData.confirmPassword && validateField('confirmPassword', formData.confirmPassword)
+                        formData.confirmPassword &&
+                        validateField(
+                          'confirmPassword',
+                          formData.confirmPassword
+                        )
                           ? 'border-red-500 focus:ring-red-500'
-                          : formData.confirmPassword && formData.confirmPassword === formData.password
-                          ? 'border-green-500 focus:ring-green-500'
-                          : formData.confirmPassword
-                          ? 'border-yellow-500 focus:ring-yellow-500'
-                          : 'border-gray-700 focus:ring-orange-500'
+                          : formData.confirmPassword &&
+                              formData.confirmPassword === formData.password
+                            ? 'border-green-500 focus:ring-green-500'
+                            : formData.confirmPassword
+                              ? 'border-yellow-500 focus:ring-yellow-500'
+                              : 'border-gray-700 focus:ring-orange-500'
                       }`}
                       placeholder="Confirm your password"
                     />
-                    {formData.confirmPassword && validateField('confirmPassword', formData.confirmPassword) && (
-                      <p className="mt-1 text-xs text-red-400">{validateField('confirmPassword', formData.confirmPassword)}</p>
-                    )}
+                    {formData.confirmPassword &&
+                      validateField(
+                        'confirmPassword',
+                        formData.confirmPassword
+                      ) && (
+                        <p className="mt-1 text-xs text-red-400">
+                          {validateField(
+                            'confirmPassword',
+                            formData.confirmPassword
+                          )}
+                        </p>
+                      )}
                   </div>
                 </div>
 
@@ -399,7 +481,10 @@ export default function RegisterPage() {
                     onChange={handleChange}
                     className="h-4 w-4 bg-gray-800 border-gray-700 rounded text-safety-orange focus:ring-safety-orange"
                   />
-                  <label htmlFor="unionMember" className="ml-2 text-sm text-gray-300">
+                  <label
+                    htmlFor="unionMember"
+                    className="ml-2 text-sm text-gray-300"
+                  >
                     I am a union member
                   </label>
                 </div>
@@ -454,7 +539,7 @@ export default function RegisterPage() {
                     </p>
                   </div>
                 </div>
-                
+
                 {/* What Happens Next Preview */}
                 <div className="bg-gray-800/30 rounded-lg p-4 space-y-3">
                   <h4 className="text-white font-semibold text-center flex items-center justify-center gap-2">
@@ -463,15 +548,23 @@ export default function RegisterPage() {
                   </h4>
                   <div className="space-y-2 text-sm text-gray-300">
                     <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold">1</div>
+                      <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                        1
+                      </div>
                       <span>Instant access to your construction dashboard</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">2</div>
-                      <span>Start documenting your first project in 2 minutes</span>
+                      <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                        2
+                      </div>
+                      <span>
+                        Start documenting your first project in 2 minutes
+                      </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">3</div>
+                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                        3
+                      </div>
                       <span>Invite your team and begin collaboration</span>
                     </div>
                   </div>
@@ -485,7 +578,7 @@ export default function RegisterPage() {
       {/* Right side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden diamond-plate">
         <div className="absolute inset-0 bg-gradient-to-bl from-black/80 via-black/60 to-transparent" />
-        
+
         {/* Animated elements */}
         <div className="absolute top-1/3 right-20 animate-spin">
           <Wrench className="h-24 w-24 text-blue-400 opacity-20" />
@@ -501,20 +594,27 @@ export default function RegisterPage() {
               Document. Track. Succeed.
             </h2>
             <p className="text-xl text-gray-300 leading-relaxed">
-              Join thousands of ironworkers documenting their projects safely and efficiently.
+              Join thousands of ironworkers documenting their projects safely
+              and efficiently.
             </p>
             <hr className="weld-seam w-48" />
-            
+
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-arc-flash-yellow">Why Join Iron Task?</h3>
+              <h3 className="text-lg font-semibold text-arc-flash-yellow">
+                Why Join Iron Task?
+              </h3>
               <ul className="space-y-3 text-gray-400">
                 <li className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-safety-green mt-0.5" />
-                  <span>Real-time project documentation and progress tracking</span>
+                  <span>
+                    Real-time project documentation and progress tracking
+                  </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-safety-green mt-0.5" />
-                  <span>OSHA compliant safety reporting and incident tracking</span>
+                  <span>
+                    OSHA compliant safety reporting and incident tracking
+                  </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-safety-green mt-0.5" />

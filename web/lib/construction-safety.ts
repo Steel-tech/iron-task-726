@@ -31,7 +31,7 @@ export class ConstructionSafety {
     return {
       activity: activityType,
       hazardLevel,
-      recommendations
+      recommendations,
     }
   }
 
@@ -40,7 +40,7 @@ export class ConstructionSafety {
       'Conduct daily safety meetings',
       'Wear hard hats and safety glasses',
       'Report unsafe conditions',
-      'Keep work areas clean'
+      'Keep work areas clean',
     ]
   }
 }

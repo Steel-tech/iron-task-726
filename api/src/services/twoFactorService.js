@@ -1,9 +1,9 @@
-const crypto = require('crypto');
-const speakeasy = require('speakeasy');
-const QRCode = require('qrcode');
-const { PrismaClient } = require('@prisma/client');
+const crypto = require('crypto')
+const speakeasy = require('speakeasy')
+const QRCode = require('qrcode')
+const { PrismaClient } = require('@prisma/client')
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 class TwoFactorService {
   /**
@@ -13,23 +13,23 @@ class TwoFactorService {
     const secret = speakeasy.generateSecret({
       name: `Iron Task 726 (${userEmail})`,
       issuer: 'Iron Task 726',
-      length: 32
-    });
+      length: 32,
+    })
 
     // Store the secret in the database (temporarily unverified)
     await prisma.user.update({
       where: { id: userId },
       data: {
         twoFactorSecret: secret.base32,
-        twoFactorEnabled: false // Not enabled until verified
-      }
-    });
+        twoFactorEnabled: false, // Not enabled until verified
+      },
+    })
 
     return {
       secret: secret.base32,
       otpauthUrl: secret.otpauth_url,
-      qrCode: await QRCode.toDataURL(secret.otpauth_url)
-    };
+      qrCode: await QRCode.toDataURL(secret.otpauth_url),
+    }
   }
 
   /**
@@ -38,43 +38,43 @@ class TwoFactorService {
   static async verifyAndEnable(userId, token) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { twoFactorSecret: true, twoFactorEnabled: true }
-    });
+      select: { twoFactorSecret: true, twoFactorEnabled: true },
+    })
 
     if (!user || !user.twoFactorSecret) {
-      throw new Error('No 2FA secret found for user');
+      throw new Error('No 2FA secret found for user')
     }
 
     const verified = speakeasy.totp.verify({
       secret: user.twoFactorSecret,
       encoding: 'base32',
       token: token,
-      window: 1 // Allow 1 step (30 seconds) tolerance
-    });
+      window: 1, // Allow 1 step (30 seconds) tolerance
+    })
 
     if (!verified) {
-      throw new Error('Invalid 2FA token');
+      throw new Error('Invalid 2FA token')
     }
 
     // Generate backup codes
-    const backupCodes = this.generateBackupCodes();
-    const hashedBackupCodes = backupCodes.map(code => 
+    const backupCodes = this.generateBackupCodes()
+    const hashedBackupCodes = backupCodes.map(code =>
       crypto.createHash('sha256').update(code).digest('hex')
-    );
+    )
 
     // Enable 2FA and store backup codes
     await prisma.user.update({
       where: { id: userId },
       data: {
         twoFactorEnabled: true,
-        twoFactorBackupCodes: hashedBackupCodes
-      }
-    });
+        twoFactorBackupCodes: hashedBackupCodes,
+      },
+    })
 
     return {
       success: true,
-      backupCodes // Return plain codes to user (only shown once)
-    };
+      backupCodes, // Return plain codes to user (only shown once)
+    }
   }
 
   /**
@@ -83,15 +83,15 @@ class TwoFactorService {
   static async verifyToken(userId, token) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { 
-        twoFactorSecret: true, 
+      select: {
+        twoFactorSecret: true,
         twoFactorEnabled: true,
-        twoFactorBackupCodes: true
-      }
-    });
+        twoFactorBackupCodes: true,
+      },
+    })
 
     if (!user || !user.twoFactorEnabled || !user.twoFactorSecret) {
-      throw new Error('2FA not enabled for user');
+      throw new Error('2FA not enabled for user')
     }
 
     // First try TOTP verification
@@ -99,37 +99,40 @@ class TwoFactorService {
       secret: user.twoFactorSecret,
       encoding: 'base32',
       token: token,
-      window: 1
-    });
+      window: 1,
+    })
 
     if (totpVerified) {
-      return { verified: true, method: 'totp' };
+      return { verified: true, method: 'totp' }
     }
 
     // If TOTP fails, check backup codes
     if (user.twoFactorBackupCodes && user.twoFactorBackupCodes.length > 0) {
-      const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-      const backupCodeIndex = user.twoFactorBackupCodes.indexOf(hashedToken);
+      const hashedToken = crypto
+        .createHash('sha256')
+        .update(token)
+        .digest('hex')
+      const backupCodeIndex = user.twoFactorBackupCodes.indexOf(hashedToken)
 
       if (backupCodeIndex !== -1) {
         // Remove used backup code
-        const updatedBackupCodes = [...user.twoFactorBackupCodes];
-        updatedBackupCodes.splice(backupCodeIndex, 1);
+        const updatedBackupCodes = [...user.twoFactorBackupCodes]
+        updatedBackupCodes.splice(backupCodeIndex, 1)
 
         await prisma.user.update({
           where: { id: userId },
-          data: { twoFactorBackupCodes: updatedBackupCodes }
-        });
+          data: { twoFactorBackupCodes: updatedBackupCodes },
+        })
 
-        return { 
-          verified: true, 
+        return {
+          verified: true,
           method: 'backup',
-          remainingBackupCodes: updatedBackupCodes.length
-        };
+          remainingBackupCodes: updatedBackupCodes.length,
+        }
       }
     }
 
-    throw new Error('Invalid 2FA token or backup code');
+    throw new Error('Invalid 2FA token or backup code')
   }
 
   /**
@@ -142,28 +145,28 @@ class TwoFactorService {
       data: {
         twoFactorEnabled: false,
         twoFactorSecret: null,
-        twoFactorBackupCodes: []
-      }
-    });
+        twoFactorBackupCodes: [],
+      },
+    })
 
-    return { success: true };
+    return { success: true }
   }
 
   /**
    * Generate new backup codes
    */
   static async regenerateBackupCodes(userId) {
-    const backupCodes = this.generateBackupCodes();
-    const hashedBackupCodes = backupCodes.map(code => 
+    const backupCodes = this.generateBackupCodes()
+    const hashedBackupCodes = backupCodes.map(code =>
       crypto.createHash('sha256').update(code).digest('hex')
-    );
+    )
 
     await prisma.user.update({
       where: { id: userId },
-      data: { twoFactorBackupCodes: hashedBackupCodes }
-    });
+      data: { twoFactorBackupCodes: hashedBackupCodes },
+    })
 
-    return backupCodes;
+    return backupCodes
   }
 
   /**
@@ -172,10 +175,10 @@ class TwoFactorService {
   static async isEnabled(userId) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { twoFactorEnabled: true }
-    });
+      select: { twoFactorEnabled: true },
+    })
 
-    return user?.twoFactorEnabled || false;
+    return user?.twoFactorEnabled || false
   }
 
   /**
@@ -184,30 +187,30 @@ class TwoFactorService {
   static async getStatus(userId) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { 
+      select: {
         twoFactorEnabled: true,
-        twoFactorBackupCodes: true
-      }
-    });
+        twoFactorBackupCodes: true,
+      },
+    })
 
     return {
       enabled: user?.twoFactorEnabled || false,
-      backupCodesRemaining: user?.twoFactorBackupCodes?.length || 0
-    };
+      backupCodesRemaining: user?.twoFactorBackupCodes?.length || 0,
+    }
   }
 
   /**
    * Generate random backup codes
    */
   static generateBackupCodes(count = 10) {
-    const codes = [];
+    const codes = []
     for (let i = 0; i < count; i++) {
       // Generate 8-digit codes (easier to type)
-      const code = Math.floor(10000000 + Math.random() * 90000000).toString();
-      codes.push(code);
+      const code = Math.floor(10000000 + Math.random() * 90000000).toString()
+      codes.push(code)
     }
-    return codes;
+    return codes
   }
 }
 
-module.exports = TwoFactorService;
+module.exports = TwoFactorService

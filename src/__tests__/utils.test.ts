@@ -8,7 +8,9 @@ describe('utils', () => {
     })
 
     it('handles conditional classes', () => {
-      expect(cn('base', true && 'conditional', false && 'hidden')).toBe('base conditional')
+      expect(cn('base', true && 'conditional', false && 'hidden')).toBe(
+        'base conditional'
+      )
     })
   })
 

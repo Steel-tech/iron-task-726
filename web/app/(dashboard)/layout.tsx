@@ -15,7 +15,7 @@ import {
   SparkAnimationIcon,
   CraneHookAnimationIcon,
   BoltRotationIcon,
-  PencilRulerIcon
+  PencilRulerIcon,
 } from '@/components/icons/SteelConstructionIcons'
 import { LogOut, Menu, X, Settings, MessageCircle } from 'lucide-react'
 import { authApi } from '@/lib/api'
@@ -73,7 +73,10 @@ export default function DashboardLayout({
     return (
       <div className="flex min-h-screen items-center justify-center bg-steel-gray">
         <div className="text-center">
-          <SparkAnimationIcon className="h-12 w-12 text-safety-orange mx-auto" isAnimating={true} />
+          <SparkAnimationIcon
+            className="h-12 w-12 text-safety-orange mx-auto"
+            isAnimating={true}
+          />
           <p className="mt-4 text-white">Loading...</p>
         </div>
       </div>
@@ -85,84 +88,81 @@ export default function DashboardLayout({
   }
 
   const navigation = [
-    { 
-      name: 'Dashboard', 
-      href: '/dashboard', 
+    {
+      name: 'Dashboard',
+      href: '/dashboard',
       icon: HardHatIcon,
-      hoverIcon: CraneHookAnimationIcon
+      hoverIcon: CraneHookAnimationIcon,
     },
-    { 
-      name: 'Projects', 
-      href: '/dashboard/projects', 
+    {
+      name: 'Projects',
+      href: '/dashboard/projects',
       icon: ProjectDrawingsIcon,
-      hoverIcon: BoltRotationIcon
+      hoverIcon: BoltRotationIcon,
     },
-    { 
-      name: 'Capture', 
-      href: '/dashboard/capture', 
+    {
+      name: 'Capture',
+      href: '/dashboard/capture',
       icon: WeldingTorchIcon,
-      hoverIcon: SparkAnimationIcon
+      hoverIcon: SparkAnimationIcon,
     },
-    { 
-      name: 'Media & Tags', 
-      href: '/dashboard/media', 
+    {
+      name: 'Media & Tags',
+      href: '/dashboard/media',
       icon: MediaGalleryIcon,
-      hoverIcon: SparkAnimationIcon
+      hoverIcon: SparkAnimationIcon,
     },
-    { 
-      name: 'Team Chat', 
-      href: '/dashboard/chat', 
+    {
+      name: 'Team Chat',
+      href: '/dashboard/chat',
       icon: MessageCircle,
-      hoverIcon: SparkAnimationIcon
+      hoverIcon: SparkAnimationIcon,
     },
-    { 
-      name: 'Upload', 
-      href: '/dashboard/upload', 
+    {
+      name: 'Upload',
+      href: '/dashboard/upload',
       icon: UploadFabricationIcon,
-      hoverIcon: CraneHookAnimationIcon
+      hoverIcon: CraneHookAnimationIcon,
     },
   ]
 
   if (user.role === 'ADMIN' || user.role === 'PROJECT_MANAGER') {
-    navigation.push(
-      { 
-        name: 'Team', 
-        href: '/dashboard/team', 
-        icon: IronworkersTeamIcon,
-        hoverIcon: CraneHookAnimationIcon
-      }
-    )
+    navigation.push({
+      name: 'Team',
+      href: '/dashboard/team',
+      icon: IronworkersTeamIcon,
+      hoverIcon: CraneHookAnimationIcon,
+    })
   }
 
   // Wrapper for Settings icon to match custom icon interface
-  const SettingsIconWrapper: React.FC<IconProps> = ({ className = '', size = 24 }) => (
-    <Settings className={className} size={size} />
-  )
+  const SettingsIconWrapper: React.FC<IconProps> = ({
+    className = '',
+    size = 24,
+  }) => <Settings className={className} size={size} />
 
   // Add Settings at the end
-  navigation.push(
-    { 
-      name: 'Settings', 
-      href: '/dashboard/settings', 
-      icon: SettingsIconWrapper,
-      hoverIcon: BoltRotationIcon
-    }
-  )
+  navigation.push({
+    name: 'Settings',
+    href: '/dashboard/settings',
+    icon: SettingsIconWrapper,
+    hoverIcon: BoltRotationIcon,
+  })
 
   // Add demo pages only in development
   if (process.env.NODE_ENV === 'development') {
     navigation.push(
-      { 
-        name: 'Forms Demo', 
-        href: '/dashboard/forms-demo', 
+      {
+        name: 'Forms Demo',
+        href: '/dashboard/forms-demo',
         icon: SettingsIconWrapper,
-        hoverIcon: SparkAnimationIcon
+        hoverIcon: SparkAnimationIcon,
       },
-      { 
-        name: 'Communication', 
-        href: '/dashboard/communication-demo', 
+      {
+        name: 'Communication',
+        href: '/dashboard/communication-demo',
         icon: SettingsIconWrapper,
-        hoverIcon: SparkAnimationIcon
+        hoverIcon: SparkAnimationIcon,
       }
     )
   }
@@ -195,7 +195,9 @@ export default function DashboardLayout({
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-16 items-center justify-between px-6 border-b border-gray-700">
-            <h2 className="text-xl font-shogun text-arc-flash-yellow">Iron Task</h2>
+            <h2 className="text-xl font-shogun text-arc-flash-yellow">
+              Iron Task
+            </h2>
             <Button
               variant="ghost"
               size="icon"
@@ -208,10 +210,13 @@ export default function DashboardLayout({
 
           {/* Navigation */}
           <nav className="flex-1 space-y-1 px-3 py-4">
-            {navigation.map((item) => {
+            {navigation.map(item => {
               const active = isActive(item.href)
-              const Icon = hoveredItem === item.name && !active ? item.hoverIcon : item.icon
-              
+              const Icon =
+                hoveredItem === item.name && !active
+                  ? item.hoverIcon
+                  : item.icon
+
               return (
                 <Link
                   key={item.name}
@@ -220,19 +225,21 @@ export default function DashboardLayout({
                   onMouseEnter={() => setHoveredItem(item.name)}
                   onMouseLeave={() => setHoveredItem(null)}
                   className={
-                    active 
-                      ? 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium bg-arc-flash-yellow text-steel-gray font-bold arc-weld-glow' 
+                    active
+                      ? 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium bg-arc-flash-yellow text-steel-gray font-bold arc-weld-glow'
                       : 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 hover:shadow-[0_0_10px_rgba(0,114,206,0.5)] transition-all duration-200'
                   }
                 >
-                  <Icon 
+                  <Icon
                     className={`h-5 w-5 ${
-                      hoveredItem === item.name && !active ? 
-                        item.name === 'Capture' || item.name === 'Media' ? 'animate-spark' :
-                        item.name === 'Projects' || item.name === 'Upload' ? 'animate-tighten' :
-                        'animate-lift'
-                      : ''
-                    }`} 
+                      hoveredItem === item.name && !active
+                        ? item.name === 'Capture' || item.name === 'Media'
+                          ? 'animate-spark'
+                          : item.name === 'Projects' || item.name === 'Upload'
+                            ? 'animate-tighten'
+                            : 'animate-lift'
+                        : ''
+                    }`}
                     size={20}
                     isAnimating={hoveredItem === item.name && !active}
                   />
@@ -256,10 +263,10 @@ export default function DashboardLayout({
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">{user.name}</p>
-                <p className="text-xs text-gray-400 truncate">
-                  {user.email}
+                <p className="text-sm font-medium text-white truncate">
+                  {user.name}
                 </p>
+                <p className="text-xs text-gray-400 truncate">{user.email}</p>
               </div>
             </div>
             <Button
@@ -292,18 +299,21 @@ export default function DashboardLayout({
               {user.role.replace('_', ' ')}
             </h1>
             <div className="ml-auto flex items-center gap-4">
-              {typeof window !== 'undefined' && localStorage.getItem('mockMode') === 'true' && (
-                <div className="bg-yellow-900/20 border border-yellow-800 rounded-lg px-3 py-1">
-                  <span className="text-yellow-400 text-xs font-medium">DEMO MODE</span>
-                </div>
-              )}
+              {typeof window !== 'undefined' &&
+                localStorage.getItem('mockMode') === 'true' && (
+                  <div className="bg-yellow-900/20 border border-yellow-800 rounded-lg px-3 py-1">
+                    <span className="text-yellow-400 text-xs font-medium">
+                      DEMO MODE
+                    </span>
+                  </div>
+                )}
               <NotificationBell />
               <span className="text-sm text-gray-400">
-                {new Date().toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
+                {new Date().toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
                 })}
               </span>
             </div>
@@ -311,7 +321,10 @@ export default function DashboardLayout({
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: '#0a0a0a' }}>
+        <main
+          className="flex-1 overflow-y-auto p-6"
+          style={{ backgroundColor: '#0a0a0a' }}
+        >
           {children}
         </main>
       </div>

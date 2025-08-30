@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,26 +10,26 @@ export async function GET(request: NextRequest) {
       environment: process.env.NODE_ENV || 'development',
       uptime: process.uptime(),
       memory: process.memoryUsage(),
-    };
+    }
 
     // Check API connectivity
-    let apiStatus = 'unknown';
+    let apiStatus = 'unknown'
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL
       if (apiUrl) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-        
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 5000)
+
         const response = await fetch(`${apiUrl}/health`, {
           method: 'GET',
           signal: controller.signal,
-        });
-        
-        clearTimeout(timeoutId);
-        apiStatus = response.ok ? 'connected' : 'disconnected';
+        })
+
+        clearTimeout(timeoutId)
+        apiStatus = response.ok ? 'connected' : 'disconnected'
       }
     } catch (error) {
-      apiStatus = 'error';
+      apiStatus = 'error'
     }
 
     const detailedHealth = {
@@ -37,12 +37,12 @@ export async function GET(request: NextRequest) {
       services: {
         api: apiStatus,
       },
-    };
+    }
 
-    return NextResponse.json(detailedHealth, { status: 200 });
+    return NextResponse.json(detailedHealth, { status: 200 })
   } catch (error) {
-    console.error('Health check failed:', error);
-    
+    console.error('Health check failed:', error)
+
     return NextResponse.json(
       {
         status: 'error',
@@ -50,6 +50,6 @@ export async function GET(request: NextRequest) {
         error: 'Health check failed',
       },
       { status: 503 }
-    );
+    )
   }
 }

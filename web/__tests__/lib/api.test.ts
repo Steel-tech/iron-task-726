@@ -3,7 +3,7 @@ import axios from 'axios'
 // Mock localStorage before importing the module
 const localStorageMock = {
   getItem: jest.fn(),
-  setItem: jest.fn(), 
+  setItem: jest.fn(),
   removeItem: jest.fn(),
   clear: jest.fn(),
   length: 0,
@@ -13,9 +13,9 @@ const localStorageMock = {
 // Mock window.location
 const mockLocationAssign = jest.fn()
 Object.defineProperty(window, 'location', {
-  value: { 
+  value: {
     href: '',
-    assign: mockLocationAssign
+    assign: mockLocationAssign,
   },
   writable: true,
 })
@@ -37,7 +37,7 @@ describe('API Client', () => {
     jest.clearAllMocks()
     localStorageMock.getItem.mockReturnValue(null)
     window.location.href = ''
-    
+
     // Reset mocks
     jest.restoreAllMocks()
   })
@@ -51,7 +51,10 @@ describe('API Client', () => {
   describe('authApi', () => {
     describe('login', () => {
       it('should login successfully and store token', async () => {
-        const credentials = { email: 'test@example.com', password: 'Password123!' }
+        const credentials = {
+          email: 'test@example.com',
+          password: 'Password123!',
+        }
         const mockResponse = {
           data: {
             accessToken: 'test-token',
@@ -69,24 +72,31 @@ describe('API Client', () => {
         const result = await authApi.login(credentials)
 
         expect(mockPost).toHaveBeenCalledWith('/auth/login', credentials)
-        expect(localStorageMock.setItem).toHaveBeenCalledWith('accessToken', 'test-token')
+        expect(localStorageMock.setItem).toHaveBeenCalledWith(
+          'accessToken',
+          'test-token'
+        )
         expect(result).toEqual(mockResponse.data)
       })
 
       it('should handle login error', async () => {
         const credentials = { email: 'test@example.com', password: 'wrong' }
         const testError = new Error('Invalid credentials')
-        
+
         jest.spyOn(api, 'post').mockRejectedValue(testError)
 
-        await expect(authApi.login(credentials)).rejects.toThrow('Invalid credentials')
+        await expect(authApi.login(credentials)).rejects.toThrow(
+          'Invalid credentials'
+        )
         expect(localStorageMock.setItem).not.toHaveBeenCalled()
       })
     })
 
     describe('logout', () => {
       it('should logout and clear token', async () => {
-        const mockPost = jest.spyOn(api, 'post').mockResolvedValue({ data: { success: true } })
+        const mockPost = jest
+          .spyOn(api, 'post')
+          .mockResolvedValue({ data: { success: true } })
 
         await authApi.logout()
 
@@ -103,8 +113,10 @@ describe('API Client', () => {
           email: 'test@example.com',
           name: 'Test User',
         }
-        
-        const mockGet = jest.spyOn(api, 'get').mockResolvedValue({ data: mockUser })
+
+        const mockGet = jest
+          .spyOn(api, 'get')
+          .mockResolvedValue({ data: mockUser })
 
         const result = await authApi.getMe()
 
@@ -117,13 +129,14 @@ describe('API Client', () => {
   describe('interceptors', () => {
     it('should add auth token to requests when available', () => {
       localStorageMock.getItem.mockReturnValue('test-token')
-      
+
       // Get the request interceptor function using type assertion
-      const requestInterceptor = (api.interceptors.request as any).handlers[0].fulfilled
+      const requestInterceptor = (api.interceptors.request as any).handlers[0]
+        .fulfilled
       const mockConfig = { headers: {} }
-      
+
       const result = requestInterceptor(mockConfig)
-      
+
       expect(localStorageMock.getItem).toHaveBeenCalledWith('accessToken')
       expect(result.headers.Authorization).toBe('Bearer test-token')
     })
@@ -132,21 +145,22 @@ describe('API Client', () => {
       const error = {
         config: { url: '/test', method: 'get' },
         response: { status: 401 },
-        isAxiosError: true
+        isAxiosError: true,
       }
-      
+
       // Mock the refresh call to fail
       jest.spyOn(api, 'post').mockRejectedValue(new Error('Refresh failed'))
-      
+
       // Get the response error interceptor using type assertion
-      const responseErrorHandler = (api.interceptors.response as any).handlers[0].rejected
-      
+      const responseErrorHandler = (api.interceptors.response as any)
+        .handlers[0].rejected
+
       try {
         await responseErrorHandler(error)
       } catch (e) {
         // Expected to reject
       }
-      
+
       expect(localStorageMock.removeItem).toHaveBeenCalledWith('accessToken')
       expect(window.location.href).toBe('/login')
     })

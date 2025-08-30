@@ -2,7 +2,15 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/Button'
-import { Package, Truck, CheckCircle, AlertTriangle, X, Plus, FileText } from 'lucide-react'
+import {
+  Package,
+  Truck,
+  CheckCircle,
+  AlertTriangle,
+  X,
+  Plus,
+  FileText,
+} from 'lucide-react'
 
 interface MaterialItem {
   description: string
@@ -30,31 +38,31 @@ interface MaterialDeliveryData {
   supplierContact: string
   driver: string
   truckInfo: string
-  
+
   // Delivery Details
   scheduledDelivery: boolean
   deliveryMethod: 'truck' | 'crane' | 'forklift' | 'manual' | 'other'
   deliveryMethodOther: string
   weatherConditions: string
   accessConditions: string
-  
+
   // Materials
   materials: MaterialItem[]
-  
+
   // Quality Control
   materialsInspected: boolean
   dimensionsVerified: boolean
   markingsLegible: boolean
   protectiveCoatingsIntact: boolean
   storageRequirements: string
-  
+
   // Issues & Documentation
   deliveryIssues: boolean
   issueDescription: string
   correctiveActions: string
   photosRequired: boolean
   photos: DeliveryPhoto[]
-  
+
   // Certifications & Documentation
   millCertificates: boolean
   testReports: boolean
@@ -62,7 +70,7 @@ interface MaterialDeliveryData {
   invoiceReceived: boolean
   documentsComplete: boolean
   missingDocuments: string
-  
+
   // Signatures
   receivedBy: string
   receiverSignature: string
@@ -76,7 +84,9 @@ interface FSWMaterialDeliveryLogProps {
   projectId: string
 }
 
-export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliveryLogProps) {
+export default function FSWMaterialDeliveryLog({
+  projectId,
+}: FSWMaterialDeliveryLogProps) {
   const [formData, setFormData] = useState<MaterialDeliveryData>({
     deliveryDate: new Date().toISOString().split('T')[0],
     deliveryTime: new Date().toTimeString().slice(0, 5),
@@ -86,13 +96,13 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
     supplierContact: '',
     driver: '',
     truckInfo: '',
-    
+
     scheduledDelivery: true,
     deliveryMethod: 'truck',
     deliveryMethodOther: '',
     weatherConditions: '',
     accessConditions: '',
-    
+
     materials: [
       {
         description: '',
@@ -103,35 +113,35 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
         condition: 'good',
         conditionNotes: '',
         certificationReceived: false,
-        certificationNumber: ''
-      }
+        certificationNumber: '',
+      },
     ],
-    
+
     materialsInspected: false,
     dimensionsVerified: false,
     markingsLegible: false,
     protectiveCoatingsIntact: false,
     storageRequirements: '',
-    
+
     deliveryIssues: false,
     issueDescription: '',
     correctiveActions: '',
     photosRequired: false,
     photos: [],
-    
+
     millCertificates: false,
     testReports: false,
     complianceDocs: false,
     invoiceReceived: false,
     documentsComplete: false,
     missingDocuments: '',
-    
+
     receivedBy: '',
     receiverSignature: '',
     driverSignature: '',
     inspectorName: '',
     inspectorSignature: '',
-    notes: ''
+    notes: '',
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -139,80 +149,111 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
   const addMaterial = () => {
     setFormData(prev => ({
       ...prev,
-      materials: [...prev.materials, {
-        description: '',
-        specificationGrade: '',
-        quantityOrdered: '',
-        quantityDelivered: '',
-        unit: 'tons',
-        condition: 'good',
-        conditionNotes: '',
-        certificationReceived: false,
-        certificationNumber: ''
-      }]
+      materials: [
+        ...prev.materials,
+        {
+          description: '',
+          specificationGrade: '',
+          quantityOrdered: '',
+          quantityDelivered: '',
+          unit: 'tons',
+          condition: 'good',
+          conditionNotes: '',
+          certificationReceived: false,
+          certificationNumber: '',
+        },
+      ],
     }))
   }
 
-  const updateMaterial = (index: number, field: keyof MaterialItem, value: any) => {
+  const updateMaterial = (
+    index: number,
+    field: keyof MaterialItem,
+    value: any
+  ) => {
     setFormData(prev => ({
       ...prev,
       materials: prev.materials.map((material, i) =>
         i === index ? { ...material, [field]: value } : material
-      )
+      ),
     }))
   }
 
   const removeMaterial = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      materials: prev.materials.filter((_, i) => i !== index)
+      materials: prev.materials.filter((_, i) => i !== index),
     }))
   }
 
   const addPhoto = () => {
     setFormData(prev => ({
       ...prev,
-      photos: [...prev.photos, { description: '', photoType: 'overall' }]
+      photos: [...prev.photos, { description: '', photoType: 'overall' }],
     }))
   }
 
-  const updatePhoto = (index: number, field: keyof DeliveryPhoto, value: any) => {
+  const updatePhoto = (
+    index: number,
+    field: keyof DeliveryPhoto,
+    value: any
+  ) => {
     setFormData(prev => ({
       ...prev,
       photos: prev.photos.map((photo, i) =>
         i === index ? { ...photo, [field]: value } : photo
-      )
+      ),
     }))
   }
 
   const removePhoto = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      photos: prev.photos.filter((_, i) => i !== index)
+      photos: prev.photos.filter((_, i) => i !== index),
     }))
   }
 
   const getConditionColor = (condition: MaterialItem['condition']) => {
     switch (condition) {
-      case 'good': return 'text-green-400'
-      case 'damaged': return 'text-orange-400'
-      case 'defective': return 'text-red-400'
-      case 'incomplete': return 'text-yellow-400'
-      default: return 'text-gray-400'
+      case 'good':
+        return 'text-green-400'
+      case 'damaged':
+        return 'text-orange-400'
+      case 'defective':
+        return 'text-red-400'
+      case 'incomplete':
+        return 'text-yellow-400'
+      default:
+        return 'text-gray-400'
     }
   }
 
   const getConditionIcon = (condition: MaterialItem['condition']) => {
     switch (condition) {
-      case 'good': return <CheckCircle className="h-4 w-4" />
-      case 'damaged': return <AlertTriangle className="h-4 w-4" />
-      case 'defective': return <X className="h-4 w-4" />
-      case 'incomplete': return <AlertTriangle className="h-4 w-4" />
-      default: return null
+      case 'good':
+        return <CheckCircle className="h-4 w-4" />
+      case 'damaged':
+        return <AlertTriangle className="h-4 w-4" />
+      case 'defective':
+        return <X className="h-4 w-4" />
+      case 'incomplete':
+        return <AlertTriangle className="h-4 w-4" />
+      default:
+        return null
     }
   }
 
-  const unitOptions = ['tons', 'lbs', 'kg', 'pieces', 'feet', 'meters', 'rolls', 'bundles', 'sheets']
+  const unitOptions = [
+    'tons',
+    'lbs',
+    'kg',
+    'pieces',
+    'feet',
+    'meters',
+    'rolls',
+    'bundles',
+    'sheets',
+  ]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -222,7 +263,7 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000))
       alert('Material Delivery Log submitted successfully!')
-      
+
       // Reset form would go here in production
     } catch (error) {
       alert('Failed to submit delivery log. Please try again.')
@@ -239,42 +280,60 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
             <Package className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold font-shogun text-white">Material Delivery Log</h2>
-            <p className="text-gray-400">Track material deliveries, quantities, and condition upon arrival</p>
+            <h2 className="text-2xl font-bold font-shogun text-white">
+              Material Delivery Log
+            </h2>
+            <p className="text-gray-400">
+              Track material deliveries, quantities, and condition upon arrival
+            </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Delivery Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Delivery Information</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Delivery Information
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Delivery Date *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Delivery Date *
+                </label>
                 <input
                   type="date"
                   value={formData.deliveryDate}
-                  onChange={(e) => setFormData({ ...formData, deliveryDate: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, deliveryDate: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Delivery Time *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Delivery Time *
+                </label>
                 <input
                   type="time"
                   value={formData.deliveryTime}
-                  onChange={(e) => setFormData({ ...formData, deliveryTime: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, deliveryTime: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">PO Number *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  PO Number *
+                </label>
                 <input
                   type="text"
                   value={formData.poNumber}
-                  onChange={(e) => setFormData({ ...formData, poNumber: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, poNumber: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   required
                 />
@@ -284,7 +343,12 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                   <input
                     type="checkbox"
                     checked={formData.scheduledDelivery}
-                    onChange={(e) => setFormData({ ...formData, scheduledDelivery: e.target.checked })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        scheduledDelivery: e.target.checked,
+                      })
+                    }
                     className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                   />
                   Scheduled Delivery
@@ -294,21 +358,32 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Project Location *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Project Location *
+                </label>
                 <input
                   type="text"
                   value={formData.projectLocation}
-                  onChange={(e) => setFormData({ ...formData, projectLocation: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      projectLocation: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Supplier *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Supplier *
+                </label>
                 <input
                   type="text"
                   value={formData.supplier}
-                  onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, supplier: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   required
                 />
@@ -317,30 +392,45 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Supplier Contact</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Supplier Contact
+                </label>
                 <input
                   type="text"
                   value={formData.supplierContact}
-                  onChange={(e) => setFormData({ ...formData, supplierContact: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      supplierContact: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Phone or email"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Driver Name</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Driver Name
+                </label>
                 <input
                   type="text"
                   value={formData.driver}
-                  onChange={(e) => setFormData({ ...formData, driver: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, driver: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Truck/Vehicle Info</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Truck/Vehicle Info
+                </label>
                 <input
                   type="text"
                   value={formData.truckInfo}
-                  onChange={(e) => setFormData({ ...formData, truckInfo: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, truckInfo: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="License plate, truck number"
                 />
@@ -350,13 +440,23 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
 
           {/* Delivery Method & Conditions */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Delivery Method & Conditions</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Delivery Method & Conditions
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Delivery Method</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Delivery Method
+                </label>
                 <select
                   value={formData.deliveryMethod}
-                  onChange={(e) => setFormData({ ...formData, deliveryMethod: e.target.value as MaterialDeliveryData['deliveryMethod'] })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      deliveryMethod: e.target
+                        .value as MaterialDeliveryData['deliveryMethod'],
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 >
                   <option value="truck">Truck</option>
@@ -368,31 +468,52 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
               </div>
               {formData.deliveryMethod === 'other' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Other Method</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Other Method
+                  </label>
                   <input
                     type="text"
                     value={formData.deliveryMethodOther}
-                    onChange={(e) => setFormData({ ...formData, deliveryMethodOther: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        deliveryMethodOther: e.target.value,
+                      })
+                    }
                     className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   />
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Weather Conditions</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Weather Conditions
+                </label>
                 <input
                   type="text"
                   value={formData.weatherConditions}
-                  onChange={(e) => setFormData({ ...formData, weatherConditions: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      weatherConditions: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Clear, rainy, windy"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Access Conditions</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Access Conditions
+                </label>
                 <input
                   type="text"
                   value={formData.accessConditions}
-                  onChange={(e) => setFormData({ ...formData, accessConditions: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      accessConditions: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Good, restricted, muddy"
                 />
@@ -403,7 +524,9 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
           {/* Materials */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Materials Delivered</h3>
+              <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+                Materials Delivered
+              </h3>
               <Button
                 type="button"
                 size="sm"
@@ -419,7 +542,9 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
             {formData.materials.map((material, index) => (
               <div key={index} className="bg-gray-800/50 p-4 rounded-lg">
                 <div className="flex justify-between items-center mb-3">
-                  <h4 className="text-white font-medium">Material {index + 1}</h4>
+                  <h4 className="text-white font-medium">
+                    Material {index + 1}
+                  </h4>
                   <Button
                     type="button"
                     size="sm"
@@ -430,25 +555,37 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Description *</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Description *
+                    </label>
                     <input
                       type="text"
                       value={material.description}
-                      onChange={(e) => updateMaterial(index, 'description', e.target.value)}
+                      onChange={e =>
+                        updateMaterial(index, 'description', e.target.value)
+                      }
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                       placeholder="Steel beams, rebar, plates, etc."
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Specification/Grade</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Specification/Grade
+                    </label>
                     <input
                       type="text"
                       value={material.specificationGrade}
-                      onChange={(e) => updateMaterial(index, 'specificationGrade', e.target.value)}
+                      onChange={e =>
+                        updateMaterial(
+                          index,
+                          'specificationGrade',
+                          e.target.value
+                        )
+                      }
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                       placeholder="e.g., A992, Grade 60"
                     />
@@ -457,43 +594,65 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Qty Ordered</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Qty Ordered
+                    </label>
                     <input
                       type="number"
                       step="0.01"
                       value={material.quantityOrdered}
-                      onChange={(e) => updateMaterial(index, 'quantityOrdered', e.target.value)}
+                      onChange={e =>
+                        updateMaterial(index, 'quantityOrdered', e.target.value)
+                      }
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Qty Delivered *</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Qty Delivered *
+                    </label>
                     <input
                       type="number"
                       step="0.01"
                       value={material.quantityDelivered}
-                      onChange={(e) => updateMaterial(index, 'quantityDelivered', e.target.value)}
+                      onChange={e =>
+                        updateMaterial(
+                          index,
+                          'quantityDelivered',
+                          e.target.value
+                        )
+                      }
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Unit</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Unit
+                    </label>
                     <select
                       value={material.unit}
-                      onChange={(e) => updateMaterial(index, 'unit', e.target.value)}
+                      onChange={e =>
+                        updateMaterial(index, 'unit', e.target.value)
+                      }
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                     >
                       {unitOptions.map(unit => (
-                        <option key={unit} value={unit}>{unit}</option>
+                        <option key={unit} value={unit}>
+                          {unit}
+                        </option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Condition *</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Condition *
+                    </label>
                     <select
                       value={material.condition}
-                      onChange={(e) => updateMaterial(index, 'condition', e.target.value)}
+                      onChange={e =>
+                        updateMaterial(index, 'condition', e.target.value)
+                      }
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                       required
                     >
@@ -508,7 +667,13 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                       <input
                         type="checkbox"
                         checked={material.certificationReceived}
-                        onChange={(e) => updateMaterial(index, 'certificationReceived', e.target.checked)}
+                        onChange={e =>
+                          updateMaterial(
+                            index,
+                            'certificationReceived',
+                            e.target.checked
+                          )
+                        }
                         className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                       />
                       Cert Received
@@ -517,7 +682,9 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                 </div>
 
                 <div className="flex items-center gap-2 mb-3">
-                  <span className={`flex items-center gap-1 text-sm ${getConditionColor(material.condition)}`}>
+                  <span
+                    className={`flex items-center gap-1 text-sm ${getConditionColor(material.condition)}`}
+                  >
                     {getConditionIcon(material.condition)}
                     {material.condition.toUpperCase()}
                   </span>
@@ -525,10 +692,14 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Condition Notes</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Condition Notes
+                    </label>
                     <textarea
                       value={material.conditionNotes}
-                      onChange={(e) => updateMaterial(index, 'conditionNotes', e.target.value)}
+                      onChange={e =>
+                        updateMaterial(index, 'conditionNotes', e.target.value)
+                      }
                       rows={2}
                       className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                       placeholder="Describe any damage, defects, or issues"
@@ -536,11 +707,19 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                   </div>
                   {material.certificationReceived && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">Certification Number</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">
+                        Certification Number
+                      </label>
                       <input
                         type="text"
                         value={material.certificationNumber}
-                        onChange={(e) => updateMaterial(index, 'certificationNumber', e.target.value)}
+                        onChange={e =>
+                          updateMaterial(
+                            index,
+                            'certificationNumber',
+                            e.target.value
+                          )
+                        }
                         className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                       />
                     </div>
@@ -552,13 +731,20 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
 
           {/* Quality Control Checklist */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Quality Control Checklist</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Quality Control Checklist
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <label className="flex items-center text-sm text-gray-300">
                 <input
                   type="checkbox"
                   checked={formData.materialsInspected}
-                  onChange={(e) => setFormData({ ...formData, materialsInspected: e.target.checked })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      materialsInspected: e.target.checked,
+                    })
+                  }
                   className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                 />
                 Materials visually inspected
@@ -567,7 +753,12 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                 <input
                   type="checkbox"
                   checked={formData.dimensionsVerified}
-                  onChange={(e) => setFormData({ ...formData, dimensionsVerified: e.target.checked })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      dimensionsVerified: e.target.checked,
+                    })
+                  }
                   className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                 />
                 Dimensions verified
@@ -576,7 +767,12 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                 <input
                   type="checkbox"
                   checked={formData.markingsLegible}
-                  onChange={(e) => setFormData({ ...formData, markingsLegible: e.target.checked })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      markingsLegible: e.target.checked,
+                    })
+                  }
                   className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                 />
                 Markings/labels legible
@@ -585,7 +781,12 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                 <input
                   type="checkbox"
                   checked={formData.protectiveCoatingsIntact}
-                  onChange={(e) => setFormData({ ...formData, protectiveCoatingsIntact: e.target.checked })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      protectiveCoatingsIntact: e.target.checked,
+                    })
+                  }
                   className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                 />
                 Protective coatings intact
@@ -593,10 +794,17 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Storage Requirements</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Storage Requirements
+              </label>
               <textarea
                 value={formData.storageRequirements}
-                onChange={(e) => setFormData({ ...formData, storageRequirements: e.target.value })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    storageRequirements: e.target.value,
+                  })
+                }
                 rows={2}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 placeholder="Special storage requirements or location notes"
@@ -606,13 +814,20 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
 
           {/* Issues & Documentation */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Issues & Documentation</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Issues & Documentation
+            </h3>
             <div className="flex items-center">
               <label className="flex items-center text-sm text-gray-300">
                 <input
                   type="checkbox"
                   checked={formData.deliveryIssues}
-                  onChange={(e) => setFormData({ ...formData, deliveryIssues: e.target.checked })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      deliveryIssues: e.target.checked,
+                    })
+                  }
                   className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                 />
                 Delivery issues encountered
@@ -622,20 +837,34 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
             {formData.deliveryIssues && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Issue Description</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Issue Description
+                  </label>
                   <textarea
                     value={formData.issueDescription}
-                    onChange={(e) => setFormData({ ...formData, issueDescription: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        issueDescription: e.target.value,
+                      })
+                    }
                     rows={3}
                     className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                     placeholder="Describe the issues encountered"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Corrective Actions</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Corrective Actions
+                  </label>
                   <textarea
                     value={formData.correctiveActions}
-                    onChange={(e) => setFormData({ ...formData, correctiveActions: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        correctiveActions: e.target.value,
+                      })
+                    }
                     rows={3}
                     className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                     placeholder="Actions taken to resolve issues"
@@ -649,7 +878,12 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                 <input
                   type="checkbox"
                   checked={formData.photosRequired}
-                  onChange={(e) => setFormData({ ...formData, photosRequired: e.target.checked })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      photosRequired: e.target.checked,
+                    })
+                  }
                   className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                 />
                 Photos required/taken
@@ -659,7 +893,9 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
             {formData.photosRequired && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-white font-medium">Photo Documentation</h4>
+                  <h4 className="text-white font-medium">
+                    Photo Documentation
+                  </h4>
                   <Button
                     type="button"
                     size="sm"
@@ -675,7 +911,9 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                 {formData.photos.map((photo, index) => (
                   <div key={index} className="bg-gray-800/30 p-3 rounded">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-white text-sm">Photo {index + 1}</span>
+                      <span className="text-white text-sm">
+                        Photo {index + 1}
+                      </span>
                       <Button
                         type="button"
                         size="sm"
@@ -686,13 +924,17 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                         <X className="h-3 w-3" />
                       </Button>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-medium text-gray-300 mb-1">Photo Type</label>
+                        <label className="block text-xs font-medium text-gray-300 mb-1">
+                          Photo Type
+                        </label>
                         <select
                           value={photo.photoType}
-                          onChange={(e) => updatePhoto(index, 'photoType', e.target.value)}
+                          onChange={e =>
+                            updatePhoto(index, 'photoType', e.target.value)
+                          }
                           className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-xs focus:outline-none focus:ring-1 focus:ring-safety-orange"
                         >
                           <option value="overall">Overall view</option>
@@ -703,11 +945,15 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-300 mb-1">Description</label>
+                        <label className="block text-xs font-medium text-gray-300 mb-1">
+                          Description
+                        </label>
                         <input
                           type="text"
                           value={photo.description}
-                          onChange={(e) => updatePhoto(index, 'description', e.target.value)}
+                          onChange={e =>
+                            updatePhoto(index, 'description', e.target.value)
+                          }
                           className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-xs focus:outline-none focus:ring-1 focus:ring-safety-orange"
                           placeholder="What does this photo show?"
                         />
@@ -721,13 +967,20 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
 
           {/* Certifications & Documentation */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Certifications & Documentation</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Certifications & Documentation
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <label className="flex items-center text-sm text-gray-300">
                 <input
                   type="checkbox"
                   checked={formData.millCertificates}
-                  onChange={(e) => setFormData({ ...formData, millCertificates: e.target.checked })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      millCertificates: e.target.checked,
+                    })
+                  }
                   className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                 />
                 Mill certificates received
@@ -736,7 +989,9 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                 <input
                   type="checkbox"
                   checked={formData.testReports}
-                  onChange={(e) => setFormData({ ...formData, testReports: e.target.checked })}
+                  onChange={e =>
+                    setFormData({ ...formData, testReports: e.target.checked })
+                  }
                   className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                 />
                 Test reports received
@@ -745,7 +1000,12 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                 <input
                   type="checkbox"
                   checked={formData.complianceDocs}
-                  onChange={(e) => setFormData({ ...formData, complianceDocs: e.target.checked })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      complianceDocs: e.target.checked,
+                    })
+                  }
                   className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                 />
                 Compliance documents
@@ -754,7 +1014,12 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                 <input
                   type="checkbox"
                   checked={formData.invoiceReceived}
-                  onChange={(e) => setFormData({ ...formData, invoiceReceived: e.target.checked })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      invoiceReceived: e.target.checked,
+                    })
+                  }
                   className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                 />
                 Invoice received
@@ -763,7 +1028,12 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
                 <input
                   type="checkbox"
                   checked={formData.documentsComplete}
-                  onChange={(e) => setFormData({ ...formData, documentsComplete: e.target.checked })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      documentsComplete: e.target.checked,
+                    })
+                  }
                   className="mr-2 rounded border-gray-700 bg-gray-800 text-safety-orange focus:ring-2 focus:ring-safety-orange"
                 />
                 All documents complete
@@ -772,10 +1042,17 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
 
             {!formData.documentsComplete && (
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Missing Documents</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Missing Documents
+                </label>
                 <textarea
                   value={formData.missingDocuments}
-                  onChange={(e) => setFormData({ ...formData, missingDocuments: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      missingDocuments: e.target.value,
+                    })
+                  }
                   rows={2}
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="List any missing or incomplete documentation"
@@ -786,11 +1063,15 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
 
           {/* Additional Notes */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Additional Notes</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Additional Notes
+            </h3>
             <div>
               <textarea
                 value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, notes: e.target.value })
+                }
                 rows={4}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 placeholder="Any additional notes, observations, or special instructions..."
@@ -800,45 +1081,69 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
 
           {/* Signatures */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">Signatures</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-gray-700 pb-2">
+              Signatures
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Received By *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Received By *
+                </label>
                 <input
                   type="text"
                   value={formData.receivedBy}
-                  onChange={(e) => setFormData({ ...formData, receivedBy: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, receivedBy: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Receiver Signature *</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Receiver Signature *
+                </label>
                 <input
                   type="text"
                   value={formData.receiverSignature}
-                  onChange={(e) => setFormData({ ...formData, receiverSignature: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      receiverSignature: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Type full name as signature"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Driver Signature</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Driver Signature
+                </label>
                 <input
                   type="text"
                   value={formData.driverSignature}
-                  onChange={(e) => setFormData({ ...formData, driverSignature: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      driverSignature: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Type full name as signature"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Inspector Name</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Inspector Name
+                </label>
                 <input
                   type="text"
                   value={formData.inspectorName}
-                  onChange={(e) => setFormData({ ...formData, inspectorName: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, inspectorName: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 />
               </div>
@@ -847,11 +1152,18 @@ export default function FSWMaterialDeliveryLog({ projectId }: FSWMaterialDeliver
             {formData.inspectorName && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Inspector Signature</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Inspector Signature
+                  </label>
                   <input
                     type="text"
                     value={formData.inspectorSignature}
-                    onChange={(e) => setFormData({ ...formData, inspectorSignature: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        inspectorSignature: e.target.value,
+                      })
+                    }
                     className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                     placeholder="Type full name as signature"
                   />

@@ -10,12 +10,13 @@ import NotificationBell from '@/components/NotificationBell'
 // Demo data
 const demoMedia = {
   id: 'demo-media-1',
-  fileUrl: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=2000',
+  fileUrl:
+    'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=2000',
   mediaType: 'PHOTO' as const,
   project: {
     id: 'demo-project-1',
-    name: 'Downtown Tower Construction'
-  }
+    name: 'Downtown Tower Construction',
+  },
 }
 
 const demoProjectMembers = [
@@ -24,7 +25,7 @@ const demoProjectMembers = [
   { id: '3', name: 'Sarah Safety', role: 'SAFETY_INSPECTOR' },
   { id: '4', name: 'Tom Manager', role: 'PROJECT_MANAGER' },
   { id: '5', name: 'Carlos Constructor', role: 'STEEL_ERECTOR' },
-  { id: '6', name: 'Maria Engineer', role: 'ADMIN' }
+  { id: '6', name: 'Maria Engineer', role: 'ADMIN' },
 ]
 
 export default function CommunicationDemoPage() {
@@ -36,33 +37,40 @@ export default function CommunicationDemoPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <MessageCircle className="h-8 w-8 text-safety-orange" />
-          <h1 className="text-3xl font-bold font-shogun text-white">Communication Demo</h1>
+          <h1 className="text-3xl font-bold font-shogun text-white">
+            Communication Demo
+          </h1>
         </div>
       </div>
 
       {/* Feature Overview */}
       <div className="brushed-metal rounded-lg shadow-lg p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">Multi-Language Team Communication</h2>
+        <h2 className="text-xl font-semibold text-white mb-4">
+          Multi-Language Team Communication
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
             <Globe className="h-12 w-12 text-safety-orange mx-auto mb-3" />
             <h3 className="font-medium text-white mb-2">Auto-Translation</h3>
             <p className="text-sm text-gray-400">
-              Comments and messages are automatically translated to each team member&apos;s language
+              Comments and messages are automatically translated to each team
+              member&apos;s language
             </p>
           </div>
           <div className="text-center">
             <AtSign className="h-12 w-12 text-safety-orange mx-auto mb-3" />
             <h3 className="font-medium text-white mb-2">@Mentions</h3>
             <p className="text-sm text-gray-400">
-              Tag team members to ensure they see important messages and get instant notifications
+              Tag team members to ensure they see important messages and get
+              instant notifications
             </p>
           </div>
           <div className="text-center">
             <Bell className="h-12 w-12 text-safety-orange mx-auto mb-3" />
             <h3 className="font-medium text-white mb-2">Smart Notifications</h3>
             <p className="text-sm text-gray-400">
-              Get notified when mentioned, when someone replies, or reacts to your comments
+              Get notified when mentioned, when someone replies, or reacts to
+              your comments
             </p>
           </div>
         </div>
@@ -102,14 +110,18 @@ export default function CommunicationDemoPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Photo Preview */}
               <div>
-                <h3 className="text-lg font-semibold text-white mb-4">Construction Photo</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Construction Photo
+                </h3>
                 <img
                   src={demoMedia.fileUrl}
                   alt="Construction site"
                   className="w-full rounded-lg"
                 />
                 <div className="mt-4 p-4 bg-gray-800 rounded-lg">
-                  <h4 className="font-medium text-white mb-2">Try These Features:</h4>
+                  <h4 className="font-medium text-white mb-2">
+                    Try These Features:
+                  </h4>
                   <ul className="space-y-2 text-sm text-gray-400">
                     <li>• Type @ to mention team members</li>
                     <li>• Add reactions to comments (👍 ❤️ ❓ ✓)</li>
@@ -122,7 +134,7 @@ export default function CommunicationDemoPage() {
 
               {/* Comments Section */}
               <div>
-                <Comments 
+                <Comments
                   mediaId={demoMedia.id}
                   projectMembers={demoProjectMembers}
                 />
@@ -137,7 +149,9 @@ export default function CommunicationDemoPage() {
                 />
               </div>
               <div className="mt-4 p-4 bg-gray-800 rounded-lg">
-                <h4 className="font-medium text-white mb-2">Team Chat Features:</h4>
+                <h4 className="font-medium text-white mb-2">
+                  Team Chat Features:
+                </h4>
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li>• Real-time messaging with WebSocket</li>
                   <li>• See who&apos;s online with green indicators</li>
@@ -196,7 +210,9 @@ export default function CommunicationDemoPage() {
 
       {/* Language Support */}
       <div className="brushed-metal rounded-lg shadow-lg p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">Supported Languages</h2>
+        <h2 className="text-xl font-semibold text-white mb-4">
+          Supported Languages
+        </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -206,9 +222,12 @@ export default function CommunicationDemoPage() {
             { code: 'pt', name: 'Portuguese', flag: '🇵🇹' },
             { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
             { code: 'ja', name: 'Japanese', flag: '🇯🇵' },
-            { code: 'ko', name: 'Korean', flag: '🇰🇷' }
+            { code: 'ko', name: 'Korean', flag: '🇰🇷' },
           ].map(lang => (
-            <div key={lang.code} className="flex items-center gap-3 p-3 bg-gray-800 rounded-lg">
+            <div
+              key={lang.code}
+              className="flex items-center gap-3 p-3 bg-gray-800 rounded-lg"
+            >
               <span className="text-2xl">{lang.flag}</span>
               <div>
                 <p className="font-medium text-white">{lang.name}</p>

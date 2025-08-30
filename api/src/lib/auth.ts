@@ -22,22 +22,28 @@ export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 10)
 }
 
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+export async function verifyPassword(
+  password: string,
+  hash: string
+): Promise<boolean> {
   return bcrypt.compare(password, hash)
 }
 
-export async function authenticate(request: FastifyRequest, reply: FastifyReply) {
+export async function authenticate(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
   try {
     const authHeader = request.headers.authorization
     if (!authHeader) {
       return reply.code(401).send({ error: 'Missing authorization header' })
     }
-    
+
     const token = authHeader.replace('Bearer ', '')
-    const payload = verifyToken(token)
-    
-    // Add user info to request
-    (request as any).user = payload
+    const payload = (verifyToken(token)(
+      // Add user info to request
+      request as any
+    ).user = payload)
   } catch (error) {
     return reply.code(401).send({ error: 'Invalid token' })
   }

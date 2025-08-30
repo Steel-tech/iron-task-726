@@ -2,7 +2,16 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/Button'
-import { Settings, Wrench, Zap, AlertTriangle, CheckCircle, X, Plus, Trash2 } from 'lucide-react'
+import {
+  Settings,
+  Wrench,
+  Zap,
+  AlertTriangle,
+  CheckCircle,
+  X,
+  Plus,
+  Trash2,
+} from 'lucide-react'
 
 interface InspectionItem {
   item: string
@@ -28,7 +37,9 @@ interface FSWToolInspectionProps {
   projectId: string
 }
 
-export default function FSWToolInspection({ projectId }: FSWToolInspectionProps) {
+export default function FSWToolInspection({
+  projectId,
+}: FSWToolInspectionProps) {
   const [formData, setFormData] = useState<ToolInspectionData>({
     inspectorName: '',
     inspectionDate: new Date().toISOString().split('T')[0],
@@ -36,32 +47,45 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
     powerTools: [
       { item: 'Angle Grinder', serialNumber: '', condition: null, notes: '' },
       { item: 'Impact Wrench', serialNumber: '', condition: null, notes: '' },
-      { item: 'Drill/Driver', serialNumber: '', condition: null, notes: '' }
+      { item: 'Drill/Driver', serialNumber: '', condition: null, notes: '' },
     ],
     handTools: [
       { item: 'Wrenches Set', serialNumber: '', condition: null, notes: '' },
       { item: 'Socket Set', serialNumber: '', condition: null, notes: '' },
-      { item: 'Measuring Tools', serialNumber: '', condition: null, notes: '' }
+      { item: 'Measuring Tools', serialNumber: '', condition: null, notes: '' },
     ],
     safetyEquipment: [
       { item: 'First Aid Kit', serialNumber: '', condition: null, notes: '' },
-      { item: 'Fire Extinguisher', serialNumber: '', condition: null, notes: '' },
-      { item: 'Emergency Eyewash', serialNumber: '', condition: null, notes: '' }
+      {
+        item: 'Fire Extinguisher',
+        serialNumber: '',
+        condition: null,
+        notes: '',
+      },
+      {
+        item: 'Emergency Eyewash',
+        serialNumber: '',
+        condition: null,
+        notes: '',
+      },
     ],
     weldingEquipment: [
       { item: 'Welding Machine', serialNumber: '', condition: null, notes: '' },
       { item: 'Gas Bottles', serialNumber: '', condition: null, notes: '' },
-      { item: 'Welding Leads', serialNumber: '', condition: null, notes: '' }
+      { item: 'Welding Leads', serialNumber: '', condition: null, notes: '' },
     ],
     additionalNotes: '',
     inspectorSignature: '',
-    nextInspectionDate: ''
+    nextInspectionDate: '',
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const updateInspectionItem = (
-    category: keyof Pick<ToolInspectionData, 'powerTools' | 'handTools' | 'safetyEquipment' | 'weldingEquipment'>,
+    category: keyof Pick<
+      ToolInspectionData,
+      'powerTools' | 'handTools' | 'safetyEquipment' | 'weldingEquipment'
+    >,
     index: number,
     field: keyof InspectionItem,
     value: any
@@ -70,52 +94,74 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
       ...prev,
       [category]: prev[category].map((item, i) =>
         i === index ? { ...item, [field]: value } : item
-      )
+      ),
     }))
   }
 
   const addInspectionItem = (
-    category: keyof Pick<ToolInspectionData, 'powerTools' | 'handTools' | 'safetyEquipment' | 'weldingEquipment'>
+    category: keyof Pick<
+      ToolInspectionData,
+      'powerTools' | 'handTools' | 'safetyEquipment' | 'weldingEquipment'
+    >
   ) => {
     setFormData(prev => ({
       ...prev,
-      [category]: [...prev[category], { item: '', serialNumber: '', condition: null, notes: '' }]
+      [category]: [
+        ...prev[category],
+        { item: '', serialNumber: '', condition: null, notes: '' },
+      ],
     }))
   }
 
   const removeInspectionItem = (
-    category: keyof Pick<ToolInspectionData, 'powerTools' | 'handTools' | 'safetyEquipment' | 'weldingEquipment'>,
+    category: keyof Pick<
+      ToolInspectionData,
+      'powerTools' | 'handTools' | 'safetyEquipment' | 'weldingEquipment'
+    >,
     index: number
   ) => {
     setFormData(prev => ({
       ...prev,
-      [category]: prev[category].filter((_, i) => i !== index)
+      [category]: prev[category].filter((_, i) => i !== index),
     }))
   }
 
   const getConditionColor = (condition: InspectionItem['condition']) => {
     switch (condition) {
-      case 'good': return 'text-green-400'
-      case 'fair': return 'text-yellow-400'
-      case 'poor': return 'text-orange-400'
-      case 'out_of_service': return 'text-red-400'
-      default: return 'text-gray-400'
+      case 'good':
+        return 'text-green-400'
+      case 'fair':
+        return 'text-yellow-400'
+      case 'poor':
+        return 'text-orange-400'
+      case 'out_of_service':
+        return 'text-red-400'
+      default:
+        return 'text-gray-400'
     }
   }
 
   const getConditionIcon = (condition: InspectionItem['condition']) => {
     switch (condition) {
-      case 'good': return <CheckCircle className="h-4 w-4" />
-      case 'fair': return <AlertTriangle className="h-4 w-4" />
-      case 'poor': return <AlertTriangle className="h-4 w-4" />
-      case 'out_of_service': return <X className="h-4 w-4" />
-      default: return null
+      case 'good':
+        return <CheckCircle className="h-4 w-4" />
+      case 'fair':
+        return <AlertTriangle className="h-4 w-4" />
+      case 'poor':
+        return <AlertTriangle className="h-4 w-4" />
+      case 'out_of_service':
+        return <X className="h-4 w-4" />
+      default:
+        return null
     }
   }
 
   const renderInspectionCategory = (
     title: string,
-    category: keyof Pick<ToolInspectionData, 'powerTools' | 'handTools' | 'safetyEquipment' | 'weldingEquipment'>,
+    category: keyof Pick<
+      ToolInspectionData,
+      'powerTools' | 'handTools' | 'safetyEquipment' | 'weldingEquipment'
+    >,
     icon: React.ReactNode
   ) => (
     <div className="space-y-4">
@@ -147,7 +193,14 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
                 <input
                   type="text"
                   value={item.item}
-                  onChange={(e) => updateInspectionItem(category, index, 'item', e.target.value)}
+                  onChange={e =>
+                    updateInspectionItem(
+                      category,
+                      index,
+                      'item',
+                      e.target.value
+                    )
+                  }
                   className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Enter tool/equipment name"
                   required
@@ -161,7 +214,14 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
                 <input
                   type="text"
                   value={item.serialNumber || ''}
-                  onChange={(e) => updateInspectionItem(category, index, 'serialNumber', e.target.value)}
+                  onChange={e =>
+                    updateInspectionItem(
+                      category,
+                      index,
+                      'serialNumber',
+                      e.target.value
+                    )
+                  }
                   className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   placeholder="Serial number"
                 />
@@ -173,7 +233,14 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
                 </label>
                 <select
                   value={item.condition || ''}
-                  onChange={(e) => updateInspectionItem(category, index, 'condition', e.target.value as InspectionItem['condition'])}
+                  onChange={e =>
+                    updateInspectionItem(
+                      category,
+                      index,
+                      'condition',
+                      e.target.value as InspectionItem['condition']
+                    )
+                  }
                   className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   required
                 >
@@ -199,9 +266,12 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
             </div>
 
             <div className="flex items-center gap-2 mb-2">
-              <span className={`flex items-center gap-1 text-sm ${getConditionColor(item.condition)}`}>
+              <span
+                className={`flex items-center gap-1 text-sm ${getConditionColor(item.condition)}`}
+              >
                 {getConditionIcon(item.condition)}
-                {item.condition && item.condition.replace('_', ' ').toUpperCase()}
+                {item.condition &&
+                  item.condition.replace('_', ' ').toUpperCase()}
               </span>
             </div>
 
@@ -211,7 +281,9 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
               </label>
               <textarea
                 value={item.notes}
-                onChange={(e) => updateInspectionItem(category, index, 'notes', e.target.value)}
+                onChange={e =>
+                  updateInspectionItem(category, index, 'notes', e.target.value)
+                }
                 rows={2}
                 className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 placeholder="Additional notes, issues, or maintenance needed..."
@@ -232,35 +304,85 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
       await new Promise(resolve => setTimeout(resolve, 2000))
       console.log('Tool Inspection Form Data:', formData)
       alert('Tool & Equipment Inspection submitted successfully!')
-      
+
       // Reset form
       setFormData({
         inspectorName: '',
         inspectionDate: new Date().toISOString().split('T')[0],
         inspectionType: 'daily',
         powerTools: [
-          { item: 'Angle Grinder', serialNumber: '', condition: null, notes: '' },
-          { item: 'Impact Wrench', serialNumber: '', condition: null, notes: '' },
-          { item: 'Drill/Driver', serialNumber: '', condition: null, notes: '' }
+          {
+            item: 'Angle Grinder',
+            serialNumber: '',
+            condition: null,
+            notes: '',
+          },
+          {
+            item: 'Impact Wrench',
+            serialNumber: '',
+            condition: null,
+            notes: '',
+          },
+          {
+            item: 'Drill/Driver',
+            serialNumber: '',
+            condition: null,
+            notes: '',
+          },
         ],
         handTools: [
-          { item: 'Wrenches Set', serialNumber: '', condition: null, notes: '' },
+          {
+            item: 'Wrenches Set',
+            serialNumber: '',
+            condition: null,
+            notes: '',
+          },
           { item: 'Socket Set', serialNumber: '', condition: null, notes: '' },
-          { item: 'Measuring Tools', serialNumber: '', condition: null, notes: '' }
+          {
+            item: 'Measuring Tools',
+            serialNumber: '',
+            condition: null,
+            notes: '',
+          },
         ],
         safetyEquipment: [
-          { item: 'First Aid Kit', serialNumber: '', condition: null, notes: '' },
-          { item: 'Fire Extinguisher', serialNumber: '', condition: null, notes: '' },
-          { item: 'Emergency Eyewash', serialNumber: '', condition: null, notes: '' }
+          {
+            item: 'First Aid Kit',
+            serialNumber: '',
+            condition: null,
+            notes: '',
+          },
+          {
+            item: 'Fire Extinguisher',
+            serialNumber: '',
+            condition: null,
+            notes: '',
+          },
+          {
+            item: 'Emergency Eyewash',
+            serialNumber: '',
+            condition: null,
+            notes: '',
+          },
         ],
         weldingEquipment: [
-          { item: 'Welding Machine', serialNumber: '', condition: null, notes: '' },
+          {
+            item: 'Welding Machine',
+            serialNumber: '',
+            condition: null,
+            notes: '',
+          },
           { item: 'Gas Bottles', serialNumber: '', condition: null, notes: '' },
-          { item: 'Welding Leads', serialNumber: '', condition: null, notes: '' }
+          {
+            item: 'Welding Leads',
+            serialNumber: '',
+            condition: null,
+            notes: '',
+          },
         ],
         additionalNotes: '',
         inspectorSignature: '',
-        nextInspectionDate: ''
+        nextInspectionDate: '',
       })
     } catch (error) {
       alert('Failed to submit form. Please try again.')
@@ -277,8 +399,12 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
             <Wrench className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold font-shogun text-white">Tool & Equipment Inspection</h2>
-            <p className="text-gray-400">Daily/weekly inspection of tools and equipment</p>
+            <h2 className="text-2xl font-bold font-shogun text-white">
+              Tool & Equipment Inspection
+            </h2>
+            <p className="text-gray-400">
+              Daily/weekly inspection of tools and equipment
+            </p>
           </div>
         </div>
 
@@ -292,7 +418,9 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
               <input
                 type="text"
                 value={formData.inspectorName}
-                onChange={(e) => setFormData({ ...formData, inspectorName: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, inspectorName: e.target.value })
+                }
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 required
                 placeholder="Enter inspector name"
@@ -306,7 +434,9 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
               <input
                 type="date"
                 value={formData.inspectionDate}
-                onChange={(e) => setFormData({ ...formData, inspectionDate: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, inspectionDate: e.target.value })
+                }
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 required
               />
@@ -318,7 +448,13 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
               </label>
               <select
                 value={formData.inspectionType}
-                onChange={(e) => setFormData({ ...formData, inspectionType: e.target.value as ToolInspectionData['inspectionType'] })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    inspectionType: e.target
+                      .value as ToolInspectionData['inspectionType'],
+                  })
+                }
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 required
               >
@@ -330,10 +466,26 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
           </div>
 
           {/* Inspection Categories */}
-          {renderInspectionCategory('Power Tools', 'powerTools', <Zap className="h-5 w-5 text-safety-orange" />)}
-          {renderInspectionCategory('Hand Tools', 'handTools', <Wrench className="h-5 w-5 text-aisc-blue" />)}
-          {renderInspectionCategory('Safety Equipment', 'safetyEquipment', <AlertTriangle className="h-5 w-5 text-yellow-400" />)}
-          {renderInspectionCategory('Welding Equipment', 'weldingEquipment', <Settings className="h-5 w-5 text-green-400" />)}
+          {renderInspectionCategory(
+            'Power Tools',
+            'powerTools',
+            <Zap className="h-5 w-5 text-safety-orange" />
+          )}
+          {renderInspectionCategory(
+            'Hand Tools',
+            'handTools',
+            <Wrench className="h-5 w-5 text-aisc-blue" />
+          )}
+          {renderInspectionCategory(
+            'Safety Equipment',
+            'safetyEquipment',
+            <AlertTriangle className="h-5 w-5 text-yellow-400" />
+          )}
+          {renderInspectionCategory(
+            'Welding Equipment',
+            'weldingEquipment',
+            <Settings className="h-5 w-5 text-green-400" />
+          )}
 
           {/* Additional Information */}
           <div className="space-y-6">
@@ -343,7 +495,9 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
               </label>
               <textarea
                 value={formData.additionalNotes}
-                onChange={(e) => setFormData({ ...formData, additionalNotes: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, additionalNotes: e.target.value })
+                }
                 rows={4}
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 placeholder="General observations, maintenance recommendations, or other notes..."
@@ -358,7 +512,12 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
                 <input
                   type="date"
                   value={formData.nextInspectionDate}
-                  onChange={(e) => setFormData({ ...formData, nextInspectionDate: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      nextInspectionDate: e.target.value,
+                    })
+                  }
                   className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-safety-orange"
                 />
               </div>
@@ -370,7 +529,12 @@ export default function FSWToolInspection({ projectId }: FSWToolInspectionProps)
                 <input
                   type="text"
                   value={formData.inspectorSignature}
-                  onChange={(e) => setFormData({ ...formData, inspectorSignature: e.target.value })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      inspectorSignature: e.target.value,
+                    })
+                  }
                   className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded text-white focus:outline-none focus:ring-2 focus:ring-safety-orange"
                   required
                   placeholder="Type full name as signature"

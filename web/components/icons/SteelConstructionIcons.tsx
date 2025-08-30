@@ -6,7 +6,10 @@ interface IconProps {
 }
 
 // Hard Hat Silhouette Icon
-export const HardHatIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+export const HardHatIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -24,16 +27,15 @@ export const HardHatIcon: React.FC<IconProps> = ({ className = '', size = 24 }) 
       d="M6 14H8V16C8 16.5 8.5 17 9 17H15C15.5 17 16 16.5 16 16V14H18V18C18 19 17 20 16 20H8C7 20 6 19 6 18V14Z"
       fill="currentColor"
     />
-    <path
-      d="M10 6H14V8H10V6Z"
-      fill="currentColor"
-      opacity="0.3"
-    />
+    <path d="M10 6H14V8H10V6Z" fill="currentColor" opacity="0.3" />
   </svg>
 )
 
 // I-beam with Crane Hook Icon
-export const IBeamCraneIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+export const IBeamCraneIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -73,7 +75,10 @@ export const IBeamCraneIcon: React.FC<IconProps> = ({ className = '', size = 24 
 )
 
 // Welding Torch with Spark Icon
-export const WeldingTorchIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+export const WeldingTorchIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -111,7 +116,10 @@ export const WeldingTorchIcon: React.FC<IconProps> = ({ className = '', size = 2
 )
 
 // Group of Ironworkers Icon
-export const IronworkersTeamIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+export const IronworkersTeamIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -148,7 +156,10 @@ export const IronworkersTeamIcon: React.FC<IconProps> = ({ className = '', size 
 )
 
 // Upload with Plate Steel Icon
-export const UploadFabricationIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+export const UploadFabricationIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -180,13 +191,32 @@ export const UploadFabricationIcon: React.FC<IconProps> = ({ className = '', siz
       strokeLinejoin="round"
     />
     {/* Material texture lines */}
-    <line x1="7" y1="17" x2="17" y2="17" stroke="currentColor" opacity="0.2" strokeWidth="0.5" />
-    <line x1="7" y1="19" x2="17" y2="19" stroke="currentColor" opacity="0.2" strokeWidth="0.5" />
+    <line
+      x1="7"
+      y1="17"
+      x2="17"
+      y2="17"
+      stroke="currentColor"
+      opacity="0.2"
+      strokeWidth="0.5"
+    />
+    <line
+      x1="7"
+      y1="19"
+      x2="17"
+      y2="19"
+      stroke="currentColor"
+      opacity="0.2"
+      strokeWidth="0.5"
+    />
   </svg>
 )
 
 // Rolled-up Blueprints Icon
-export const ProjectDrawingsIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+export const ProjectDrawingsIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -209,9 +239,30 @@ export const ProjectDrawingsIcon: React.FC<IconProps> = ({ className = '', size 
     />
     {/* Drawing lines */}
     <line x1="8" y1="8" x2="14" y2="8" stroke="currentColor" strokeWidth="1" />
-    <line x1="8" y1="10" x2="12" y2="10" stroke="currentColor" strokeWidth="1" />
-    <line x1="8" y1="12" x2="14" y2="12" stroke="currentColor" strokeWidth="1" />
-    <line x1="8" y1="14" x2="11" y2="14" stroke="currentColor" strokeWidth="1" />
+    <line
+      x1="8"
+      y1="10"
+      x2="12"
+      y2="10"
+      stroke="currentColor"
+      strokeWidth="1"
+    />
+    <line
+      x1="8"
+      y1="12"
+      x2="14"
+      y2="12"
+      stroke="currentColor"
+      strokeWidth="1"
+    />
+    <line
+      x1="8"
+      y1="14"
+      x2="11"
+      y2="14"
+      stroke="currentColor"
+      strokeWidth="1"
+    />
     {/* Roll curve */}
     <path
       d="M15 17C15 17 17 17 18.5 16.5C20 16 20 15 20 15"
@@ -224,7 +275,10 @@ export const ProjectDrawingsIcon: React.FC<IconProps> = ({ className = '', size 
 )
 
 // Media Gallery Icon (for consistency)
-export const MediaGalleryIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+export const MediaGalleryIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -234,22 +288,51 @@ export const MediaGalleryIcon: React.FC<IconProps> = ({ className = '', size = 2
     className={className}
   >
     {/* Photo frames */}
-    <rect x="4" y="6" width="10" height="8" stroke="currentColor" strokeWidth="2" fill="currentColor" opacity="0.1" />
-    <rect x="8" y="10" width="10" height="8" stroke="currentColor" strokeWidth="2" fill="currentColor" opacity="0.2" />
-    <rect x="10" y="8" width="10" height="8" stroke="currentColor" strokeWidth="2" fill="none" />
+    <rect
+      x="4"
+      y="6"
+      width="10"
+      height="8"
+      stroke="currentColor"
+      strokeWidth="2"
+      fill="currentColor"
+      opacity="0.1"
+    />
+    <rect
+      x="8"
+      y="10"
+      width="10"
+      height="8"
+      stroke="currentColor"
+      strokeWidth="2"
+      fill="currentColor"
+      opacity="0.2"
+    />
+    <rect
+      x="10"
+      y="8"
+      width="10"
+      height="8"
+      stroke="currentColor"
+      strokeWidth="2"
+      fill="none"
+    />
     {/* Image content indicator */}
     <circle cx="13" cy="11" r="1" fill="currentColor" />
-    <path d="M11 14L13 12L15 14L17 11" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M11 14L13 12L15 14L17 11"
+      stroke="currentColor"
+      strokeWidth="1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 )
 
 // Animated versions for hover effects
-export const SparkAnimationIcon: React.FC<IconProps & { isAnimating?: boolean }> = ({ 
-  className = '', 
-  size = 24, 
-  isAnimating = false,
-  ...props 
-}) => (
+export const SparkAnimationIcon: React.FC<
+  IconProps & { isAnimating?: boolean }
+> = ({ className = '', size = 24, isAnimating = false, ...props }) => (
   <svg
     width={size}
     height={size}
@@ -261,7 +344,7 @@ export const SparkAnimationIcon: React.FC<IconProps & { isAnimating?: boolean }>
     <g className={isAnimating ? 'animate-pulse' : ''}>
       <circle cx="12" cy="12" r="2" fill="currentColor" />
       {[...Array(8)].map((_, i) => {
-        const angle = (i * 45) * Math.PI / 180
+        const angle = (i * 45 * Math.PI) / 180
         const x1 = 12 + 4 * Math.cos(angle)
         const y1 = 12 + 4 * Math.sin(angle)
         const x2 = 12 + 8 * Math.cos(angle)
@@ -275,7 +358,7 @@ export const SparkAnimationIcon: React.FC<IconProps & { isAnimating?: boolean }>
             y2={y2}
             stroke="currentColor"
             strokeWidth="1"
-            opacity={isAnimating ? "0.8" : "0.3"}
+            opacity={isAnimating ? '0.8' : '0.3'}
             className={isAnimating ? 'animate-spark' : ''}
           />
         )
@@ -284,12 +367,9 @@ export const SparkAnimationIcon: React.FC<IconProps & { isAnimating?: boolean }>
   </svg>
 )
 
-export const CraneHookAnimationIcon: React.FC<IconProps & { isAnimating?: boolean }> = ({ 
-  className = '', 
-  size = 24, 
-  isAnimating = false,
-  ...props 
-}) => (
+export const CraneHookAnimationIcon: React.FC<
+  IconProps & { isAnimating?: boolean }
+> = ({ className = '', size = 24, isAnimating = false, ...props }) => (
   <svg
     width={size}
     height={size}
@@ -319,12 +399,9 @@ export const CraneHookAnimationIcon: React.FC<IconProps & { isAnimating?: boolea
   </svg>
 )
 
-export const BoltRotationIcon: React.FC<IconProps & { isAnimating?: boolean }> = ({ 
-  className = '', 
-  size = 24, 
-  isAnimating = false,
-  ...props 
-}) => (
+export const BoltRotationIcon: React.FC<
+  IconProps & { isAnimating?: boolean }
+> = ({ className = '', size = 24, isAnimating = false, ...props }) => (
   <svg
     width={size}
     height={size}
@@ -334,7 +411,14 @@ export const BoltRotationIcon: React.FC<IconProps & { isAnimating?: boolean }> =
     className={className}
   >
     <g className={isAnimating ? 'animate-tighten' : ''}>
-      <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2" fill="none" />
+      <circle
+        cx="12"
+        cy="12"
+        r="4"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="none"
+      />
       <path
         d="M12 8L10 6M12 8L14 6M12 16L10 18M12 16L14 18M8 12L6 10M8 12L6 14M16 12L18 10M16 12L18 14"
         stroke="currentColor"
@@ -346,7 +430,10 @@ export const BoltRotationIcon: React.FC<IconProps & { isAnimating?: boolean }> =
 )
 
 // User Group icon - for team page
-export const UserGroupIcon: React.FC<IconProps> = ({ className = '', size = 24 }) => (
+export const UserGroupIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -357,13 +444,23 @@ export const UserGroupIcon: React.FC<IconProps> = ({ className = '', size = 24 }
   >
     <circle cx="9" cy="7" r="2" fill="currentColor" />
     <circle cx="15" cy="7" r="2" fill="currentColor" />
-    <path d="M9 11C6.5 11 4.5 12.5 4.5 14V18H13.5V14C13.5 12.5 11.5 11 9 11Z" fill="currentColor" />
-    <path d="M15 11C14.3 11 13.7 11.1 13.2 11.3C14.3 12 15 13 15 14V18H19.5V14C19.5 12.5 17.5 11 15 11Z" fill="currentColor" opacity="0.7" />
+    <path
+      d="M9 11C6.5 11 4.5 12.5 4.5 14V18H13.5V14C13.5 12.5 11.5 11 9 11Z"
+      fill="currentColor"
+    />
+    <path
+      d="M15 11C14.3 11 13.7 11.1 13.2 11.3C14.3 12 15 13 15 14V18H19.5V14C19.5 12.5 17.5 11 15 11Z"
+      fill="currentColor"
+      opacity="0.7"
+    />
   </svg>
 )
 
 // Site Plan icon - blueprint with grid
-export const SitePlanIcon: React.FC<IconProps> = ({ className = "", size = 24 }) => (
+export const SitePlanIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -372,19 +469,69 @@ export const SitePlanIcon: React.FC<IconProps> = ({ className = "", size = 24 })
     xmlns="http://www.w3.org/2000/svg"
     className={className}
   >
-    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
-    <line x1="8" y1="3" x2="8" y2="21" stroke="currentColor" strokeWidth="1" opacity="0.5"/>
-    <line x1="16" y1="3" x2="16" y2="21" stroke="currentColor" strokeWidth="1" opacity="0.5"/>
-    <line x1="3" y1="8" x2="21" y2="8" stroke="currentColor" strokeWidth="1" opacity="0.5"/>
-    <line x1="3" y1="16" x2="21" y2="16" stroke="currentColor" strokeWidth="1" opacity="0.5"/>
-    <rect x="10" y="10" width="6" height="4" fill="currentColor" opacity="0.8"/>
-    <rect x="5" y="14" width="4" height="4" fill="currentColor" opacity="0.6"/>
-    <rect x="17" y="5" width="2" height="6" fill="currentColor" opacity="0.6"/>
+    <rect
+      x="3"
+      y="3"
+      width="18"
+      height="18"
+      rx="2"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+    <line
+      x1="8"
+      y1="3"
+      x2="8"
+      y2="21"
+      stroke="currentColor"
+      strokeWidth="1"
+      opacity="0.5"
+    />
+    <line
+      x1="16"
+      y1="3"
+      x2="16"
+      y2="21"
+      stroke="currentColor"
+      strokeWidth="1"
+      opacity="0.5"
+    />
+    <line
+      x1="3"
+      y1="8"
+      x2="21"
+      y2="8"
+      stroke="currentColor"
+      strokeWidth="1"
+      opacity="0.5"
+    />
+    <line
+      x1="3"
+      y1="16"
+      x2="21"
+      y2="16"
+      stroke="currentColor"
+      strokeWidth="1"
+      opacity="0.5"
+    />
+    <rect
+      x="10"
+      y="10"
+      width="6"
+      height="4"
+      fill="currentColor"
+      opacity="0.8"
+    />
+    <rect x="5" y="14" width="4" height="4" fill="currentColor" opacity="0.6" />
+    <rect x="17" y="5" width="2" height="6" fill="currentColor" opacity="0.6" />
   </svg>
 )
 
 // Pencil Ruler icon - for annotation and measurement
-export const PencilRulerIcon: React.FC<IconProps> = ({ className = "", size = 24 }) => (
+export const PencilRulerIcon: React.FC<IconProps> = ({
+  className = '',
+  size = 24,
+}) => (
   <svg
     width={size}
     height={size}
@@ -394,17 +541,60 @@ export const PencilRulerIcon: React.FC<IconProps> = ({ className = "", size = 24
     className={className}
   >
     {/* Ruler */}
-    <rect x="2" y="14" width="20" height="6" stroke="currentColor" strokeWidth="2" fill="none"/>
-    <line x1="6" y1="14" x2="6" y2="17" stroke="currentColor" strokeWidth="1.5"/>
-    <line x1="10" y1="14" x2="10" y2="17" stroke="currentColor" strokeWidth="1.5"/>
-    <line x1="14" y1="14" x2="14" y2="17" stroke="currentColor" strokeWidth="1.5"/>
-    <line x1="18" y1="14" x2="18" y2="17" stroke="currentColor" strokeWidth="1.5"/>
-    
+    <rect
+      x="2"
+      y="14"
+      width="20"
+      height="6"
+      stroke="currentColor"
+      strokeWidth="2"
+      fill="none"
+    />
+    <line
+      x1="6"
+      y1="14"
+      x2="6"
+      y2="17"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
+    <line
+      x1="10"
+      y1="14"
+      x2="10"
+      y2="17"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
+    <line
+      x1="14"
+      y1="14"
+      x2="14"
+      y2="17"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
+    <line
+      x1="18"
+      y1="14"
+      x2="18"
+      y2="17"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
+
     {/* Pencil */}
     <g transform="rotate(-45 12 7)">
-      <rect x="10" y="2" width="4" height="10" fill="currentColor"/>
-      <polygon points="10,12 12,15 14,12" fill="currentColor"/>
-      <rect x="11" y="0" width="2" height="2" fill="currentColor" opacity="0.5"/>
+      <rect x="10" y="2" width="4" height="10" fill="currentColor" />
+      <polygon points="10,12 12,15 14,12" fill="currentColor" />
+      <rect
+        x="11"
+        y="0"
+        width="2"
+        height="2"
+        fill="currentColor"
+        opacity="0.5"
+      />
     </g>
   </svg>
 )

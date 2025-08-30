@@ -20,7 +20,7 @@ export default function PhotoAnnotatorModal({
   imageUrl,
   title = 'Edit Photo',
   onSave,
-  companyLogoUrl
+  companyLogoUrl,
 }: PhotoAnnotatorModalProps) {
   const [isSaving, setIsSaving] = useState(false)
 

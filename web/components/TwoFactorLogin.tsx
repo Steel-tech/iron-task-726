@@ -3,7 +3,13 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Shield, AlertTriangle, ArrowLeft } from 'lucide-react'
 
 interface TwoFactorLoginProps {
@@ -15,13 +21,13 @@ interface TwoFactorLoginProps {
   error?: string
 }
 
-export default function TwoFactorLogin({ 
-  email, 
-  password, 
-  onVerify, 
-  onBack, 
-  isLoading = false, 
-  error 
+export default function TwoFactorLogin({
+  email,
+  password,
+  onVerify,
+  onBack,
+  isLoading = false,
+  error,
 }: TwoFactorLoginProps) {
   const [code, setCode] = useState('')
   const [isBackupCode, setIsBackupCode] = useState(false)
@@ -59,10 +65,9 @@ export default function TwoFactorLogin({
             Two-Factor Authentication
           </CardTitle>
           <CardDescription>
-            {isBackupCode 
+            {isBackupCode
               ? 'Enter one of your 8-digit backup codes'
-              : 'Enter the 6-digit code from your authenticator app'
-            }
+              : 'Enter the 6-digit code from your authenticator app'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -79,7 +84,7 @@ export default function TwoFactorLogin({
                 id="code"
                 type="text"
                 value={code}
-                onChange={(e) => handleCodeChange(e.target.value)}
+                onChange={e => handleCodeChange(e.target.value)}
                 placeholder={isBackupCode ? '12345678' : '123456'}
                 maxLength={expectedLength}
                 className="text-center font-mono text-lg"
@@ -96,9 +101,9 @@ export default function TwoFactorLogin({
               </div>
             )}
 
-            <Button 
-              type="submit" 
-              disabled={isLoading || code.length !== expectedLength} 
+            <Button
+              type="submit"
+              disabled={isLoading || code.length !== expectedLength}
               className="w-full"
             >
               {isLoading ? 'Verifying...' : 'Sign In'}
@@ -111,10 +116,9 @@ export default function TwoFactorLogin({
               onClick={toggleBackupCode}
               className="text-sm text-blue-600 hover:text-blue-800 underline"
             >
-              {isBackupCode 
-                ? 'Use authenticator app instead' 
-                : 'Use backup code instead'
-              }
+              {isBackupCode
+                ? 'Use authenticator app instead'
+                : 'Use backup code instead'}
             </button>
 
             <button
@@ -138,7 +142,8 @@ export default function TwoFactorLogin({
           {isBackupCode && (
             <div className="bg-amber-50 border border-amber-200 rounded p-3">
               <div className="text-xs text-amber-800">
-                <strong>Note:</strong> Each backup code can only be used once. Make sure to keep your remaining codes secure.
+                <strong>Note:</strong> Each backup code can only be used once.
+                Make sure to keep your remaining codes secure.
               </div>
             </div>
           )}

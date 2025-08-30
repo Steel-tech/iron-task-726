@@ -1,296 +1,342 @@
-const prisma = require('../lib/prisma');
+const prisma = require('../lib/prisma')
 
 async function routes(fastify, options) {
   // Simple test route
-  fastify.get('/test', {
-    preHandler: [fastify.authenticate],
-  }, async (request, reply) => {
-    return { message: 'Projects test route working', user: request.user };
-  });
+  fastify.get(
+    '/test',
+    {
+      preHandler: [fastify.authenticate],
+    },
+    async (request, reply) => {
+      return { message: 'Projects test route working', user: request.user }
+    }
+  )
 
   // Get all projects
-  fastify.get('/', {
-    preHandler: [fastify.authenticate],
-  }, async (request, reply) => {
-    try {
-      const { role, userId } = request.user;
-      
-      // Very simple query - just get all projects
-      const projects = await prisma.project.findMany({
-        orderBy: {
-          createdAt: 'desc',
-        },
-      });
+  fastify.get(
+    '/',
+    {
+      preHandler: [fastify.authenticate],
+    },
+    async (request, reply) => {
+      try {
+        const { role, userId } = request.user
 
-      // Add mock counts and labels for each project
-      const enrichedProjects = projects.map(project => ({
-        ...project,
-        _count: {
-          media: Math.floor(Math.random() * 10) + 1 // Random count between 1-10
-        },
-        labels: [] // Empty labels array for now
-      }));
+        // Very simple query - just get all projects
+        const projects = await prisma.project.findMany({
+          orderBy: {
+            createdAt: 'desc',
+          },
+        })
 
-      return enrichedProjects;
-    } catch (error) {
-      request.logger.error('Failed to fetch projects', {
-        error: error.message,
-        stack: error.stack
-      });
-      return reply.code(500).send({ 
-        error: 'Failed to fetch projects',
-        message: error.message 
-      });
+        // Add mock counts and labels for each project
+        const enrichedProjects = projects.map(project => ({
+          ...project,
+          _count: {
+            media: Math.floor(Math.random() * 10) + 1, // Random count between 1-10
+          },
+          labels: [], // Empty labels array for now
+        }))
+
+        return enrichedProjects
+      } catch (error) {
+        request.logger.error('Failed to fetch projects', {
+          error: error.message,
+          stack: error.stack,
+        })
+        return reply.code(500).send({
+          error: 'Failed to fetch projects',
+          message: error.message,
+        })
+      }
     }
-  });
+  )
 
   // Get project by ID
-  fastify.get('/:id', {
-    preHandler: [fastify.authenticate],
-  }, async (request, reply) => {
-    try {
-      const { id } = request.params;
-      
-      const project = await prisma.project.findUnique({
-        where: { id },
-        include: {
-          _count: {
-            select: { media: true }
+  fastify.get(
+    '/:id',
+    {
+      preHandler: [fastify.authenticate],
+    },
+    async (request, reply) => {
+      try {
+        const { id } = request.params
+
+        const project = await prisma.project.findUnique({
+          where: { id },
+          include: {
+            _count: {
+              select: { media: true },
+            },
+            labels: {
+              include: {
+                label: true,
+              },
+            },
           },
-          labels: {
-            include: {
-              label: true
-            }
-          }
-        },
-      });
+        })
 
-      if (!project) {
-        request.logger.warn('Project not found', { projectId: id });
-        return reply.code(404).send({ error: 'Project not found' });
+        if (!project) {
+          request.logger.warn('Project not found', { projectId: id })
+          return reply.code(404).send({ error: 'Project not found' })
+        }
+
+        request.logger.info('Project fetched successfully', {
+          projectId: id,
+          projectName: project.name,
+        })
+
+        return project
+      } catch (error) {
+        request.logger.error('Failed to fetch project', {
+          error: error.message,
+          stack: error.stack,
+          projectId: id,
+        })
+        return reply.code(500).send({
+          error: 'Failed to fetch project',
+          message: error.message,
+        })
       }
-
-      request.logger.info('Project fetched successfully', {
-        projectId: id,
-        projectName: project.name
-      });
-
-      return project;
-    } catch (error) {
-      request.logger.error('Failed to fetch project', {
-        error: error.message,
-        stack: error.stack,
-        projectId: id
-      });
-      return reply.code(500).send({ 
-        error: 'Failed to fetch project',
-        message: error.message 
-      });
     }
-  });
+  )
 
   // Get project creation form data (companies, etc.)
-  fastify.get('/new', {
-    preHandler: [fastify.authenticate],
-  }, async (request, reply) => {
-    try {
-      const { role } = request.user;
-      
-      if (role !== 'ADMIN' && role !== 'PROJECT_MANAGER') {
-        request.logger.security('Unauthorized project creation attempt', {
-          userRole: role
-        });
-        return reply.code(403).send({ error: 'Unauthorized to create projects' });
+  fastify.get(
+    '/new',
+    {
+      preHandler: [fastify.authenticate],
+    },
+    async (request, reply) => {
+      try {
+        const { role } = request.user
+
+        if (role !== 'ADMIN' && role !== 'PROJECT_MANAGER') {
+          request.logger.security('Unauthorized project creation attempt', {
+            userRole: role,
+          })
+          return reply
+            .code(403)
+            .send({ error: 'Unauthorized to create projects' })
+        }
+
+        // Return any data needed for the form
+        const companies = await prisma.company.findMany({
+          select: { id: true, name: true },
+        })
+
+        return {
+          companies,
+          canCreate: true,
+        }
+      } catch (error) {
+        request.logger.error('Failed to fetch project form data', {
+          error: error.message,
+          stack: error.stack,
+        })
+        return reply.code(500).send({
+          error: 'Failed to load form data',
+          message: error.message,
+        })
       }
-
-      // Return any data needed for the form
-      const companies = await prisma.company.findMany({
-        select: { id: true, name: true }
-      });
-
-      return {
-        companies,
-        canCreate: true
-      };
-    } catch (error) {
-      request.logger.error('Failed to fetch project form data', {
-        error: error.message,
-        stack: error.stack
-      });
-      return reply.code(500).send({ 
-        error: 'Failed to load form data',
-        message: error.message 
-      });
     }
-  });
+  )
 
   // Create new project
-  fastify.post('/', {
-    preHandler: [fastify.authenticate],
-  }, async (request, reply) => {
-    try {
-      request.logger.info('Project creation started', {
-        projectData: { name: request.body.name, jobNumber: request.body.jobNumber, location: request.body.location }
-      });
-      
-      const { name, jobNumber, location, address, companyId } = request.body;
-      const { role, companyId: userCompanyId } = request.user;
-      
-      if (role !== 'ADMIN' && role !== 'PROJECT_MANAGER') {
-        request.logger.security('Unauthorized project creation attempt', {
-          userRole: role
-        });
-        return reply.code(403).send({ error: 'Unauthorized' });
-      }
+  fastify.post(
+    '/',
+    {
+      preHandler: [fastify.authenticate],
+    },
+    async (request, reply) => {
+      try {
+        request.logger.info('Project creation started', {
+          projectData: {
+            name: request.body.name,
+            jobNumber: request.body.jobNumber,
+            location: request.body.location,
+          },
+        })
 
-      // Validation
-      if (!name || !jobNumber || !location) {
-        request.logger.warn('Project creation failed - missing required fields', {
-          received: { name: !!name, jobNumber: !!jobNumber, location: !!location }
-        });
-        return reply.code(400).send({ 
-          error: 'Missing required fields',
-          message: 'Project name, job number, and location are required',
-          received: { name: !!name, jobNumber: !!jobNumber, location: !!location }
-        });
-      }
+        const { name, jobNumber, location, address, companyId } = request.body
+        const { role, companyId: userCompanyId } = request.user
 
-      const project = await prisma.project.create({
-        data: {
-          name,
-          jobNumber,
-          location,
-          address: address || null,
-          companyId: companyId || userCompanyId,
-        },
-        include: {
-          company: true,
-          _count: {
-            select: { media: true }
-          }
+        if (role !== 'ADMIN' && role !== 'PROJECT_MANAGER') {
+          request.logger.security('Unauthorized project creation attempt', {
+            userRole: role,
+          })
+          return reply.code(403).send({ error: 'Unauthorized' })
         }
-      });
 
-      request.logger.business('Project created successfully', {
-        projectId: project.id,
-        projectName: project.name,
-        jobNumber: project.jobNumber,
-        companyId: project.companyId
-      });
-      
-      return project;
-    } catch (error) {
-      request.logger.error('Failed to create project', {
-        error: error.message,
-        stack: error.stack,
-        projectData: { name, jobNumber, location, address }
-      });
-      return reply.code(500).send({ 
-        error: 'Failed to create project',
-        message: error.message || 'An unexpected error occurred'
-      });
+        // Validation
+        if (!name || !jobNumber || !location) {
+          request.logger.warn(
+            'Project creation failed - missing required fields',
+            {
+              received: {
+                name: !!name,
+                jobNumber: !!jobNumber,
+                location: !!location,
+              },
+            }
+          )
+          return reply.code(400).send({
+            error: 'Missing required fields',
+            message: 'Project name, job number, and location are required',
+            received: {
+              name: !!name,
+              jobNumber: !!jobNumber,
+              location: !!location,
+            },
+          })
+        }
+
+        const project = await prisma.project.create({
+          data: {
+            name,
+            jobNumber,
+            location,
+            address: address || null,
+            companyId: companyId || userCompanyId,
+          },
+          include: {
+            company: true,
+            _count: {
+              select: { media: true },
+            },
+          },
+        })
+
+        request.logger.business('Project created successfully', {
+          projectId: project.id,
+          projectName: project.name,
+          jobNumber: project.jobNumber,
+          companyId: project.companyId,
+        })
+
+        return project
+      } catch (error) {
+        request.logger.error('Failed to create project', {
+          error: error.message,
+          stack: error.stack,
+          projectData: { name, jobNumber, location, address },
+        })
+        return reply.code(500).send({
+          error: 'Failed to create project',
+          message: error.message || 'An unexpected error occurred',
+        })
+      }
     }
-  });
+  )
 
   // Update project
-  fastify.patch('/:id', {
-    preHandler: [fastify.authenticate],
-  }, async (request, reply) => {
-    try {
-      const { id } = request.params;
-      const { name, description, location, status } = request.body;
-      const { role } = request.user;
-      
-      if (role !== 'ADMIN' && role !== 'PROJECT_MANAGER') {
-        request.logger.security('Unauthorized project update attempt', {
-          userRole: role,
-          projectId: id
-        });
-        return reply.code(403).send({ error: 'Unauthorized' });
+  fastify.patch(
+    '/:id',
+    {
+      preHandler: [fastify.authenticate],
+    },
+    async (request, reply) => {
+      try {
+        const { id } = request.params
+        const { name, description, location, status } = request.body
+        const { role } = request.user
+
+        if (role !== 'ADMIN' && role !== 'PROJECT_MANAGER') {
+          request.logger.security('Unauthorized project update attempt', {
+            userRole: role,
+            projectId: id,
+          })
+          return reply.code(403).send({ error: 'Unauthorized' })
+        }
+
+        const project = await prisma.project.update({
+          where: { id },
+          data: {
+            name,
+            description,
+            location,
+            status,
+          },
+        })
+
+        request.logger.business('Project updated successfully', {
+          projectId: id,
+          updatedFields: { name, description, location, status },
+        })
+
+        return project
+      } catch (error) {
+        request.logger.error('Failed to update project', {
+          error: error.message,
+          stack: error.stack,
+          projectId: id,
+          updateData: { name, description, location, status },
+        })
+        return reply.code(500).send({
+          error: 'Failed to update project',
+          message: error.message,
+        })
       }
-
-      const project = await prisma.project.update({
-        where: { id },
-        data: {
-          name,
-          description,
-          location,
-          status,
-        },
-      });
-
-      request.logger.business('Project updated successfully', {
-        projectId: id,
-        updatedFields: { name, description, location, status }
-      });
-
-      return project;
-    } catch (error) {
-      request.logger.error('Failed to update project', {
-        error: error.message,
-        stack: error.stack,
-        projectId: id,
-        updateData: { name, description, location, status }
-      });
-      return reply.code(500).send({ 
-        error: 'Failed to update project',
-        message: error.message 
-      });
     }
-  });
+  )
 
   // Delete project
-  fastify.delete('/:id', {
-    preHandler: [fastify.authenticate],
-  }, async (request, reply) => {
-    try {
-      const { id } = request.params;
-      const { role } = request.user;
-      
-      if (role !== 'ADMIN') {
-        request.logger.security('Unauthorized project deletion attempt', {
-          userRole: role,
-          projectId: id
-        });
-        return reply.code(403).send({ error: 'Unauthorized' });
-      }
+  fastify.delete(
+    '/:id',
+    {
+      preHandler: [fastify.authenticate],
+    },
+    async (request, reply) => {
+      try {
+        const { id } = request.params
+        const { role } = request.user
 
-      // Check if project has photos
-      const photoCount = await prisma.photo.count({
-        where: { projectId: id },
-      });
+        if (role !== 'ADMIN') {
+          request.logger.security('Unauthorized project deletion attempt', {
+            userRole: role,
+            projectId: id,
+          })
+          return reply.code(403).send({ error: 'Unauthorized' })
+        }
 
-      if (photoCount > 0) {
-        request.logger.warn('Project deletion blocked - contains photos', {
+        // Check if project has photos
+        const photoCount = await prisma.photo.count({
+          where: { projectId: id },
+        })
+
+        if (photoCount > 0) {
+          request.logger.warn('Project deletion blocked - contains photos', {
+            projectId: id,
+            photoCount,
+          })
+          return reply.code(400).send({
+            error:
+              'Cannot delete project with photos. Delete all photos first.',
+          })
+        }
+
+        await prisma.project.delete({
+          where: { id },
+        })
+
+        request.logger.business('Project deleted successfully', {
           projectId: id,
-          photoCount
-        });
-        return reply.code(400).send({ 
-          error: 'Cannot delete project with photos. Delete all photos first.' 
-        });
+        })
+
+        return { message: 'Project deleted successfully' }
+      } catch (error) {
+        request.logger.error('Failed to delete project', {
+          error: error.message,
+          stack: error.stack,
+          projectId: id,
+        })
+        return reply.code(500).send({
+          error: 'Failed to delete project',
+          message: error.message,
+        })
       }
-
-      await prisma.project.delete({
-        where: { id },
-      });
-
-      request.logger.business('Project deleted successfully', {
-        projectId: id
-      });
-
-      return { message: 'Project deleted successfully' };
-    } catch (error) {
-      request.logger.error('Failed to delete project', {
-        error: error.message,
-        stack: error.stack,
-        projectId: id
-      });
-      return reply.code(500).send({ 
-        error: 'Failed to delete project',
-        message: error.message 
-      });
     }
-  });
+  )
 }
 
-module.exports = routes;
+module.exports = routes

@@ -14,11 +14,13 @@ export default function NewProjectPage() {
     address: '',
     companyId: '',
     status: 'PLANNING' as const,
-    description: ''
+    description: '',
   })
   const [isLoading, setIsLoading] = useState(false)
   const [canCreate, setCanCreate] = useState(false)
-  const [companies, setCompanies] = useState<Array<{id: string, name: string}>>([])
+  const [companies, setCompanies] = useState<
+    Array<{ id: string; name: string }>
+  >([])
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export default function NewProjectPage() {
       if (!formData.companyId && companies.length === 1) {
         formData.companyId = companies[0].id
       }
-      
+
       if (!formData.companyId) {
         setError('Please select a company')
         setIsLoading(false)
@@ -58,7 +60,7 @@ export default function NewProjectPage() {
       }
 
       const response = await api.post('/projects', formData)
-      
+
       // Redirect to the new project
       router.push(`/dashboard/projects/${response.data.id}`)
     } catch (err: any) {
@@ -68,10 +70,14 @@ export default function NewProjectPage() {
     }
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     })
   }
 
@@ -89,8 +95,12 @@ export default function NewProjectPage() {
   return (
     <div className="max-w-2xl mx-auto p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-shogun text-white mb-2">Create New Project</h1>
-        <p className="text-gray-400">Set up a new construction project for documentation and tracking.</p>
+        <h1 className="text-3xl font-shogun text-white mb-2">
+          Create New Project
+        </h1>
+        <p className="text-gray-400">
+          Set up a new construction project for documentation and tracking.
+        </p>
       </div>
 
       <div className="brushed-metal rounded-lg p-8">
@@ -102,7 +112,10 @@ export default function NewProjectPage() {
           )}
 
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
               Project Name *
             </label>
             <input
@@ -118,7 +131,10 @@ export default function NewProjectPage() {
           </div>
 
           <div>
-            <label htmlFor="jobNumber" className="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              htmlFor="jobNumber"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
               Job Number *
             </label>
             <input
@@ -129,7 +145,7 @@ export default function NewProjectPage() {
               pattern="[A-Z0-9-]+"
               title="Job number should only contain uppercase letters, numbers, and hyphens"
               value={formData.jobNumber}
-              onChange={(e) => {
+              onChange={e => {
                 // Convert to uppercase automatically
                 const value = e.target.value.toUpperCase()
                 setFormData({ ...formData, jobNumber: value })
@@ -140,7 +156,10 @@ export default function NewProjectPage() {
           </div>
 
           <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              htmlFor="location"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
               Location *
             </label>
             <input
@@ -156,7 +175,10 @@ export default function NewProjectPage() {
           </div>
 
           <div>
-            <label htmlFor="address" className="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              htmlFor="address"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
               Street Address
             </label>
             <input
@@ -172,7 +194,10 @@ export default function NewProjectPage() {
 
           {companies.length > 1 && (
             <div>
-              <label htmlFor="companyId" className="block text-sm font-medium text-gray-300 mb-2">
+              <label
+                htmlFor="companyId"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
                 Company *
               </label>
               <select
@@ -194,7 +219,10 @@ export default function NewProjectPage() {
           )}
 
           <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              htmlFor="status"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
               Initial Status
             </label>
             <select
@@ -211,7 +239,10 @@ export default function NewProjectPage() {
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
               Description
             </label>
             <textarea
@@ -233,7 +264,7 @@ export default function NewProjectPage() {
             >
               {isLoading ? 'Creating...' : 'Create Project'}
             </Button>
-            
+
             <Button
               type="button"
               variant="outline"

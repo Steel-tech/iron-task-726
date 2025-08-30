@@ -10,7 +10,7 @@ import {
   X,
   Loader2,
   Eye,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react'
 
 interface SafetyAnalysisModalProps {
@@ -26,7 +26,7 @@ export default function SafetyAnalysisModal({
   onClose,
   imageFile,
   activityType,
-  location
+  location,
 }: SafetyAnalysisModalProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [safetyCheck, setSafetyCheck] = useState<SafetyCheck | null>(null)
@@ -38,10 +38,10 @@ export default function SafetyAnalysisModal({
     if (!imageFile) return
 
     setIsAnalyzing(true)
-    
+
     // Simulate analysis time
     await new Promise(resolve => setTimeout(resolve, 2000))
-    
+
     const result = safety.checkActivity(activityType)
     setSafetyCheck(result)
     setIsAnalyzing(false)
@@ -49,11 +49,16 @@ export default function SafetyAnalysisModal({
 
   const getSeverityColor = (level: string) => {
     switch (level) {
-      case 'critical': return 'text-red-600 bg-red-50 border-red-200'
-      case 'high': return 'text-orange-600 bg-orange-50 border-orange-200'
-      case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200'
-      case 'low': return 'text-green-600 bg-green-50 border-green-200'
-      default: return 'text-gray-600 bg-gray-50 border-gray-200'
+      case 'critical':
+        return 'text-red-600 bg-red-50 border-red-200'
+      case 'high':
+        return 'text-orange-600 bg-orange-50 border-orange-200'
+      case 'medium':
+        return 'text-yellow-600 bg-yellow-50 border-yellow-200'
+      case 'low':
+        return 'text-green-600 bg-green-50 border-green-200'
+      default:
+        return 'text-gray-600 bg-gray-50 border-gray-200'
     }
   }
 
@@ -104,8 +109,14 @@ export default function SafetyAnalysisModal({
               </div>
             </div>
             <div className="mt-2 text-sm text-gray-600">
-              <p><strong>Activity:</strong> {activityType}</p>
-              {location && <p><strong>Location:</strong> {location}</p>}
+              <p>
+                <strong>Activity:</strong> {activityType}
+              </p>
+              {location && (
+                <p>
+                  <strong>Location:</strong> {location}
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -131,7 +142,9 @@ export default function SafetyAnalysisModal({
         {isAnalyzing && (
           <div className="text-center py-8">
             <Loader2 className="h-12 w-12 text-blue-600 mx-auto mb-4 animate-spin" />
-            <p className="text-gray-600 mb-2">Analyzing image for safety hazards...</p>
+            <p className="text-gray-600 mb-2">
+              Analyzing image for safety hazards...
+            </p>
             <p className="text-sm text-gray-500">This may take a few moments</p>
           </div>
         )}
@@ -139,7 +152,9 @@ export default function SafetyAnalysisModal({
         {safetyCheck && (
           <div className="space-y-6">
             {/* Risk Level */}
-            <div className={`p-4 rounded-lg border-2 ${getSeverityColor(safetyCheck.hazardLevel)}`}>
+            <div
+              className={`p-4 rounded-lg border-2 ${getSeverityColor(safetyCheck.hazardLevel)}`}
+            >
               <div className="flex items-center gap-3 mb-2">
                 {getSeverityIcon(safetyCheck.hazardLevel)}
                 <h3 className="font-semibold text-lg">
@@ -165,11 +180,14 @@ export default function SafetyAnalysisModal({
                   {showRecommendations ? 'Hide' : 'Show'}
                 </button>
               </div>
-              
+
               {showRecommendations && (
                 <ul className="space-y-2">
                   {safetyCheck.recommendations.map((rec, index) => (
-                    <li key={index} className="flex items-start gap-2 text-sm text-blue-800">
+                    <li
+                      key={index}
+                      className="flex items-start gap-2 text-sm text-blue-800"
+                    >
                       <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                       {rec}
                     </li>
@@ -186,7 +204,10 @@ export default function SafetyAnalysisModal({
               </h4>
               <ul className="space-y-1">
                 {safety.getGeneralGuidelines().map((guideline, index) => (
-                  <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
+                  <li
+                    key={index}
+                    className="flex items-start gap-2 text-sm text-gray-700"
+                  >
                     <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0" />
                     {guideline}
                   </li>

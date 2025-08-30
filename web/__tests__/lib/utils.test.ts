@@ -6,7 +6,9 @@ describe('cn utility function', () => {
   })
 
   it('handles conditional classes', () => {
-    expect(cn('base', true && 'true-class', false && 'false-class')).toBe('base true-class')
+    expect(cn('base', true && 'true-class', false && 'false-class')).toBe(
+      'base true-class'
+    )
   })
 
   it('handles arrays of classes', () => {
@@ -14,11 +16,13 @@ describe('cn utility function', () => {
   })
 
   it('handles objects with boolean values', () => {
-    expect(cn({
-      'base': true,
-      'active': true,
-      'disabled': false
-    })).toBe('base active')
+    expect(
+      cn({
+        base: true,
+        active: true,
+        disabled: false,
+      })
+    ).toBe('base active')
   })
 
   it('removes duplicate classes', () => {

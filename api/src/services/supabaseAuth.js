@@ -1,6 +1,6 @@
-const { supabaseAdmin, auth } = require('../lib/supabase');
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { supabaseAdmin, auth } = require('../lib/supabase')
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
 
 /**
  * Supabase Auth Service
@@ -10,22 +10,30 @@ class SupabaseAuthService {
   /**
    * Register a new user
    */
-  async register({ email, password, firstName, lastName, companyId, role = 'WORKER' }) {
+  async register({
+    email,
+    password,
+    firstName,
+    lastName,
+    companyId,
+    role = 'WORKER',
+  }) {
     try {
       // Create user in Supabase Auth
-      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: {
-          firstName,
-          lastName,
-          role,
-          companyId
-        }
-      });
+      const { data: authData, error: authError } =
+        await supabaseAdmin.auth.admin.createUser({
+          email,
+          password,
+          email_confirm: true,
+          user_metadata: {
+            firstName,
+            lastName,
+            role,
+            companyId,
+          },
+        })
 
-      if (authError) throw authError;
+      if (authError) throw authError
 
       // Create user in our database
       const user = await prisma.user.create({
@@ -37,9 +45,9 @@ class SupabaseAuthService {
           lastName,
           role,
           companyId,
-          isActive: true
-        }
-      });
+          isActive: true,
+        },
+      })
 
       return {
         user: {
@@ -47,13 +55,13 @@ class SupabaseAuthService {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-          role: user.role
+          role: user.role,
         },
-        session: null // Supabase will handle sessions on the client
-      };
+        session: null, // Supabase will handle sessions on the client
+      }
     } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
+      console.error('Registration error:', error)
+      throw error
     }
   }
 
@@ -66,23 +74,23 @@ class SupabaseAuthService {
       // Verify credentials using Supabase Admin API
       const { data, error } = await supabaseAdmin.auth.signInWithPassword({
         email,
-        password
-      });
+        password,
+      })
 
-      if (error) throw error;
+      if (error) throw error
 
       // Get user from our database
       const user = await prisma.user.findUnique({
         where: { email },
         include: {
           company: {
-            select: { id: true, name: true }
-          }
-        }
-      });
+            select: { id: true, name: true },
+          },
+        },
+      })
 
       if (!user || !user.isActive) {
-        throw new Error('User not found or inactive');
+        throw new Error('User not found or inactive')
       }
 
       return {
@@ -92,13 +100,13 @@ class SupabaseAuthService {
           firstName: user.firstName,
           lastName: user.lastName,
           role: user.role,
-          company: user.company
+          company: user.company,
         },
-        session: data.session
-      };
+        session: data.session,
+      }
     } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+      console.error('Login error:', error)
+      throw error
     }
   }
 
@@ -107,10 +115,10 @@ class SupabaseAuthService {
    */
   async verifyToken(token) {
     try {
-      const { user, error } = await auth.verifyToken(token);
-      
+      const { user, error } = await auth.verifyToken(token)
+
       if (error || !user) {
-        return null;
+        return null
       }
 
       // Get full user data from our database
@@ -118,13 +126,13 @@ class SupabaseAuthService {
         where: { id: user.id },
         include: {
           company: {
-            select: { id: true, name: true }
-          }
-        }
-      });
+            select: { id: true, name: true },
+          },
+        },
+      })
 
       if (!dbUser || !dbUser.isActive) {
-        return null;
+        return null
       }
 
       return {
@@ -134,11 +142,11 @@ class SupabaseAuthService {
         lastName: dbUser.lastName,
         role: dbUser.role,
         companyId: dbUser.companyId,
-        company: dbUser.company
-      };
+        company: dbUser.company,
+      }
     } catch (error) {
-      console.error('Token verification error:', error);
-      return null;
+      console.error('Token verification error:', error)
+      return null
     }
   }
 
@@ -148,15 +156,15 @@ class SupabaseAuthService {
   async requestPasswordReset(email) {
     try {
       const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/reset-password`
-      });
+        redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/reset-password`,
+      })
 
-      if (error) throw error;
+      if (error) throw error
 
-      return { success: true };
+      return { success: true }
     } catch (error) {
-      console.error('Password reset error:', error);
-      throw error;
+      console.error('Password reset error:', error)
+      throw error
     }
   }
 
@@ -166,15 +174,15 @@ class SupabaseAuthService {
   async updatePassword(userId, newPassword) {
     try {
       const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-        password: newPassword
-      });
+        password: newPassword,
+      })
 
-      if (error) throw error;
+      if (error) throw error
 
-      return { success: true };
+      return { success: true }
     } catch (error) {
-      console.error('Password update error:', error);
-      throw error;
+      console.error('Password update error:', error)
+      throw error
     }
   }
 
@@ -184,8 +192,8 @@ class SupabaseAuthService {
   async logout(userId) {
     // Cleanup any server-side session data if needed
     // Actual logout happens on the client side
-    return { success: true };
+    return { success: true }
   }
 }
 
-module.exports = new SupabaseAuthService();
+module.exports = new SupabaseAuthService()

@@ -20,7 +20,7 @@ import {
   Users,
   UserCheck,
   AlertTriangle,
-  Key
+  Key,
 } from 'lucide-react'
 import { IronworkersTeamIcon } from '@/components/icons/SteelConstructionIcons'
 
@@ -49,34 +49,34 @@ interface NewUser {
 }
 
 const roleConfig = {
-  ADMIN: { 
-    label: 'Administrator', 
-    icon: Shield, 
+  ADMIN: {
+    label: 'Administrator',
+    icon: Shield,
     color: 'text-red-600',
     bgColor: 'bg-red-100',
-    description: 'Full system access'
+    description: 'Full system access',
   },
-  PROJECT_MANAGER: { 
-    label: 'Project Manager', 
-    icon: Users, 
+  PROJECT_MANAGER: {
+    label: 'Project Manager',
+    icon: Users,
     color: 'text-blue-600',
     bgColor: 'bg-blue-100',
-    description: 'Manage projects and teams'
+    description: 'Manage projects and teams',
   },
-  FOREMAN: { 
-    label: 'Foreman', 
-    icon: HardHat, 
+  FOREMAN: {
+    label: 'Foreman',
+    icon: HardHat,
     color: 'text-orange-600',
     bgColor: 'bg-orange-100',
-    description: 'Field supervisor'
+    description: 'Field supervisor',
   },
-  WORKER: { 
-    label: 'Worker', 
-    icon: UserCheck, 
+  WORKER: {
+    label: 'Worker',
+    icon: UserCheck,
     color: 'text-green-600',
     bgColor: 'bg-green-100',
-    description: 'Field worker'
-  }
+    description: 'Field worker',
+  },
 }
 
 export default function TeamPage() {
@@ -89,7 +89,7 @@ export default function TeamPage() {
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  
+
   // Form state
   const [formData, setFormData] = useState<NewUser>({
     email: '',
@@ -97,7 +97,7 @@ export default function TeamPage() {
     password: '',
     role: 'WORKER',
     unionMember: false,
-    phoneNumber: ''
+    phoneNumber: '',
   })
 
   useEffect(() => {
@@ -119,26 +119,27 @@ export default function TeamPage() {
   useEffect(() => {
     // Apply filters
     let filtered = [...users]
-    
+
     if (searchQuery) {
-      filtered = filtered.filter(user =>
-        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.phoneNumber?.includes(searchQuery)
+      filtered = filtered.filter(
+        user =>
+          user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.phoneNumber?.includes(searchQuery)
       )
     }
-    
+
     if (selectedRole) {
       filtered = filtered.filter(user => user.role === selectedRole)
     }
-    
+
     setFilteredUsers(filtered)
   }, [searchQuery, selectedRole, users])
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
+
     try {
       const response = await api.post('/auth/register', formData)
       await fetchUsers()
@@ -156,22 +157,22 @@ export default function TeamPage() {
   const handleUpdateUser = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedUser) return
-    
+
     setIsSubmitting(true)
-    
+
     try {
       const updateData: any = {
         name: formData.name,
         role: formData.role,
         unionMember: formData.unionMember,
-        phoneNumber: formData.phoneNumber || null
+        phoneNumber: formData.phoneNumber || null,
       }
-      
+
       // Only include password if it's been changed
       if (formData.password) {
         updateData.password = formData.password
       }
-      
+
       await api.patch(`/users/${selectedUser.id}`, updateData)
       await fetchUsers()
       setShowEditModal(false)
@@ -187,10 +188,14 @@ export default function TeamPage() {
   }
 
   const handleDeleteUser = async (userId: string) => {
-    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+    if (
+      !confirm(
+        'Are you sure you want to delete this user? This action cannot be undone.'
+      )
+    ) {
       return
     }
-    
+
     try {
       await api.delete(`/users/${userId}`)
       await fetchUsers()
@@ -208,7 +213,7 @@ export default function TeamPage() {
       password: '',
       role: 'WORKER',
       unionMember: false,
-      phoneNumber: ''
+      phoneNumber: '',
     })
   }
 
@@ -220,7 +225,7 @@ export default function TeamPage() {
       password: '', // Don't populate password
       role: user.role,
       unionMember: user.unionMember,
-      phoneNumber: user.phoneNumber || ''
+      phoneNumber: user.phoneNumber || '',
     })
     setShowEditModal(true)
   }
@@ -231,9 +236,9 @@ export default function TeamPage() {
     byRole: Object.entries(roleConfig).map(([role, config]) => ({
       role,
       ...config,
-      count: users.filter(u => u.role === role).length
+      count: users.filter(u => u.role === role).length,
     })),
-    unionMembers: users.filter(u => u.unionMember).length
+    unionMembers: users.filter(u => u.unionMember).length,
   }
 
   if (isLoading) {
@@ -269,21 +274,23 @@ export default function TeamPage() {
             <Users className="h-8 w-8 text-muted-foreground" />
           </div>
         </div>
-        
-        {stats.byRole.map(({ role, label, icon: Icon, color, bgColor, count }) => (
-          <div key={role} className="bg-card rounded-lg shadow p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">{label}s</p>
-                <p className="text-2xl font-bold">{count}</p>
-              </div>
-              <div className={`p-2 rounded-lg ${bgColor}`}>
-                <Icon className={`h-6 w-6 ${color}`} />
+
+        {stats.byRole.map(
+          ({ role, label, icon: Icon, color, bgColor, count }) => (
+            <div key={role} className="bg-card rounded-lg shadow p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">{label}s</p>
+                  <p className="text-2xl font-bold">{count}</p>
+                </div>
+                <div className={`p-2 rounded-lg ${bgColor}`}>
+                  <Icon className={`h-6 w-6 ${color}`} />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-        
+          )
+        )}
+
         <div className="bg-card rounded-lg shadow p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -304,18 +311,20 @@ export default function TeamPage() {
               type="text"
               placeholder="Search by name, email, or phone..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border rounded-lg"
             />
           </div>
           <select
             value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
+            onChange={e => setSelectedRole(e.target.value)}
             className="px-4 py-2 border rounded-lg"
           >
             <option value="">All Roles</option>
             {Object.entries(roleConfig).map(([role, { label }]) => (
-              <option key={role} value={role}>{label}</option>
+              <option key={role} value={role}>
+                {label}
+              </option>
             ))}
           </select>
         </div>
@@ -335,10 +344,10 @@ export default function TeamPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredUsers.map((user) => {
+            {filteredUsers.map(user => {
               const roleInfo = roleConfig[user.role as keyof typeof roleConfig]
               const RoleIcon = roleInfo.icon
-              
+
               return (
                 <tr key={user.id} className="border-b hover:bg-gray-50">
                   <td className="p-4">
@@ -357,7 +366,9 @@ export default function TeamPage() {
                       <div className={`p-1 rounded ${roleInfo.bgColor}`}>
                         <RoleIcon className={`h-4 w-4 ${roleInfo.color}`} />
                       </div>
-                      <span className="text-sm font-medium">{roleInfo.label}</span>
+                      <span className="text-sm font-medium">
+                        {roleInfo.label}
+                      </span>
                     </div>
                   </td>
                   <td className="p-4">
@@ -387,7 +398,9 @@ export default function TeamPage() {
                   <td className="p-4">
                     <div className="text-sm">
                       <p>{user._count?.media || 0} uploads</p>
-                      <p className="text-gray-500">Joined {new Date(user.createdAt).toLocaleDateString()}</p>
+                      <p className="text-gray-500">
+                        Joined {new Date(user.createdAt).toLocaleDateString()}
+                      </p>
                     </div>
                   </td>
                   <td className="p-4">
@@ -413,7 +426,7 @@ export default function TeamPage() {
             })}
           </tbody>
         </table>
-        
+
         {filteredUsers.length === 0 && (
           <div className="p-8 text-center">
             <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -433,75 +446,100 @@ export default function TeamPage() {
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className="w-full p-2 border rounded-md"
                   required
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium mb-1">Email *</label>
+                <label className="block text-sm font-medium mb-1">
+                  Email *
+                </label>
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className="w-full p-2 border rounded-md"
                   required
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium mb-1">Password *</label>
+                <label className="block text-sm font-medium mb-1">
+                  Password *
+                </label>
                 <input
                   type="password"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   className="w-full p-2 border rounded-md"
                   required
                   minLength={8}
                 />
-                <p className="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Minimum 8 characters
+                </p>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-1">Role *</label>
                 <select
                   value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, role: e.target.value })
+                  }
                   className="w-full p-2 border rounded-md"
                   required
                 >
-                  {Object.entries(roleConfig).map(([role, { label, description }]) => (
-                    <option key={role} value={role}>
-                      {label} - {description}
-                    </option>
-                  ))}
+                  {Object.entries(roleConfig).map(
+                    ([role, { label, description }]) => (
+                      <option key={role} value={role}>
+                        {label} - {description}
+                      </option>
+                    )
+                  )}
                 </select>
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium mb-1">Phone Number</label>
+                <label className="block text-sm font-medium mb-1">
+                  Phone Number
+                </label>
                 <input
                   type="tel"
                   value={formData.phoneNumber}
-                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, phoneNumber: e.target.value })
+                  }
                   className="w-full p-2 border rounded-md"
                   placeholder="(555) 123-4567"
                 />
               </div>
-              
+
               <div>
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={formData.unionMember}
-                    onChange={(e) => setFormData({ ...formData, unionMember: e.target.checked })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        unionMember: e.target.checked,
+                      })
+                    }
                     className="rounded"
                   />
                   <span className="text-sm font-medium">Union Member</span>
                 </label>
               </div>
-              
+
               <div className="flex gap-3 pt-4">
                 <Button
                   type="submit"
@@ -548,12 +586,14 @@ export default function TeamPage() {
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className="w-full p-2 border rounded-md"
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
                 <input
@@ -562,60 +602,79 @@ export default function TeamPage() {
                   className="w-full p-2 border rounded-md bg-gray-100"
                   disabled
                 />
-                <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Email cannot be changed
+                </p>
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium mb-1">New Password</label>
+                <label className="block text-sm font-medium mb-1">
+                  New Password
+                </label>
                 <input
                   type="password"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   className="w-full p-2 border rounded-md"
                   placeholder="Leave blank to keep current password"
                   minLength={8}
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-1">Role *</label>
                 <select
                   value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, role: e.target.value })
+                  }
                   className="w-full p-2 border rounded-md"
                   required
                 >
-                  {Object.entries(roleConfig).map(([role, { label, description }]) => (
-                    <option key={role} value={role}>
-                      {label} - {description}
-                    </option>
-                  ))}
+                  {Object.entries(roleConfig).map(
+                    ([role, { label, description }]) => (
+                      <option key={role} value={role}>
+                        {label} - {description}
+                      </option>
+                    )
+                  )}
                 </select>
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium mb-1">Phone Number</label>
+                <label className="block text-sm font-medium mb-1">
+                  Phone Number
+                </label>
                 <input
                   type="tel"
                   value={formData.phoneNumber}
-                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, phoneNumber: e.target.value })
+                  }
                   className="w-full p-2 border rounded-md"
                   placeholder="(555) 123-4567"
                 />
               </div>
-              
+
               <div>
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={formData.unionMember}
-                    onChange={(e) => setFormData({ ...formData, unionMember: e.target.checked })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        unionMember: e.target.checked,
+                      })
+                    }
                     className="rounded"
                   />
                   <span className="text-sm font-medium">Union Member</span>
                 </label>
               </div>
-              
+
               <div className="flex gap-3 pt-4">
                 <Button
                   type="submit"

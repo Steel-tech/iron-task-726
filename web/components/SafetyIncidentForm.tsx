@@ -2,7 +2,10 @@
 
 import { useState, useRef } from 'react'
 import { Button } from '@/components/Button'
-import { safetyIncidentService, type SafetyIncident } from '@/lib/safety-incident-service'
+import {
+  safetyIncidentService,
+  type SafetyIncident,
+} from '@/lib/safety-incident-service'
 import {
   AlertTriangle,
   Camera,
@@ -16,7 +19,7 @@ import {
   Calendar,
   Users,
   Shield,
-  Paperclip
+  Paperclip,
 } from 'lucide-react'
 
 interface SafetyIncidentFormProps {
@@ -30,7 +33,7 @@ export default function SafetyIncidentForm({
   onSubmit,
   onCancel,
   projectId = 'project_1',
-  projectName = 'Current Project'
+  projectName = 'Current Project',
 }: SafetyIncidentFormProps) {
   const [formData, setFormData] = useState({
     incidentType: 'near_miss' as SafetyIncident['incidentType'],
@@ -39,18 +42,23 @@ export default function SafetyIncidentForm({
     description: '',
     location: {
       area: '',
-      address: ''
+      address: '',
     },
     datetime: new Date().toISOString().slice(0, 16), // Format for datetime-local input
     immediateActions: '',
-    peopleInvolved: [{ name: '', role: '', injuryType: '', medicalAttention: false }],
+    peopleInvolved: [
+      { name: '', role: '', injuryType: '', medicalAttention: false },
+    ],
     witnessNames: [''],
-    tags: [] as string[]
+    tags: [] as string[],
   })
 
   const [photos, setPhotos] = useState<File[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [currentLocation, setCurrentLocation] = useState<{lat: number, lng: number} | null>(null)
+  const [currentLocation, setCurrentLocation] = useState<{
+    lat: number
+    lng: number
+  } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
 
@@ -60,19 +68,31 @@ export default function SafetyIncidentForm({
     { value: 'property_damage', label: 'Property Damage', icon: '🔨' },
     { value: 'safety_violation', label: 'Safety Violation', icon: '🚫' },
     { value: 'equipment_failure', label: 'Equipment Failure', icon: '⚙️' },
-    { value: 'environmental', label: 'Environmental', icon: '🌍' }
+    { value: 'environmental', label: 'Environmental', icon: '🌍' },
   ]
 
   const severityLevels = [
     { value: 'low', label: 'Low', color: 'bg-green-100 text-green-800' },
-    { value: 'medium', label: 'Medium', color: 'bg-yellow-100 text-yellow-800' },
+    {
+      value: 'medium',
+      label: 'Medium',
+      color: 'bg-yellow-100 text-yellow-800',
+    },
     { value: 'high', label: 'High', color: 'bg-orange-100 text-orange-800' },
-    { value: 'critical', label: 'Critical', color: 'bg-red-100 text-red-800' }
+    { value: 'critical', label: 'Critical', color: 'bg-red-100 text-red-800' },
   ]
 
   const workerRoles = [
-    'IRONWORKER', 'WELDER', 'FOREMAN', 'SUPERVISOR', 'SAFETY_OFFICER', 
-    'INSPECTOR', 'CRANE_OPERATOR', 'LABORER', 'ELECTRICIAN', 'OTHER'
+    'IRONWORKER',
+    'WELDER',
+    'FOREMAN',
+    'SUPERVISOR',
+    'SAFETY_OFFICER',
+    'INSPECTOR',
+    'CRANE_OPERATOR',
+    'LABORER',
+    'ELECTRICIAN',
+    'OTHER',
   ]
 
   const getCurrentLocation = () => {
@@ -82,20 +102,20 @@ export default function SafetyIncidentForm({
     }
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      position => {
         setCurrentLocation({
           lat: position.coords.latitude,
-          lng: position.coords.longitude
+          lng: position.coords.longitude,
         })
         setFormData(prev => ({
           ...prev,
           location: {
             ...prev.location,
-            address: `GPS: ${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`
-          }
+            address: `GPS: ${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`,
+          },
         }))
       },
-      (error) => {
+      error => {
         console.error('Error getting location:', error)
         alert('Unable to get current location. Please enter location manually.')
       }
@@ -116,15 +136,15 @@ export default function SafetyIncidentForm({
       ...prev,
       peopleInvolved: [
         ...prev.peopleInvolved,
-        { name: '', role: '', injuryType: '', medicalAttention: false }
-      ]
+        { name: '', role: '', injuryType: '', medicalAttention: false },
+      ],
     }))
   }
 
   const removePersonInvolved = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      peopleInvolved: prev.peopleInvolved.filter((_, i) => i !== index)
+      peopleInvolved: prev.peopleInvolved.filter((_, i) => i !== index),
     }))
   }
 
@@ -133,28 +153,30 @@ export default function SafetyIncidentForm({
       ...prev,
       peopleInvolved: prev.peopleInvolved.map((person, i) =>
         i === index ? { ...person, [field]: value } : person
-      )
+      ),
     }))
   }
 
   const addWitness = () => {
     setFormData(prev => ({
       ...prev,
-      witnessNames: [...prev.witnessNames, '']
+      witnessNames: [...prev.witnessNames, ''],
     }))
   }
 
   const removeWitness = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      witnessNames: prev.witnessNames.filter((_, i) => i !== index)
+      witnessNames: prev.witnessNames.filter((_, i) => i !== index),
     }))
   }
 
   const updateWitness = (index: number, value: string) => {
     setFormData(prev => ({
       ...prev,
-      witnessNames: prev.witnessNames.map((name, i) => i === index ? value : name)
+      witnessNames: prev.witnessNames.map((name, i) =>
+        i === index ? value : name
+      ),
     }))
   }
 
@@ -170,7 +192,7 @@ export default function SafetyIncidentForm({
         reportedBy: {
           id: 'current_user',
           name: 'Current User',
-          role: 'FOREMAN'
+          role: 'FOREMAN',
         },
         incidentType: formData.incidentType,
         severity: formData.severity,
@@ -180,7 +202,7 @@ export default function SafetyIncidentForm({
         location: {
           area: formData.location.area,
           coordinates: currentLocation || undefined,
-          address: formData.location.address
+          address: formData.location.address,
         },
         datetime: new Date(formData.datetime),
         peopleInvolved: formData.peopleInvolved.filter(p => p.name.trim()),
@@ -190,16 +212,18 @@ export default function SafetyIncidentForm({
           id: `photo_${index}`,
           url: URL.createObjectURL(photo),
           description: `Photo ${index + 1}`,
-          timestamp: new Date()
+          timestamp: new Date(),
         })),
         documents: [],
         tags: formData.tags,
         complianceFlags: [],
-        followUpRequired: formData.severity === 'high' || formData.severity === 'critical'
+        followUpRequired:
+          formData.severity === 'high' || formData.severity === 'critical',
       }
 
-      const savedIncident = await safetyIncidentService.reportIncident(incidentData)
-      
+      const savedIncident =
+        await safetyIncidentService.reportIncident(incidentData)
+
       if (onSubmit) {
         onSubmit(savedIncident)
       }
@@ -213,13 +237,14 @@ export default function SafetyIncidentForm({
         location: { area: '', address: '' },
         datetime: new Date().toISOString().slice(0, 16),
         immediateActions: '',
-        peopleInvolved: [{ name: '', role: '', injuryType: '', medicalAttention: false }],
+        peopleInvolved: [
+          { name: '', role: '', injuryType: '', medicalAttention: false },
+        ],
         witnessNames: [''],
-        tags: []
+        tags: [],
       })
       setPhotos([])
       setCurrentLocation(null)
-
     } catch (error) {
       console.error('Failed to submit incident:', error)
       alert('Failed to submit incident. Please try again.')
@@ -233,10 +258,13 @@ export default function SafetyIncidentForm({
       <div className="px-6 py-4 border-b border-gray-200 bg-red-50">
         <div className="flex items-center gap-3">
           <AlertTriangle className="h-6 w-6 text-red-600" />
-          <h2 className="text-xl font-bold text-red-900">Report Safety Incident</h2>
+          <h2 className="text-xl font-bold text-red-900">
+            Report Safety Incident
+          </h2>
         </div>
         <p className="text-sm text-red-700 mt-1">
-          Report all incidents immediately for proper investigation and prevention
+          Report all incidents immediately for proper investigation and
+          prevention
         </p>
       </div>
 
@@ -249,7 +277,12 @@ export default function SafetyIncidentForm({
             </label>
             <select
               value={formData.incidentType}
-              onChange={(e) => setFormData(prev => ({ ...prev, incidentType: e.target.value as any }))}
+              onChange={e =>
+                setFormData(prev => ({
+                  ...prev,
+                  incidentType: e.target.value as any,
+                }))
+              }
               className="input-construction w-full"
               required
             >
@@ -267,7 +300,12 @@ export default function SafetyIncidentForm({
             </label>
             <select
               value={formData.severity}
-              onChange={(e) => setFormData(prev => ({ ...prev, severity: e.target.value as any }))}
+              onChange={e =>
+                setFormData(prev => ({
+                  ...prev,
+                  severity: e.target.value as any,
+                }))
+              }
               className="input-construction w-full"
               required
             >
@@ -278,9 +316,11 @@ export default function SafetyIncidentForm({
               ))}
             </select>
             <div className="mt-1">
-              <span className={`inline-flex px-2 py-1 text-xs font-medium rounded ${
-                severityLevels.find(l => l.value === formData.severity)?.color
-              }`}>
+              <span
+                className={`inline-flex px-2 py-1 text-xs font-medium rounded ${
+                  severityLevels.find(l => l.value === formData.severity)?.color
+                }`}
+              >
                 {severityLevels.find(l => l.value === formData.severity)?.label}
               </span>
             </div>
@@ -295,7 +335,9 @@ export default function SafetyIncidentForm({
           <input
             type="text"
             value={formData.title}
-            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+            onChange={e =>
+              setFormData(prev => ({ ...prev, title: e.target.value }))
+            }
             className="input-construction w-full"
             placeholder="Brief description of the incident"
             required
@@ -308,7 +350,9 @@ export default function SafetyIncidentForm({
           </label>
           <textarea
             value={formData.description}
-            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+            onChange={e =>
+              setFormData(prev => ({ ...prev, description: e.target.value }))
+            }
             className="input-construction w-full h-24"
             placeholder="Provide a detailed description of what happened..."
             required
@@ -325,10 +369,12 @@ export default function SafetyIncidentForm({
               <input
                 type="text"
                 value={formData.location.area}
-                onChange={(e) => setFormData(prev => ({ 
-                  ...prev, 
-                  location: { ...prev.location, area: e.target.value }
-                }))}
+                onChange={e =>
+                  setFormData(prev => ({
+                    ...prev,
+                    location: { ...prev.location, area: e.target.value },
+                  }))
+                }
                 className="input-construction flex-1"
                 placeholder="e.g., Bay 3, Level 2"
                 required
@@ -343,7 +389,9 @@ export default function SafetyIncidentForm({
               </Button>
             </div>
             {formData.location.address && (
-              <p className="text-xs text-gray-500 mt-1">{formData.location.address}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                {formData.location.address}
+              </p>
             )}
           </div>
 
@@ -354,7 +402,9 @@ export default function SafetyIncidentForm({
             <input
               type="datetime-local"
               value={formData.datetime}
-              onChange={(e) => setFormData(prev => ({ ...prev, datetime: e.target.value }))}
+              onChange={e =>
+                setFormData(prev => ({ ...prev, datetime: e.target.value }))
+              }
               className="input-construction w-full"
               required
             />
@@ -367,16 +417,26 @@ export default function SafetyIncidentForm({
             <label className="text-sm font-medium text-gray-700">
               People Involved
             </label>
-            <Button type="button" variant="outline" size="sm" onClick={addPersonInvolved}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addPersonInvolved}
+            >
               <Plus className="h-4 w-4 mr-1" />
               Add Person
             </Button>
           </div>
-          
+
           {formData.peopleInvolved.map((person, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 mb-3">
+            <div
+              key={index}
+              className="border border-gray-200 rounded-lg p-4 mb-3"
+            >
               <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium text-gray-900">Person {index + 1}</h4>
+                <h4 className="font-medium text-gray-900">
+                  Person {index + 1}
+                </h4>
                 {formData.peopleInvolved.length > 1 && (
                   <Button
                     type="button"
@@ -388,33 +448,41 @@ export default function SafetyIncidentForm({
                   </Button>
                 )}
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
                   type="text"
                   value={person.name}
-                  onChange={(e) => updatePersonInvolved(index, 'name', e.target.value)}
+                  onChange={e =>
+                    updatePersonInvolved(index, 'name', e.target.value)
+                  }
                   className="input-construction"
                   placeholder="Full name"
                 />
                 <select
                   value={person.role}
-                  onChange={(e) => updatePersonInvolved(index, 'role', e.target.value)}
+                  onChange={e =>
+                    updatePersonInvolved(index, 'role', e.target.value)
+                  }
                   className="input-construction"
                 >
                   <option value="">Select role</option>
                   {workerRoles.map(role => (
-                    <option key={role} value={role}>{role}</option>
+                    <option key={role} value={role}>
+                      {role}
+                    </option>
                   ))}
                 </select>
               </div>
-              
+
               {formData.incidentType === 'injury' && (
                 <div className="mt-4 space-y-3">
                   <input
                     type="text"
                     value={person.injuryType || ''}
-                    onChange={(e) => updatePersonInvolved(index, 'injuryType', e.target.value)}
+                    onChange={e =>
+                      updatePersonInvolved(index, 'injuryType', e.target.value)
+                    }
                     className="input-construction w-full"
                     placeholder="Type of injury (e.g., cut, bruise, strain)"
                   />
@@ -422,10 +490,18 @@ export default function SafetyIncidentForm({
                     <input
                       type="checkbox"
                       checked={person.medicalAttention || false}
-                      onChange={(e) => updatePersonInvolved(index, 'medicalAttention', e.target.checked)}
+                      onChange={e =>
+                        updatePersonInvolved(
+                          index,
+                          'medicalAttention',
+                          e.target.checked
+                        )
+                      }
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700">Required medical attention</span>
+                    <span className="text-sm text-gray-700">
+                      Required medical attention
+                    </span>
                   </label>
                 </div>
               )}
@@ -439,18 +515,23 @@ export default function SafetyIncidentForm({
             <label className="text-sm font-medium text-gray-700">
               Witnesses
             </label>
-            <Button type="button" variant="outline" size="sm" onClick={addWitness}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addWitness}
+            >
               <Plus className="h-4 w-4 mr-1" />
               Add Witness
             </Button>
           </div>
-          
+
           {formData.witnessNames.map((witness, index) => (
             <div key={index} className="flex gap-2 mb-2">
               <input
                 type="text"
                 value={witness}
-                onChange={(e) => updateWitness(index, e.target.value)}
+                onChange={e => updateWitness(index, e.target.value)}
                 className="input-construction flex-1"
                 placeholder="Witness name"
               />
@@ -475,7 +556,12 @@ export default function SafetyIncidentForm({
           </label>
           <textarea
             value={formData.immediateActions}
-            onChange={(e) => setFormData(prev => ({ ...prev, immediateActions: e.target.value }))}
+            onChange={e =>
+              setFormData(prev => ({
+                ...prev,
+                immediateActions: e.target.value,
+              }))
+            }
             className="input-construction w-full h-20"
             placeholder="Describe what was done immediately after the incident..."
             required
@@ -521,7 +607,7 @@ export default function SafetyIncidentForm({
               Take Photo
             </Button>
           </div>
-          
+
           {photos.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {photos.map((photo, index) => (

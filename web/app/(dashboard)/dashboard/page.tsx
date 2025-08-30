@@ -19,7 +19,7 @@ import {
   BarChart3,
   MessageSquare,
   Activity,
-  Shield
+  Shield,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 
@@ -43,7 +43,9 @@ interface DashboardStats {
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'overview' | 'team' | 'analytics' | 'safety' | 'chat'>('overview')
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'team' | 'analytics' | 'safety' | 'chat'
+  >('overview')
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -113,7 +115,7 @@ export default function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((stat) => (
+        {statCards.map(stat => (
           <Link key={stat.title} href={stat.href}>
             <div className="brushed-metal p-6 rounded-lg shadow-lg hover:shadow-xl hover:animation-blueSparkHover transition-all duration-300 cursor-pointer">
               <div className="flex items-center justify-between">
@@ -121,7 +123,9 @@ export default function DashboardPage() {
                   <p className="text-sm font-medium text-gray-400">
                     {stat.title}
                   </p>
-                  <p className="text-2xl font-bold mt-1 text-white">{stat.value}</p>
+                  <p className="text-2xl font-bold mt-1 text-white">
+                    {stat.value}
+                  </p>
                 </div>
                 <div className={`${stat.color} p-3 rounded-lg text-white`}>
                   <stat.icon className="h-6 w-6" />
@@ -218,7 +222,7 @@ export default function DashboardPage() {
                   <div className="p-6">
                     {stats?.recentPhotos && stats.recentPhotos.length > 0 ? (
                       <div className="space-y-4">
-                        {stats.recentPhotos.slice(0, 5).map((photo) => (
+                        {stats.recentPhotos.slice(0, 5).map(photo => (
                           <div
                             key={photo.id}
                             className="flex items-center justify-between py-3 border-b border-gray-700 last:border-0"
@@ -228,7 +232,9 @@ export default function DashboardPage() {
                                 <Camera className="h-4 w-4 text-gray-600" />
                               </div>
                               <div>
-                                <p className="font-medium text-white">{photo.fileName}</p>
+                                <p className="font-medium text-white">
+                                  {photo.fileName}
+                                </p>
                                 <p className="text-sm text-gray-400">
                                   {photo.project.name} • by {photo.user.name}
                                 </p>
@@ -250,22 +256,33 @@ export default function DashboardPage() {
 
                 {/* Quick Actions */}
                 <div className="bg-gray-800/50 rounded-lg border border-gray-700 p-6">
-                  <h2 className="text-lg font-semibold mb-4 text-white">Quick Actions</h2>
+                  <h2 className="text-lg font-semibold mb-4 text-white">
+                    Quick Actions
+                  </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <Link href="/dashboard/upload">
-                      <Button variant="outline" className="w-full justify-start">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                      >
                         <Upload className="h-4 w-4 mr-2" />
                         Upload New Photos
                       </Button>
                     </Link>
                     <Link href="/dashboard/projects/new">
-                      <Button variant="outline" className="w-full justify-start">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                      >
                         <FolderOpen className="h-4 w-4 mr-2" />
                         Create New Project
                       </Button>
                     </Link>
                     <Link href="/dashboard/photos">
-                      <Button variant="outline" className="w-full justify-start">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                      >
                         <Image className="h-4 w-4 mr-2" />
                         Browse All Photos
                       </Button>
@@ -281,23 +298,21 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {activeTab === 'team' && (
-            <LiveTeamDashboard />
-          )}
+          {activeTab === 'team' && <LiveTeamDashboard />}
 
-          {activeTab === 'analytics' && (
-            <ProgressAnalyticsDashboard />
-          )}
+          {activeTab === 'analytics' && <ProgressAnalyticsDashboard />}
 
-          {activeTab === 'safety' && (
-            <SafetyComplianceDashboard />
-          )}
+          {activeTab === 'safety' && <SafetyComplianceDashboard />}
 
           {activeTab === 'chat' && (
             <div className="text-center py-8">
               <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-              <p className="text-gray-400 mb-4">Team chat opens in a floating panel</p>
-              <p className="text-sm text-gray-500">Look for the chat button in the bottom-right corner</p>
+              <p className="text-gray-400 mb-4">
+                Team chat opens in a floating panel
+              </p>
+              <p className="text-sm text-gray-500">
+                Look for the chat button in the bottom-right corner
+              </p>
             </div>
           )}
         </div>

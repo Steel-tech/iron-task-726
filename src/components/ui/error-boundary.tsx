@@ -3,7 +3,13 @@
 import { Component, ReactNode, ErrorInfo } from 'react'
 import { AlertTriangle, RotateCcw } from 'lucide-react'
 import { Button } from './button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './card'
 
 interface Props {
   children: ReactNode

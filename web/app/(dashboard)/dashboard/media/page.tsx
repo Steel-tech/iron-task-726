@@ -29,19 +29,34 @@ import {
   Share2,
   Plus,
   Hash,
-  Palette
+  Palette,
 } from 'lucide-react'
-import { MediaGalleryIcon, WeldingTorchIcon, PencilRulerIcon } from '@/components/icons/SteelConstructionIcons'
+import {
+  MediaGalleryIcon,
+  WeldingTorchIcon,
+  PencilRulerIcon,
+} from '@/components/icons/SteelConstructionIcons'
 import VideoGalleryViewer from '@/components/VideoGalleryViewer'
 import VideoPlayer from '@/components/VideoPlayer'
 import VideoPlayerErrorDemo from '@/components/VideoPlayerErrorDemo'
 import PhotoAnnotator from '@/components/PhotoAnnotator'
 import MediaTagger from '@/components/MediaTagger'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface Media {
   id: string
@@ -112,7 +127,7 @@ const TAG_CATEGORIES = [
   'Equipment',
   'Safety',
   'Quality',
-  'Other'
+  'Other',
 ]
 
 const PRESET_COLORS = [
@@ -130,7 +145,8 @@ const PRESET_COLORS = [
 const demoMedia = [
   {
     id: '1',
-    fileUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    fileUrl:
+      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     thumbnailUrl: 'https://via.placeholder.com/300x200?text=Video+1',
     mediaType: 'VIDEO' as const,
     timestamp: new Date().toISOString(),
@@ -144,12 +160,12 @@ const demoMedia = [
     duration: 60,
     project: {
       id: '1',
-      name: 'Downtown Tower'
+      name: 'Downtown Tower',
     },
     user: {
       id: '1',
-      name: 'John Steel'
-    }
+      name: 'John Steel',
+    },
   },
   {
     id: '2',
@@ -166,16 +182,17 @@ const demoMedia = [
     height: 1080,
     project: {
       id: '1',
-      name: 'Downtown Tower'
+      name: 'Downtown Tower',
     },
     user: {
       id: '2',
-      name: 'Mike Welder'
-    }
+      name: 'Mike Welder',
+    },
   },
   {
     id: '3',
-    fileUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    fileUrl:
+      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
     thumbnailUrl: 'https://via.placeholder.com/300x200?text=Video+2',
     mediaType: 'VIDEO' as const,
     timestamp: new Date().toISOString(),
@@ -189,13 +206,13 @@ const demoMedia = [
     duration: 120,
     project: {
       id: '2',
-      name: 'Bridge Project'
+      name: 'Bridge Project',
     },
     user: {
       id: '3',
-      name: 'Sarah Safety'
-    }
-  }
+      name: 'Sarah Safety',
+    },
+  },
 ]
 
 // Demo images for annotator
@@ -203,28 +220,30 @@ const demoImages = [
   {
     id: '1',
     url: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=2000',
-    title: 'Steel Beam Installation - Level 3'
+    title: 'Steel Beam Installation - Level 3',
   },
   {
     id: '2',
     url: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=2000',
-    title: 'Construction Site Overview'
+    title: 'Construction Site Overview',
   },
   {
     id: '3',
     url: 'https://images.unsplash.com/photo-1590736969955-71cc94901144?q=80&w=2000',
-    title: 'Welding Process Documentation'
-  }
+    title: 'Welding Process Documentation',
+  },
 ]
 
 export default function MediaPage() {
   const { user } = useAuth()
   const searchParams = useSearchParams()
   const projectId = searchParams.get('project')
-  
+
   // Tab state
-  const [activeTab, setActiveTab] = useState<'gallery' | 'tags' | 'video-demo' | 'annotator'>('gallery')
-  
+  const [activeTab, setActiveTab] = useState<
+    'gallery' | 'tags' | 'video-demo' | 'annotator'
+  >('gallery')
+
   // Media state
   const [media, setMedia] = useState<Media[]>([])
   const [filteredMedia, setFilteredMedia] = useState<Media[]>([])
@@ -234,12 +253,12 @@ export default function MediaPage() {
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null)
   const [editingMediaTags, setEditingMediaTags] = useState<Media | null>(null)
   const [showDemoGallery, setShowDemoGallery] = useState(false)
-  
+
   // Annotator state
   const [selectedImage, setSelectedImage] = useState<any>(demoImages[0])
   const [savedAnnotations, setSavedAnnotations] = useState<any[]>([])
   const [showSaveSuccess, setShowSaveSuccess] = useState(false)
-  
+
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedProject, setSelectedProject] = useState(projectId || '')
@@ -248,7 +267,7 @@ export default function MediaPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [dateRange, setDateRange] = useState({ start: '', end: '' })
   const [showFilters, setShowFilters] = useState(false)
-  
+
   // Pagination
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -260,17 +279,18 @@ export default function MediaPage() {
   const [showCreateTagDialog, setShowCreateTagDialog] = useState(false)
   const [showEditTagDialog, setShowEditTagDialog] = useState(false)
   const [editingTag, setEditingTag] = useState<TagType | null>(null)
-  
+
   // Tag form state
   const [tagFormData, setTagFormData] = useState({
     name: '',
     color: '#3B82F6',
     description: '',
     category: '',
-    isSystem: false
+    isSystem: false,
   })
 
-  const canManageTags = user?.role === 'ADMIN' || user?.role === 'PROJECT_MANAGER'
+  const canManageTags =
+    user?.role === 'ADMIN' || user?.role === 'PROJECT_MANAGER'
   const canDeleteTags = user?.role === 'ADMIN'
 
   useEffect(() => {
@@ -299,11 +319,11 @@ export default function MediaPage() {
       if (selectedProject) {
         url = `/media/project/${selectedProject}?page=${page}&limit=${itemsPerPage}`
       }
-      
+
       const response = await api.get(url)
       setMedia(response.data.media || response.data)
       setFilteredMedia(response.data.media || response.data)
-      
+
       if (response.data.pagination) {
         setTotalPages(response.data.pagination.pages)
       }
@@ -317,7 +337,8 @@ export default function MediaPage() {
   const fetchTags = async () => {
     try {
       setIsLoading(true)
-      const params = selectedTagCategory !== 'all' ? `?category=${selectedTagCategory}` : ''
+      const params =
+        selectedTagCategory !== 'all' ? `?category=${selectedTagCategory}` : ''
       const response = await api.get(`/tags${params}`)
       setTags(response.data)
     } catch (error) {
@@ -325,7 +346,7 @@ export default function MediaPage() {
       toast({
         title: 'Error',
         description: 'Failed to load tags',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     } finally {
       setIsLoading(false)
@@ -335,48 +356,64 @@ export default function MediaPage() {
   useEffect(() => {
     // Apply filters
     let filtered = [...media]
-    
+
     // Search filter
     if (searchQuery) {
-      filtered = filtered.filter(item =>
-        item.notes?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        item.user.name.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter(
+        item =>
+          item.notes?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.tags.some(tag =>
+            tag.toLowerCase().includes(searchQuery.toLowerCase())
+          ) ||
+          item.user.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
-    
+
     // Activity type filter
     if (selectedActivityType) {
-      filtered = filtered.filter(item => item.activityType === selectedActivityType)
+      filtered = filtered.filter(
+        item => item.activityType === selectedActivityType
+      )
     }
-    
+
     // Media type filter
     if (selectedMediaType) {
       filtered = filtered.filter(item => item.mediaType === selectedMediaType)
     }
-    
+
     // Tag filter
     if (selectedTags.length > 0) {
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         item.mediaTags?.some(mt => selectedTags.includes(mt.tag.id))
       )
     }
-    
+
     // Date range filter
     if (dateRange.start) {
-      filtered = filtered.filter(item => new Date(item.timestamp) >= new Date(dateRange.start))
+      filtered = filtered.filter(
+        item => new Date(item.timestamp) >= new Date(dateRange.start)
+      )
     }
     if (dateRange.end) {
-      filtered = filtered.filter(item => new Date(item.timestamp) <= new Date(dateRange.end))
+      filtered = filtered.filter(
+        item => new Date(item.timestamp) <= new Date(dateRange.end)
+      )
     }
-    
+
     setFilteredMedia(filtered)
-  }, [searchQuery, selectedActivityType, selectedMediaType, selectedTags, dateRange, media])
+  }, [
+    searchQuery,
+    selectedActivityType,
+    selectedMediaType,
+    selectedTags,
+    dateRange,
+    media,
+  ])
 
   const handleDelete = async (mediaId: string) => {
     if (!confirm('Are you sure you want to delete this media?')) return
-    
+
     try {
       await api.delete(`/media/${mediaId}`)
       setMedia(prev => prev.filter(m => m.id !== mediaId))
@@ -395,54 +432,54 @@ export default function MediaPage() {
       resetTagForm()
       toast({
         title: 'Success',
-        description: 'Tag created successfully'
+        description: 'Tag created successfully',
       })
     } catch (error: any) {
       toast({
         title: 'Error',
         description: error.response?.data?.error || 'Failed to create tag',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
 
   const handleUpdateTag = async () => {
     if (!editingTag) return
-    
+
     try {
       const response = await api.patch(`/tags/${editingTag.id}`, tagFormData)
-      setTags(tags.map(tag => tag.id === editingTag.id ? response.data : tag))
+      setTags(tags.map(tag => (tag.id === editingTag.id ? response.data : tag)))
       setShowEditTagDialog(false)
       setEditingTag(null)
       resetTagForm()
       toast({
         title: 'Success',
-        description: 'Tag updated successfully'
+        description: 'Tag updated successfully',
       })
     } catch (error: any) {
       toast({
         title: 'Error',
         description: error.response?.data?.error || 'Failed to update tag',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
 
   const handleDeleteTag = async (tagId: string) => {
     if (!confirm('Are you sure you want to delete this tag?')) return
-    
+
     try {
       await api.delete(`/tags/${tagId}`)
       setTags(tags.filter(tag => tag.id !== tagId))
       toast({
         title: 'Success',
-        description: 'Tag deleted successfully'
+        description: 'Tag deleted successfully',
       })
     } catch (error: any) {
       toast({
         title: 'Error',
         description: error.response?.data?.error || 'Failed to delete tag',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     }
   }
@@ -453,7 +490,7 @@ export default function MediaPage() {
       color: '#3B82F6',
       description: '',
       category: '',
-      isSystem: false
+      isSystem: false,
     })
   }
 
@@ -464,7 +501,7 @@ export default function MediaPage() {
       color: tag.color,
       description: tag.description || '',
       category: tag.category || '',
-      isSystem: tag.isSystem
+      isSystem: tag.isSystem,
     })
     setShowEditTagDialog(true)
   }
@@ -485,18 +522,21 @@ export default function MediaPage() {
     setSavedAnnotations(annotations)
     setShowSaveSuccess(true)
     setTimeout(() => setShowSaveSuccess(false), 3000)
-    
+
     // In a real app, you would save to API here
     console.log('Saved annotations:', annotations)
     console.log('Annotated image data URL length:', imageDataUrl.length)
   }
 
-  const groupedTags = tags.reduce((acc, tag) => {
-    const category = tag.category || 'Other'
-    if (!acc[category]) acc[category] = []
-    acc[category].push(tag)
-    return acc
-  }, {} as Record<string, TagType[]>)
+  const groupedTags = tags.reduce(
+    (acc, tag) => {
+      const category = tag.category || 'Other'
+      if (!acc[category]) acc[category] = []
+      acc[category].push(tag)
+      return acc
+    },
+    {} as Record<string, TagType[]>
+  )
 
   const renderGalleryView = () => (
     <>
@@ -509,7 +549,7 @@ export default function MediaPage() {
               type="text"
               placeholder="Search by notes, location, tags, or user..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border rounded-lg"
             />
           </div>
@@ -528,7 +568,7 @@ export default function MediaPage() {
               <label className="block text-sm font-medium mb-1">Project</label>
               <select
                 value={selectedProject}
-                onChange={(e) => {
+                onChange={e => {
                   setSelectedProject(e.target.value)
                   setPage(1)
                 }}
@@ -544,10 +584,12 @@ export default function MediaPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Activity Type</label>
+              <label className="block text-sm font-medium mb-1">
+                Activity Type
+              </label>
               <select
                 value={selectedActivityType}
-                onChange={(e) => setSelectedActivityType(e.target.value)}
+                onChange={e => setSelectedActivityType(e.target.value)}
                 className="w-full p-2 border rounded-md text-sm"
               >
                 <option value="">All Activities</option>
@@ -560,10 +602,12 @@ export default function MediaPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Media Type</label>
+              <label className="block text-sm font-medium mb-1">
+                Media Type
+              </label>
               <select
                 value={selectedMediaType}
-                onChange={(e) => setSelectedMediaType(e.target.value)}
+                onChange={e => setSelectedMediaType(e.target.value)}
                 className="w-full p-2 border rounded-md text-sm"
               >
                 <option value="">All Types</option>
@@ -577,7 +621,9 @@ export default function MediaPage() {
               <label className="block text-sm font-medium mb-1">Tags</label>
               <Select
                 value={selectedTags.join(',')}
-                onValueChange={(value) => setSelectedTags(value ? value.split(',') : [])}
+                onValueChange={value =>
+                  setSelectedTags(value ? value.split(',') : [])
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Filter by tags" />
@@ -599,18 +645,24 @@ export default function MediaPage() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">Date Range</label>
+              <label className="block text-sm font-medium mb-1">
+                Date Range
+              </label>
               <div className="flex gap-2">
                 <input
                   type="date"
                   value={dateRange.start}
-                  onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                  onChange={e =>
+                    setDateRange(prev => ({ ...prev, start: e.target.value }))
+                  }
                   className="flex-1 p-2 border rounded-md text-sm"
                 />
                 <input
                   type="date"
                   value={dateRange.end}
-                  onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                  onChange={e =>
+                    setDateRange(prev => ({ ...prev, end: e.target.value }))
+                  }
                   className="flex-1 p-2 border rounded-md text-sm"
                 />
               </div>
@@ -627,9 +679,14 @@ export default function MediaPage() {
       {/* Media Grid/List */}
       {filteredMedia.length === 0 ? (
         <div className="text-center py-12 brushed-metal rounded-lg">
-          <MediaGalleryIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" size={48} />
+          <MediaGalleryIcon
+            className="h-12 w-12 text-gray-400 mx-auto mb-4"
+            size={48}
+          />
           <p className="text-lg text-gray-300">No media found</p>
-          <p className="text-sm text-gray-500 mt-2">Try adjusting your filters or search criteria</p>
+          <p className="text-sm text-gray-500 mt-2">
+            Try adjusting your filters or search criteria
+          </p>
           <Link href="/dashboard/capture">
             <Button className="mt-4">
               <WeldingTorchIcon className="h-4 w-4 mr-2" />
@@ -639,14 +696,15 @@ export default function MediaPage() {
         </div>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {filteredMedia.map((item) => (
+          {filteredMedia.map(item => (
             <div
               key={item.id}
               className="group relative bg-card rounded-lg overflow-hidden shadow hover:shadow-lg transition-shadow cursor-pointer"
               onClick={() => setSelectedMedia(item)}
             >
               <div className="aspect-square bg-gray-100 relative">
-                {item.mediaType === 'VIDEO' || item.mediaType === 'DUAL_VIDEO' ? (
+                {item.mediaType === 'VIDEO' ||
+                item.mediaType === 'DUAL_VIDEO' ? (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Video className="h-8 w-8 text-gray-400" />
                     {item.duration && (
@@ -662,7 +720,7 @@ export default function MediaPage() {
                     className="w-full h-full object-cover"
                   />
                 )}
-                
+
                 {/* Tags on thumbnail */}
                 {item.mediaTags && item.mediaTags.length > 0 && (
                   <div className="absolute top-2 left-2 flex flex-wrap gap-1 max-w-[calc(100%-1rem)]">
@@ -672,7 +730,7 @@ export default function MediaPage() {
                         className="px-1.5 py-0.5 rounded text-xs font-medium"
                         style={{
                           backgroundColor: mt.tag.color,
-                          color: '#fff'
+                          color: '#fff',
                         }}
                       >
                         {mt.tag.name}
@@ -686,22 +744,24 @@ export default function MediaPage() {
                   </div>
                 )}
               </div>
-              
+
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                 <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
-                  <p className="text-xs truncate">{item.location || 'No location'}</p>
+                  <p className="text-xs truncate">
+                    {item.location || 'No location'}
+                  </p>
                   <p className="text-xs opacity-75">
                     {new Date(item.timestamp).toLocaleDateString()}
                   </p>
                 </div>
-                
+
                 {/* Quick actions */}
                 <div className="absolute top-2 right-2 flex gap-1">
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 bg-white/20 hover:bg-white/30"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation()
                       setEditingMediaTags(item)
                     }}
@@ -734,11 +794,12 @@ export default function MediaPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredMedia.map((item) => (
+              {filteredMedia.map(item => (
                 <tr key={item.id} className="border-b hover:bg-gray-50">
                   <td className="p-4">
                     <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden">
-                      {item.mediaType === 'VIDEO' || item.mediaType === 'DUAL_VIDEO' ? (
+                      {item.mediaType === 'VIDEO' ||
+                      item.mediaType === 'DUAL_VIDEO' ? (
                         <div className="w-full h-full flex items-center justify-center">
                           <Video className="h-6 w-6 text-gray-400" />
                         </div>
@@ -753,8 +814,12 @@ export default function MediaPage() {
                   </td>
                   <td className="p-4">
                     <p className="font-medium text-sm">{item.activityType}</p>
-                    <p className="text-xs text-gray-500">{item.location || 'No location'}</p>
-                    <p className="text-xs text-gray-400">{formatFileSize(item.fileSize)}</p>
+                    <p className="text-xs text-gray-500">
+                      {item.location || 'No location'}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {formatFileSize(item.fileSize)}
+                    </p>
                   </td>
                   <td className="p-4">
                     <MediaTagger
@@ -770,15 +835,19 @@ export default function MediaPage() {
                     <p className="text-sm">{item.user.name}</p>
                   </td>
                   <td className="p-4">
-                    <p className="text-sm">{new Date(item.timestamp).toLocaleDateString()}</p>
-                    <p className="text-xs text-gray-500">{new Date(item.timestamp).toLocaleTimeString()}</p>
+                    <p className="text-sm">
+                      {new Date(item.timestamp).toLocaleDateString()}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(item.timestamp).toLocaleTimeString()}
+                    </p>
                   </td>
                   <td className="p-4">
                     <div className="flex gap-2">
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation()
                           setSelectedMedia(item)
                         }}
@@ -788,7 +857,7 @@ export default function MediaPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation()
                           setEditingMediaTags(item)
                         }}
@@ -798,7 +867,7 @@ export default function MediaPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation()
                           handleDelete(item.id)
                         }}
@@ -862,7 +931,9 @@ export default function MediaPage() {
       {/* Category Filter */}
       <div className="brushed-metal rounded-lg shadow-lg p-4 mb-6">
         <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-gray-400">Filter by category:</span>
+          <span className="text-sm font-medium text-gray-400">
+            Filter by category:
+          </span>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedTagCategory('all')}
@@ -899,7 +970,10 @@ export default function MediaPage() {
       ) : (
         <div className="space-y-8">
           {Object.entries(groupedTags).map(([category, categoryTags]) => (
-            <div key={category} className="brushed-metal rounded-lg shadow-lg p-6">
+            <div
+              key={category}
+              className="brushed-metal rounded-lg shadow-lg p-6"
+            >
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
                 <Hash className="h-5 w-5 text-safety-orange" />
                 {category}
@@ -924,16 +998,18 @@ export default function MediaPage() {
                         </span>
                       )}
                     </div>
-                    
+
                     {tag.description && (
-                      <p className="text-sm text-gray-400 mb-2">{tag.description}</p>
+                      <p className="text-sm text-gray-400 mb-2">
+                        {tag.description}
+                      </p>
                     )}
-                    
+
                     <div className="flex items-center justify-between mt-3">
                       <span className="text-xs text-gray-500">
                         {tag._count.mediaTags} uses
                       </span>
-                      
+
                       {canManageTags && !tag.isSystem && (
                         <div className="flex items-center gap-1">
                           <Button
@@ -970,8 +1046,13 @@ export default function MediaPage() {
   const renderVideoDemoView = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-white">Video Components Demo</h2>
-        <Button onClick={() => setShowDemoGallery(true)} className="bg-safety-orange hover:bg-orange-700">
+        <h2 className="text-2xl font-semibold text-white">
+          Video Components Demo
+        </h2>
+        <Button
+          onClick={() => setShowDemoGallery(true)}
+          className="bg-safety-orange hover:bg-orange-700"
+        >
           <Grid className="h-4 w-4 mr-2" />
           Open Gallery Viewer
         </Button>
@@ -980,7 +1061,9 @@ export default function MediaPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Standard Video Player */}
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-white">Standard Video Player</h3>
+          <h3 className="text-xl font-semibold text-white">
+            Standard Video Player
+          </h3>
           <div className="brushed-metal rounded-lg shadow-lg p-4">
             <VideoPlayer
               src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
@@ -1005,7 +1088,9 @@ export default function MediaPage() {
 
         {/* Picture-in-Picture Video Player */}
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-white">Dual Camera (Picture-in-Picture)</h3>
+          <h3 className="text-xl font-semibold text-white">
+            Dual Camera (Picture-in-Picture)
+          </h3>
           <div className="brushed-metal rounded-lg shadow-lg p-4">
             <VideoPlayer
               src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
@@ -1028,7 +1113,9 @@ export default function MediaPage() {
 
         {/* Auto-play Video */}
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-white">Auto-play Loop Video</h3>
+          <h3 className="text-xl font-semibold text-white">
+            Auto-play Loop Video
+          </h3>
           <div className="brushed-metal rounded-lg shadow-lg p-4">
             <VideoPlayer
               src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
@@ -1053,7 +1140,9 @@ export default function MediaPage() {
 
         {/* Video with Error Handling */}
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-white">Error Handling Demo</h3>
+          <h3 className="text-xl font-semibold text-white">
+            Error Handling Demo
+          </h3>
           <div className="brushed-metal rounded-lg shadow-lg p-4">
             <VideoPlayerErrorDemo />
             <div className="mt-4 text-sm text-gray-400">
@@ -1072,7 +1161,9 @@ export default function MediaPage() {
 
       {/* Instructions */}
       <div className="brushed-metal rounded-lg shadow-lg p-6">
-        <h3 className="text-xl font-semibold mb-4 text-white">Video Gallery Viewer Features</h3>
+        <h3 className="text-xl font-semibold mb-4 text-white">
+          Video Gallery Viewer Features
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h4 className="font-medium mb-2 text-white">Navigation</h4>
@@ -1119,12 +1210,16 @@ export default function MediaPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-white">Photo Annotator Demo</h2>
+        <h2 className="text-2xl font-semibold text-white">
+          Photo Annotator Demo
+        </h2>
       </div>
 
       {/* Info Box */}
       <div className="brushed-metal rounded-lg shadow-lg p-6">
-        <h3 className="text-xl font-semibold text-white mb-4">Annotation Features</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">
+          Annotation Features
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
           <div>
             <h4 className="font-medium text-white mb-2">Drawing Tools</h4>
@@ -1162,15 +1257,17 @@ export default function MediaPage() {
 
       {/* Image Selection */}
       <div className="brushed-metal rounded-lg shadow-lg p-4">
-        <h3 className="text-lg font-medium text-white mb-4">Select Demo Image</h3>
+        <h3 className="text-lg font-medium text-white mb-4">
+          Select Demo Image
+        </h3>
         <div className="flex gap-4">
-          {demoImages.map((image) => (
+          {demoImages.map(image => (
             <button
               key={image.id}
               onClick={() => setSelectedImage(image)}
               className={`relative overflow-hidden rounded-lg transition-all ${
-                selectedImage.id === image.id 
-                  ? 'ring-2 ring-safety-orange scale-105' 
+                selectedImage.id === image.id
+                  ? 'ring-2 ring-safety-orange scale-105'
                   : 'opacity-70 hover:opacity-100'
               }`}
             >
@@ -1193,7 +1290,8 @@ export default function MediaPage() {
           <div className="flex items-center gap-2">
             <Plus className="h-5 w-5 text-green-500" />
             <p className="text-sm text-green-400">
-              Annotations saved successfully! {savedAnnotations.length} annotation{savedAnnotations.length !== 1 ? 's' : ''} added.
+              Annotations saved successfully! {savedAnnotations.length}{' '}
+              annotation{savedAnnotations.length !== 1 ? 's' : ''} added.
             </p>
           </div>
         </div>
@@ -1202,7 +1300,9 @@ export default function MediaPage() {
       {/* Photo Annotator */}
       <div className="brushed-metal rounded-lg shadow-lg p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-medium text-white">{selectedImage.title}</h3>
+          <h3 className="text-lg font-medium text-white">
+            {selectedImage.title}
+          </h3>
           <Button
             variant="outline"
             size="sm"
@@ -1212,7 +1312,7 @@ export default function MediaPage() {
             Reset Demo
           </Button>
         </div>
-        
+
         <PhotoAnnotator
           imageUrl={selectedImage.url}
           onSave={handleAnnotationSave}
@@ -1250,7 +1350,9 @@ export default function MediaPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <MediaGalleryIcon className="h-8 w-8 text-safety-orange" size={32} />
-          <h1 className="text-3xl font-bold font-shogun text-white">Media & Tags</h1>
+          <h1 className="text-3xl font-bold font-shogun text-white">
+            Media & Tags
+          </h1>
         </div>
         <div className="flex items-center gap-2">
           {activeTab === 'gallery' && (
@@ -1333,7 +1435,13 @@ export default function MediaPage() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'gallery' ? renderGalleryView() : activeTab === 'tags' ? renderTagsView() : activeTab === 'video-demo' ? renderVideoDemoView() : renderAnnotatorView()}
+      {activeTab === 'gallery'
+        ? renderGalleryView()
+        : activeTab === 'tags'
+          ? renderTagsView()
+          : activeTab === 'video-demo'
+            ? renderVideoDemoView()
+            : renderAnnotatorView()}
 
       {/* Media Gallery Viewer */}
       {selectedMedia && (
@@ -1341,7 +1449,11 @@ export default function MediaPage() {
           media={filteredMedia}
           initialIndex={filteredMedia.findIndex(m => m.id === selectedMedia.id)}
           onClose={() => setSelectedMedia(null)}
-          title={selectedProject ? projects.find(p => p.id === selectedProject)?.name : 'All Media'}
+          title={
+            selectedProject
+              ? projects.find(p => p.id === selectedProject)?.name
+              : 'All Media'
+          }
           subtitle={`${filteredMedia.length} items`}
           showInfo={true}
           allowDownload={true}
@@ -1362,7 +1474,10 @@ export default function MediaPage() {
 
       {/* Edit Media Tags Dialog */}
       {editingMediaTags && (
-        <Dialog open={!!editingMediaTags} onOpenChange={() => setEditingMediaTags(null)}>
+        <Dialog
+          open={!!editingMediaTags}
+          onOpenChange={() => setEditingMediaTags(null)}
+        >
           <DialogContent className="bg-steel-gray border-gray-700">
             <DialogHeader>
               <DialogTitle className="text-white">Edit Media Tags</DialogTitle>
@@ -1371,13 +1486,15 @@ export default function MediaPage() {
               <MediaTagger
                 mediaId={editingMediaTags.id}
                 initialTags={editingMediaTags.mediaTags || []}
-                onTagsUpdate={(updatedTags) => {
+                onTagsUpdate={updatedTags => {
                   // Update the media item with new tags
-                  setMedia(media.map(m => 
-                    m.id === editingMediaTags.id 
-                      ? { ...m, mediaTags: updatedTags }
-                      : m
-                  ))
+                  setMedia(
+                    media.map(m =>
+                      m.id === editingMediaTags.id
+                        ? { ...m, mediaTags: updatedTags }
+                        : m
+                    )
+                  )
                   setEditingMediaTags(null)
                 }}
               />
@@ -1394,43 +1511,59 @@ export default function MediaPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name" className="text-white">Name</Label>
+              <Label htmlFor="name" className="text-white">
+                Name
+              </Label>
               <Input
                 id="name"
                 value={tagFormData.name}
-                onChange={(e) => setTagFormData({ ...tagFormData, name: e.target.value })}
+                onChange={e =>
+                  setTagFormData({ ...tagFormData, name: e.target.value })
+                }
                 placeholder="Enter tag name"
                 className="bg-gray-800 border-gray-700 text-white"
               />
             </div>
-            
+
             <div>
-              <Label htmlFor="category" className="text-white">Category</Label>
+              <Label htmlFor="category" className="text-white">
+                Category
+              </Label>
               <Select
                 value={tagFormData.category}
-                onValueChange={(value) => setTagFormData({ ...tagFormData, category: value })}
+                onValueChange={value =>
+                  setTagFormData({ ...tagFormData, category: value })
+                }
               >
                 <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-700">
                   {TAG_CATEGORIES.map(category => (
-                    <SelectItem key={category} value={category} className="text-white">
+                    <SelectItem
+                      key={category}
+                      value={category}
+                      className="text-white"
+                    >
                       {category}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
-              <Label htmlFor="color" className="text-white">Color</Label>
+              <Label htmlFor="color" className="text-white">
+                Color
+              </Label>
               <div className="flex items-center gap-2">
                 <Input
                   id="color"
                   type="color"
                   value={tagFormData.color}
-                  onChange={(e) => setTagFormData({ ...tagFormData, color: e.target.value })}
+                  onChange={e =>
+                    setTagFormData({ ...tagFormData, color: e.target.value })
+                  }
                   className="w-20 h-10 bg-gray-800 border-gray-700"
                 />
                 <div className="flex gap-1">
@@ -1445,19 +1578,26 @@ export default function MediaPage() {
                 </div>
               </div>
             </div>
-            
+
             <div>
-              <Label htmlFor="description" className="text-white">Description (Optional)</Label>
+              <Label htmlFor="description" className="text-white">
+                Description (Optional)
+              </Label>
               <Textarea
                 id="description"
                 value={tagFormData.description}
-                onChange={(e) => setTagFormData({ ...tagFormData, description: e.target.value })}
+                onChange={e =>
+                  setTagFormData({
+                    ...tagFormData,
+                    description: e.target.value,
+                  })
+                }
                 placeholder="Enter tag description"
                 className="bg-gray-800 border-gray-700 text-white"
                 rows={3}
               />
             </div>
-            
+
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
@@ -1488,43 +1628,59 @@ export default function MediaPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="edit-name" className="text-white">Name</Label>
+              <Label htmlFor="edit-name" className="text-white">
+                Name
+              </Label>
               <Input
                 id="edit-name"
                 value={tagFormData.name}
-                onChange={(e) => setTagFormData({ ...tagFormData, name: e.target.value })}
+                onChange={e =>
+                  setTagFormData({ ...tagFormData, name: e.target.value })
+                }
                 placeholder="Enter tag name"
                 className="bg-gray-800 border-gray-700 text-white"
               />
             </div>
-            
+
             <div>
-              <Label htmlFor="edit-category" className="text-white">Category</Label>
+              <Label htmlFor="edit-category" className="text-white">
+                Category
+              </Label>
               <Select
                 value={tagFormData.category}
-                onValueChange={(value) => setTagFormData({ ...tagFormData, category: value })}
+                onValueChange={value =>
+                  setTagFormData({ ...tagFormData, category: value })
+                }
               >
                 <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-700">
                   {TAG_CATEGORIES.map(category => (
-                    <SelectItem key={category} value={category} className="text-white">
+                    <SelectItem
+                      key={category}
+                      value={category}
+                      className="text-white"
+                    >
                       {category}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
-              <Label htmlFor="edit-color" className="text-white">Color</Label>
+              <Label htmlFor="edit-color" className="text-white">
+                Color
+              </Label>
               <div className="flex items-center gap-2">
                 <Input
                   id="edit-color"
                   type="color"
                   value={tagFormData.color}
-                  onChange={(e) => setTagFormData({ ...tagFormData, color: e.target.value })}
+                  onChange={e =>
+                    setTagFormData({ ...tagFormData, color: e.target.value })
+                  }
                   className="w-20 h-10 bg-gray-800 border-gray-700"
                 />
                 <div className="flex gap-1">
@@ -1539,19 +1695,26 @@ export default function MediaPage() {
                 </div>
               </div>
             </div>
-            
+
             <div>
-              <Label htmlFor="edit-description" className="text-white">Description (Optional)</Label>
+              <Label htmlFor="edit-description" className="text-white">
+                Description (Optional)
+              </Label>
               <Textarea
                 id="edit-description"
                 value={tagFormData.description}
-                onChange={(e) => setTagFormData({ ...tagFormData, description: e.target.value })}
+                onChange={e =>
+                  setTagFormData({
+                    ...tagFormData,
+                    description: e.target.value,
+                  })
+                }
                 placeholder="Enter tag description"
                 className="bg-gray-800 border-gray-700 text-white"
                 rows={3}
               />
             </div>
-            
+
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"

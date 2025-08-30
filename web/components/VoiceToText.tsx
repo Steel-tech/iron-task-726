@@ -11,12 +11,12 @@ import {
   Volume2,
   VolumeX,
   RefreshCw,
-  FileText
+  FileText,
 } from 'lucide-react'
 
 // Type declarations for Web Speech API
 interface SpeechRecognitionStatic {
-  new(): SpeechRecognition
+  new (): SpeechRecognition
 }
 
 declare global {
@@ -36,8 +36,12 @@ interface SpeechRecognition extends EventTarget {
   abort(): void
   onstart: ((this: SpeechRecognition, ev: Event) => any) | null
   onend: ((this: SpeechRecognition, ev: Event) => any) | null
-  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null
-  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null
+  onerror:
+    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any)
+    | null
+  onresult:
+    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any)
+    | null
 }
 
 interface SpeechRecognitionErrorEvent extends Event {
@@ -79,7 +83,7 @@ export default function VoiceToText({
   onTranscriptionComplete,
   placeholder = 'Click record to start voice input...',
   disabled = false,
-  className = ''
+  className = '',
 }: VoiceToTextProps) {
   const [isRecording, setIsRecording] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -98,7 +102,8 @@ export default function VoiceToText({
 
   // Check for browser support
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition
     setIsSupported(!!SpeechRecognition)
 
     if (SpeechRecognition) {
@@ -106,7 +111,7 @@ export default function VoiceToText({
       recognition.continuous = true
       recognition.interimResults = true
       recognition.lang = 'en-US'
-      
+
       recognition.onstart = () => {
         setIsRecording(true)
         setIsProcessing(false)
@@ -114,7 +119,7 @@ export default function VoiceToText({
         startVolumeMonitoring()
       }
 
-      recognition.onresult = (event) => {
+      recognition.onresult = event => {
         let finalTranscript = ''
         let interimTranscript = ''
 
@@ -130,7 +135,7 @@ export default function VoiceToText({
         setTranscript(finalTranscript + interimTranscript)
       }
 
-      recognition.onerror = (event) => {
+      recognition.onerror = event => {
         setIsRecording(false)
         setIsProcessing(false)
         stopTimer()
@@ -142,7 +147,7 @@ export default function VoiceToText({
         setIsProcessing(false)
         stopTimer()
         stopVolumeMonitoring()
-        
+
         if (transcript.trim()) {
           onTranscriptionComplete(transcript.trim())
         }
@@ -186,15 +191,15 @@ export default function VoiceToText({
       const audioContext = new AudioContext()
       const analyser = audioContext.createAnalyser()
       const microphone = audioContext.createMediaStreamSource(stream)
-      
+
       analyser.fftSize = 256
       microphone.connect(analyser)
-      
+
       audioContextRef.current = audioContext
       analyserRef.current = analyser
 
       const dataArray = new Uint8Array(analyser.frequencyBinCount)
-      
+
       volumeIntervalRef.current = setInterval(() => {
         analyser.getByteFrequencyData(dataArray)
         const avg = dataArray.reduce((a, b) => a + b) / dataArray.length
@@ -210,17 +215,17 @@ export default function VoiceToText({
       clearInterval(volumeIntervalRef.current)
       volumeIntervalRef.current = null
     }
-    
+
     if (audioContextRef.current) {
       audioContextRef.current.close()
       audioContextRef.current = null
     }
-    
+
     if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach(track => track.stop())
       mediaStreamRef.current = null
     }
-    
+
     setVolume(0)
   }
 
@@ -268,10 +273,14 @@ export default function VoiceToText({
 
   if (!isSupported) {
     return (
-      <div className={`p-4 bg-gray-50 border border-gray-200 rounded-lg ${className}`}>
+      <div
+        className={`p-4 bg-gray-50 border border-gray-200 rounded-lg ${className}`}
+      >
         <div className="flex items-center gap-2 text-gray-600">
           <MicOff className="h-5 w-5" />
-          <span className="text-sm">Voice input not supported in this browser</span>
+          <span className="text-sm">
+            Voice input not supported in this browser
+          </span>
         </div>
       </div>
     )
@@ -286,8 +295,12 @@ export default function VoiceToText({
             {isRecording ? (
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-                <span className="text-sm font-medium text-red-600">Recording</span>
-                <span className="text-sm text-gray-500">{formatTime(recordingTime)}</span>
+                <span className="text-sm font-medium text-red-600">
+                  Recording
+                </span>
+                <span className="text-sm text-gray-500">
+                  {formatTime(recordingTime)}
+                </span>
               </div>
             ) : (
               <div className="flex items-center gap-2">
@@ -332,11 +345,7 @@ export default function VoiceToText({
 
           {isRecording && !isPaused && (
             <>
-              <Button
-                onClick={pauseRecording}
-                variant="outline"
-                size="lg"
-              >
+              <Button onClick={pauseRecording} variant="outline" size="lg">
                 <Pause className="h-5 w-5" />
               </Button>
               <Button
@@ -373,11 +382,7 @@ export default function VoiceToText({
           )}
 
           {transcript && !isRecording && (
-            <Button
-              onClick={clearTranscript}
-              variant="outline"
-              size="lg"
-            >
+            <Button onClick={clearTranscript} variant="outline" size="lg">
               <RefreshCw className="h-5 w-5" />
             </Button>
           )}
@@ -390,7 +395,7 @@ export default function VoiceToText({
           <FileText className="h-4 w-4 text-gray-500" />
           <span className="text-sm font-medium text-gray-700">Transcript</span>
         </div>
-        
+
         {transcript ? (
           <div className="text-sm text-gray-900 leading-relaxed">
             {transcript}
@@ -405,7 +410,9 @@ export default function VoiceToText({
 
       {/* Usage Tips */}
       <div className="text-xs text-gray-500 space-y-1">
-        <p>💡 <strong>Tips for better recognition:</strong></p>
+        <p>
+          💡 <strong>Tips for better recognition:</strong>
+        </p>
         <ul className="ml-4 space-y-1">
           <li>• Speak clearly and at normal pace</li>
           <li>• Use industry terms like "beam", "weld", "crane", "safety"</li>

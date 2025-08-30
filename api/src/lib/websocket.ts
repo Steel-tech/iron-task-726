@@ -7,7 +7,7 @@ let io: Server | null = null
 
 // User to socket mapping
 const userSockets = new Map<string, Set<string>>()
-// Project to socket mapping  
+// Project to socket mapping
 const projectSockets = new Map<string, Set<string>>()
 // Socket to user/project mapping
 const socketInfo = new Map<string, { userId: string; projectIds: string[] }>()
@@ -16,35 +16,35 @@ export function initializeWebSocket(fastify: FastifyInstance) {
   io = new Server(fastify.server, {
     cors: {
       origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-      credentials: true
-    }
+      credentials: true,
+    },
   })
-  
-  io.on('connection', async (socket) => {
+
+  io.on('connection', async socket => {
     console.log('New WebSocket connection:', socket.id)
-    
+
     // Authenticate the connection
     socket.on('authenticate', async (token: string) => {
       try {
         const payload = verifyToken(token)
         const userId = payload.userId
-        
+
         // Get user's projects
         const projectMembers = await prisma.projectMember.findMany({
           where: { userId },
-          select: { projectId: true }
+          select: { projectId: true },
         })
         const projectIds = projectMembers.map(pm => pm.projectId)
-        
+
         // Store socket info
         socketInfo.set(socket.id, { userId, projectIds })
-        
+
         // Add to user sockets
         if (!userSockets.has(userId)) {
           userSockets.set(userId, new Set())
         }
         userSockets.get(userId)!.add(socket.id)
-        
+
         // Add to project sockets
         for (const projectId of projectIds) {
           if (!projectSockets.has(projectId)) {
@@ -52,24 +52,23 @@ export function initializeWebSocket(fastify: FastifyInstance) {
           }
           projectSockets.get(projectId)!.add(socket.id)
         }
-        
+
         socket.emit('authenticated', { userId, projectIds })
-        
+
         // Join project rooms
         projectIds.forEach(projectId => {
           socket.join(`project:${projectId}`)
         })
-        
+
         // Join user room
         socket.join(`user:${userId}`)
-        
       } catch (error) {
         console.error('WebSocket authentication failed:', error)
         socket.emit('authentication_error', 'Invalid token')
         socket.disconnect()
       }
     })
-    
+
     // Handle disconnection
     socket.on('disconnect', () => {
       const info = socketInfo.get(socket.id)
@@ -82,7 +81,7 @@ export function initializeWebSocket(fastify: FastifyInstance) {
             userSockets.delete(info.userId)
           }
         }
-        
+
         // Remove from project sockets
         for (const projectId of info.projectIds) {
           const projectSocketSet = projectSockets.get(projectId)
@@ -93,23 +92,23 @@ export function initializeWebSocket(fastify: FastifyInstance) {
             }
           }
         }
-        
+
         socketInfo.delete(socket.id)
       }
-      
+
       console.log('WebSocket disconnected:', socket.id)
     })
-    
+
     // Handle joining a specific media room for live comments
     socket.on('join_media', (mediaId: string) => {
       socket.join(`media:${mediaId}`)
     })
-    
+
     socket.on('leave_media', (mediaId: string) => {
       socket.leave(`media:${mediaId}`)
     })
   })
-  
+
   return io
 }
 
@@ -135,7 +134,7 @@ export function emitToMedia(mediaId: string, event: string, data: any) {
 export function getOnlineProjectUsers(projectId: string): string[] {
   const sockets = projectSockets.get(projectId)
   if (!sockets) return []
-  
+
   const users = new Set<string>()
   for (const socketId of sockets) {
     const info = socketInfo.get(socketId)
@@ -143,7 +142,7 @@ export function getOnlineProjectUsers(projectId: string): string[] {
       users.add(info.userId)
     }
   }
-  
+
   return Array.from(users)
 }
 

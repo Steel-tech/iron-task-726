@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { 
-  Type, 
-  Circle, 
-  Square, 
-  ArrowRight, 
-  Ruler, 
+import {
+  Type,
+  Circle,
+  Square,
+  ArrowRight,
+  Ruler,
   AlertTriangle,
   Download,
   Save,
@@ -17,7 +17,7 @@ import {
   Palette,
   Image as ImageIcon,
   Plus,
-  Minus
+  Minus,
 } from 'lucide-react'
 import { Button } from '@/components/Button'
 import { HardHatIcon } from '@/components/icons/SteelConstructionIcons'
@@ -50,21 +50,27 @@ export default function PhotoAnnotator({
   onSave,
   initialAnnotations = [],
   companyLogoUrl = '/logo.png',
-  autoEditMode = false
+  autoEditMode = false,
 }: PhotoAnnotatorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageRef = useRef<HTMLImageElement | null>(null)
-  const [annotations, setAnnotations] = useState<Annotation[]>(initialAnnotations)
-  const [selectedTool, setSelectedTool] = useState<'text' | 'arrow' | 'circle' | 'rectangle' | 'measurement' | 'logo' | 'move'>('arrow')
+  const [annotations, setAnnotations] =
+    useState<Annotation[]>(initialAnnotations)
+  const [selectedTool, setSelectedTool] = useState<
+    'text' | 'arrow' | 'circle' | 'rectangle' | 'measurement' | 'logo' | 'move'
+  >('arrow')
   const [selectedColor, setSelectedColor] = useState('#ff6600') // Safety orange
   const [strokeWidth, setStrokeWidth] = useState(3)
   const [fontSize, setFontSize] = useState(24)
   const [isDrawing, setIsDrawing] = useState(false)
   const [startPoint, setStartPoint] = useState({ x: 0, y: 0 })
-  const [currentAnnotation, setCurrentAnnotation] = useState<Partial<Annotation> | null>(null)
+  const [currentAnnotation, setCurrentAnnotation] =
+    useState<Partial<Annotation> | null>(null)
   const [history, setHistory] = useState<Annotation[][]>([initialAnnotations])
   const [historyIndex, setHistoryIndex] = useState(0)
-  const [selectedAnnotation, setSelectedAnnotation] = useState<string | null>(null)
+  const [selectedAnnotation, setSelectedAnnotation] = useState<string | null>(
+    null
+  )
   const [imageLoaded, setImageLoaded] = useState(false)
   const [showTextInput, setShowTextInput] = useState(false)
   const [textInputValue, setTextInputValue] = useState('')
@@ -77,7 +83,7 @@ export default function PhotoAnnotator({
     { name: 'Safety Green', value: '#33cc33' },
     { name: 'Alert Red', value: '#ff0000' },
     { name: 'White', value: '#ffffff' },
-    { name: 'Black', value: '#000000' }
+    { name: 'Black', value: '#000000' },
   ]
 
   useEffect(() => {
@@ -118,7 +124,7 @@ export default function PhotoAnnotator({
     // Draw annotations
     annotations.forEach(annotation => {
       ctx.save()
-      
+
       switch (annotation.type) {
         case 'text':
           ctx.font = `bold ${annotation.fontSize}px Arial`
@@ -128,44 +134,70 @@ export default function PhotoAnnotator({
           ctx.strokeText(annotation.text || '', annotation.x, annotation.y)
           ctx.fillText(annotation.text || '', annotation.x, annotation.y)
           break
-          
+
         case 'arrow':
-          drawArrow(ctx, annotation.x, annotation.y, annotation.endX || 0, annotation.endY || 0, annotation.color, annotation.strokeWidth)
+          drawArrow(
+            ctx,
+            annotation.x,
+            annotation.y,
+            annotation.endX || 0,
+            annotation.endY || 0,
+            annotation.color,
+            annotation.strokeWidth
+          )
           break
-          
+
         case 'circle':
           ctx.strokeStyle = annotation.color
           ctx.lineWidth = annotation.strokeWidth
           ctx.beginPath()
-          const radius = Math.sqrt(Math.pow(annotation.width || 0, 2) + Math.pow(annotation.height || 0, 2)) / 2
+          const radius =
+            Math.sqrt(
+              Math.pow(annotation.width || 0, 2) +
+                Math.pow(annotation.height || 0, 2)
+            ) / 2
           ctx.arc(annotation.x, annotation.y, radius, 0, 2 * Math.PI)
           ctx.stroke()
           break
-          
+
         case 'rectangle':
           ctx.strokeStyle = annotation.color
           ctx.lineWidth = annotation.strokeWidth
-          ctx.strokeRect(annotation.x, annotation.y, annotation.width || 0, annotation.height || 0)
+          ctx.strokeRect(
+            annotation.x,
+            annotation.y,
+            annotation.width || 0,
+            annotation.height || 0
+          )
           break
-          
+
         case 'measurement':
           drawMeasurement(ctx, annotation)
           break
-          
+
         case 'logo':
           // Draw logo (would load actual logo image)
           ctx.fillStyle = annotation.color
           ctx.globalAlpha = 0.8
-          ctx.fillRect(annotation.x, annotation.y, annotation.width || 150, annotation.height || 50)
+          ctx.fillRect(
+            annotation.x,
+            annotation.y,
+            annotation.width || 150,
+            annotation.height || 50
+          )
           ctx.globalAlpha = 1
           ctx.fillStyle = 'white'
           ctx.font = 'bold 16px Arial'
           ctx.textAlign = 'center'
           ctx.textBaseline = 'middle'
-          ctx.fillText('FSW LOGO', annotation.x + (annotation.width || 150) / 2, annotation.y + (annotation.height || 50) / 2)
+          ctx.fillText(
+            'FSW LOGO',
+            annotation.x + (annotation.width || 150) / 2,
+            annotation.y + (annotation.height || 50) / 2
+          )
           break
       }
-      
+
       ctx.restore()
     })
 
@@ -174,55 +206,89 @@ export default function PhotoAnnotator({
       ctx.save()
       ctx.strokeStyle = selectedColor
       ctx.lineWidth = strokeWidth
-      
+
       switch (selectedTool) {
         case 'arrow':
-          drawArrow(ctx, startPoint.x, startPoint.y, currentAnnotation.endX || 0, currentAnnotation.endY || 0, selectedColor, strokeWidth)
+          drawArrow(
+            ctx,
+            startPoint.x,
+            startPoint.y,
+            currentAnnotation.endX || 0,
+            currentAnnotation.endY || 0,
+            selectedColor,
+            strokeWidth
+          )
           break
         case 'circle':
-          const radius = Math.sqrt(Math.pow(currentAnnotation.width || 0, 2) + Math.pow(currentAnnotation.height || 0, 2)) / 2
+          const radius =
+            Math.sqrt(
+              Math.pow(currentAnnotation.width || 0, 2) +
+                Math.pow(currentAnnotation.height || 0, 2)
+            ) / 2
           ctx.beginPath()
           ctx.arc(startPoint.x, startPoint.y, radius, 0, 2 * Math.PI)
           ctx.stroke()
           break
         case 'rectangle':
-          ctx.strokeRect(startPoint.x, startPoint.y, currentAnnotation.width || 0, currentAnnotation.height || 0)
+          ctx.strokeRect(
+            startPoint.x,
+            startPoint.y,
+            currentAnnotation.width || 0,
+            currentAnnotation.height || 0
+          )
           break
       }
-      
+
       ctx.restore()
     }
   }
 
-  const drawArrow = (ctx: CanvasRenderingContext2D, fromX: number, fromY: number, toX: number, toY: number, color: string, width: number) => {
+  const drawArrow = (
+    ctx: CanvasRenderingContext2D,
+    fromX: number,
+    fromY: number,
+    toX: number,
+    toY: number,
+    color: string,
+    width: number
+  ) => {
     const headlen = 15
     const angle = Math.atan2(toY - fromY, toX - fromX)
-    
+
     ctx.strokeStyle = color
     ctx.fillStyle = color
     ctx.lineWidth = width
-    
+
     // Draw line
     ctx.beginPath()
     ctx.moveTo(fromX, fromY)
     ctx.lineTo(toX, toY)
     ctx.stroke()
-    
+
     // Draw arrowhead
     ctx.beginPath()
     ctx.moveTo(toX, toY)
-    ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6))
-    ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6))
+    ctx.lineTo(
+      toX - headlen * Math.cos(angle - Math.PI / 6),
+      toY - headlen * Math.sin(angle - Math.PI / 6)
+    )
+    ctx.lineTo(
+      toX - headlen * Math.cos(angle + Math.PI / 6),
+      toY - headlen * Math.sin(angle + Math.PI / 6)
+    )
     ctx.closePath()
     ctx.fill()
   }
 
-  const drawMeasurement = (ctx: CanvasRenderingContext2D, annotation: Annotation) => {
+  const drawMeasurement = (
+    ctx: CanvasRenderingContext2D,
+    annotation: Annotation
+  ) => {
     const distance = Math.sqrt(
-      Math.pow((annotation.endX || 0) - annotation.x, 2) + 
-      Math.pow((annotation.endY || 0) - annotation.y, 2)
+      Math.pow((annotation.endX || 0) - annotation.x, 2) +
+        Math.pow((annotation.endY || 0) - annotation.y, 2)
     )
-    
+
     // Draw line with end caps
     ctx.strokeStyle = annotation.color
     ctx.lineWidth = annotation.strokeWidth
@@ -230,27 +296,42 @@ export default function PhotoAnnotator({
     ctx.moveTo(annotation.x, annotation.y)
     ctx.lineTo(annotation.endX || 0, annotation.endY || 0)
     ctx.stroke()
-    
+
     // Draw end caps
-    const angle = Math.atan2((annotation.endY || 0) - annotation.y, (annotation.endX || 0) - annotation.x)
+    const angle = Math.atan2(
+      (annotation.endY || 0) - annotation.y,
+      (annotation.endX || 0) - annotation.x
+    )
     const capLength = 10
-    
+
     // Start cap
     ctx.beginPath()
-    ctx.moveTo(annotation.x - capLength * Math.sin(angle), annotation.y + capLength * Math.cos(angle))
-    ctx.lineTo(annotation.x + capLength * Math.sin(angle), annotation.y - capLength * Math.cos(angle))
+    ctx.moveTo(
+      annotation.x - capLength * Math.sin(angle),
+      annotation.y + capLength * Math.cos(angle)
+    )
+    ctx.lineTo(
+      annotation.x + capLength * Math.sin(angle),
+      annotation.y - capLength * Math.cos(angle)
+    )
     ctx.stroke()
-    
+
     // End cap
     ctx.beginPath()
-    ctx.moveTo((annotation.endX || 0) - capLength * Math.sin(angle), (annotation.endY || 0) + capLength * Math.cos(angle))
-    ctx.lineTo((annotation.endX || 0) + capLength * Math.sin(angle), (annotation.endY || 0) - capLength * Math.cos(angle))
+    ctx.moveTo(
+      (annotation.endX || 0) - capLength * Math.sin(angle),
+      (annotation.endY || 0) + capLength * Math.cos(angle)
+    )
+    ctx.lineTo(
+      (annotation.endX || 0) + capLength * Math.sin(angle),
+      (annotation.endY || 0) - capLength * Math.cos(angle)
+    )
     ctx.stroke()
-    
+
     // Draw measurement text
     const midX = (annotation.x + (annotation.endX || 0)) / 2
     const midY = (annotation.y + (annotation.endY || 0)) / 2
-    
+
     ctx.font = 'bold 16px Arial'
     ctx.fillStyle = annotation.color
     ctx.strokeStyle = 'black'
@@ -263,20 +344,20 @@ export default function PhotoAnnotator({
   const handleCanvasMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current
     if (!canvas) return
-    
+
     const rect = canvas.getBoundingClientRect()
     const scaleX = canvas.width / rect.width
     const scaleY = canvas.height / rect.height
     const x = (e.clientX - rect.left) * scaleX
     const y = (e.clientY - rect.top) * scaleY
-    
+
     if (selectedTool === 'text') {
       setTextInputPosition({ x, y })
       setTextInputValue('')
       setShowTextInput(true)
       return
     }
-    
+
     if (selectedTool === 'logo') {
       const newAnnotation: Annotation = {
         id: Date.now().toString(),
@@ -286,12 +367,12 @@ export default function PhotoAnnotator({
         width: 150,
         height: 50,
         color: selectedColor,
-        strokeWidth
+        strokeWidth,
       }
       addAnnotation(newAnnotation)
       return
     }
-    
+
     setIsDrawing(true)
     setStartPoint({ x, y })
     setCurrentAnnotation({ x, y })
@@ -299,14 +380,14 @@ export default function PhotoAnnotator({
 
   const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!isDrawing || !canvasRef.current) return
-    
+
     const canvas = canvasRef.current
     const rect = canvas.getBoundingClientRect()
     const scaleX = canvas.width / rect.width
     const scaleY = canvas.height / rect.height
     const x = (e.clientX - rect.left) * scaleX
     const y = (e.clientY - rect.top) * scaleY
-    
+
     switch (selectedTool) {
       case 'arrow':
       case 'measurement':
@@ -317,7 +398,7 @@ export default function PhotoAnnotator({
         setCurrentAnnotation({
           ...currentAnnotation,
           width: x - startPoint.x,
-          height: y - startPoint.y
+          height: y - startPoint.y,
         })
         break
     }
@@ -325,7 +406,7 @@ export default function PhotoAnnotator({
 
   const handleCanvasMouseUp = () => {
     if (!isDrawing || !currentAnnotation) return
-    
+
     const newAnnotation: Annotation = {
       id: Date.now().toString(),
       type: selectedTool as any,
@@ -334,16 +415,24 @@ export default function PhotoAnnotator({
       color: selectedColor,
       strokeWidth,
       fontSize,
-      ...currentAnnotation
+      ...currentAnnotation,
     }
-    
+
     // Only add if there's actual content
-    if ((selectedTool === 'arrow' || selectedTool === 'measurement') && currentAnnotation.endX && currentAnnotation.endY) {
+    if (
+      (selectedTool === 'arrow' || selectedTool === 'measurement') &&
+      currentAnnotation.endX &&
+      currentAnnotation.endY
+    ) {
       addAnnotation(newAnnotation)
-    } else if ((selectedTool === 'circle' || selectedTool === 'rectangle') && currentAnnotation.width && currentAnnotation.height) {
+    } else if (
+      (selectedTool === 'circle' || selectedTool === 'rectangle') &&
+      currentAnnotation.width &&
+      currentAnnotation.height
+    ) {
       addAnnotation(newAnnotation)
     }
-    
+
     setIsDrawing(false)
     setCurrentAnnotation(null)
   }
@@ -390,7 +479,7 @@ export default function PhotoAnnotator({
         text: textInputValue,
         color: selectedColor,
         fontSize,
-        strokeWidth
+        strokeWidth,
       }
       addAnnotation(newAnnotation)
     }
@@ -400,14 +489,14 @@ export default function PhotoAnnotator({
 
   const saveAnnotatedImage = () => {
     if (!canvasRef.current) return
-    
+
     const dataUrl = canvasRef.current.toDataURL('image/png')
     onSave?.(annotations, dataUrl)
   }
 
   const downloadImage = () => {
     if (!canvasRef.current) return
-    
+
     const dataUrl = canvasRef.current.toDataURL('image/png')
     const a = document.createElement('a')
     a.href = dataUrl
@@ -481,7 +570,9 @@ export default function PhotoAnnotator({
                 key={color.value}
                 onClick={() => setSelectedColor(color.value)}
                 className={`w-8 h-8 rounded border-2 transition-all ${
-                  selectedColor === color.value ? 'border-white scale-110' : 'border-gray-600'
+                  selectedColor === color.value
+                    ? 'border-white scale-110'
+                    : 'border-gray-600'
                 }`}
                 style={{ backgroundColor: color.value }}
                 title={color.name}
@@ -500,7 +591,9 @@ export default function PhotoAnnotator({
             >
               <Minus className="h-3 w-3" />
             </Button>
-            <span className="text-sm text-white w-8 text-center">{strokeWidth}</span>
+            <span className="text-sm text-white w-8 text-center">
+              {strokeWidth}
+            </span>
             <Button
               variant="outline"
               size="sm"
@@ -552,11 +645,7 @@ export default function PhotoAnnotator({
               <Save className="h-4 w-4 mr-2" />
               Save
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={downloadImage}
-            >
+            <Button variant="outline" size="sm" onClick={downloadImage}>
               <Download className="h-4 w-4" />
             </Button>
           </div>
@@ -574,7 +663,7 @@ export default function PhotoAnnotator({
           className="border border-gray-600 rounded cursor-crosshair max-w-full"
           style={{ maxHeight: '70vh' }}
         />
-        
+
         {/* Text Input Overlay */}
         {showTextInput && (
           <div
@@ -584,8 +673,8 @@ export default function PhotoAnnotator({
             <input
               type="text"
               value={textInputValue}
-              onChange={(e) => setTextInputValue(e.target.value)}
-              onKeyDown={(e) => {
+              onChange={e => setTextInputValue(e.target.value)}
+              onKeyDown={e => {
                 if (e.key === 'Enter') {
                   handleTextSubmit()
                 } else if (e.key === 'Escape') {
@@ -594,10 +683,10 @@ export default function PhotoAnnotator({
               }}
               onBlur={handleTextSubmit}
               className="px-2 py-1 bg-gray-800 border border-safety-orange text-white rounded"
-              style={{ 
+              style={{
                 color: selectedColor,
                 fontSize: `${fontSize}px`,
-                minWidth: '200px'
+                minWidth: '200px',
               }}
               autoFocus
               placeholder="Type your annotation..."

@@ -30,7 +30,7 @@ interface CalendarEvent {
 export default function ProjectCalendarPage() {
   const params = useParams()
   const projectId = params.id as string
-  
+
   const [project, setProject] = useState<Project | null>(null)
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -52,7 +52,7 @@ export default function ProjectCalendarPage() {
         name: 'Denver Convention Center',
         description: 'Steel fabrication and installation project',
         location: 'Denver, CO',
-        status: 'ACTIVE'
+        status: 'ACTIVE',
       })
     }
   }
@@ -70,7 +70,7 @@ export default function ProjectCalendarPage() {
           type: 'delivery',
           status: 'pending',
           location: 'Site A - East Wing',
-          assignedTo: ['foreman@fsw-denver.com']
+          assignedTo: ['foreman@fsw-denver.com'],
         },
         {
           id: '2',
@@ -78,22 +78,22 @@ export default function ProjectCalendarPage() {
           date: '2024-07-30',
           type: 'inspection',
           status: 'pending',
-          assignedTo: ['inspector@fsw-denver.com']
+          assignedTo: ['inspector@fsw-denver.com'],
         },
         {
           id: '3',
           title: 'Foundation Complete',
           date: '2024-07-25',
           type: 'milestone',
-          status: 'completed'
+          status: 'completed',
         },
         {
           id: '4',
           title: 'Beam Installation Deadline',
           date: '2024-08-05',
           type: 'deadline',
-          status: 'pending'
-        }
+          status: 'pending',
+        },
       ])
     } finally {
       setIsLoading(false)
@@ -176,7 +176,7 @@ export default function ProjectCalendarPage() {
             <Calendar className="h-8 w-8 text-muted-foreground" />
           </div>
         </div>
-        
+
         <div className="bg-card rounded-lg shadow p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -188,7 +188,7 @@ export default function ProjectCalendarPage() {
             <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
           </div>
         </div>
-        
+
         <div className="bg-card rounded-lg shadow p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -200,7 +200,7 @@ export default function ProjectCalendarPage() {
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
           </div>
         </div>
-        
+
         <div className="bg-card rounded-lg shadow p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -216,25 +216,33 @@ export default function ProjectCalendarPage() {
 
       {/* Upcoming Events List */}
       <div className="bg-card rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">Upcoming Events</h2>
+        <h2 className="text-xl font-semibold text-white mb-4">
+          Upcoming Events
+        </h2>
         <div className="space-y-3">
           {events
             .filter(event => event.status === 'pending')
             .slice(0, 5)
-            .map((event) => (
+            .map(event => (
               <div
                 key={event.id}
                 className="flex items-center justify-between p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer"
                 onClick={() => handleEventClick(event)}
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${
-                    event.type === 'milestone' ? 'bg-safety-orange' :
-                    event.type === 'inspection' ? 'bg-aisc-blue' :
-                    event.type === 'delivery' ? 'bg-purple-500' :
-                    event.type === 'meeting' ? 'bg-yellow-500' :
-                    'bg-red-600'
-                  }`}></div>
+                  <div
+                    className={`w-3 h-3 rounded-full ${
+                      event.type === 'milestone'
+                        ? 'bg-safety-orange'
+                        : event.type === 'inspection'
+                          ? 'bg-aisc-blue'
+                          : event.type === 'delivery'
+                            ? 'bg-purple-500'
+                            : event.type === 'meeting'
+                              ? 'bg-yellow-500'
+                              : 'bg-red-600'
+                    }`}
+                  ></div>
                   <div>
                     <p className="text-white font-medium">{event.title}</p>
                     <p className="text-sm text-gray-400">
@@ -248,7 +256,7 @@ export default function ProjectCalendarPage() {
                 </span>
               </div>
             ))}
-          
+
           {events.filter(event => event.status === 'pending').length === 0 && (
             <div className="text-center py-8">
               <Calendar className="h-12 w-12 text-gray-600 mx-auto mb-4" />

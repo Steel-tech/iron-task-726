@@ -19,7 +19,7 @@ import {
   Clock,
   CheckCheck,
   Mic,
-  MicOff
+  MicOff,
 } from 'lucide-react'
 
 interface ChatMessage {
@@ -66,7 +66,7 @@ export default function TeamChatPanel({
   onToggleMinimize,
   currentUserId = 'user_1',
   currentUserName = 'Mike Johnson',
-  currentUserRole = 'FOREMAN'
+  currentUserRole = 'FOREMAN',
 }: TeamChatPanelProps) {
   const [channels, setChannels] = useState<ChatChannel[]>([])
   const [activeChannel, setActiveChannel] = useState<string>('')
@@ -86,7 +86,7 @@ export default function TeamChatPanel({
         type: 'emergency',
         participants: ['user_1', 'user_2', 'user_3'],
         unreadCount: 0,
-        isActive: true
+        isActive: true,
       },
       {
         id: 'project_1',
@@ -95,7 +95,7 @@ export default function TeamChatPanel({
         projectId: 'project_1',
         participants: ['user_1', 'user_2', 'user_3', 'user_4'],
         unreadCount: 2,
-        isActive: true
+        isActive: true,
       },
       {
         id: 'project_2',
@@ -104,7 +104,7 @@ export default function TeamChatPanel({
         projectId: 'project_2',
         participants: ['user_1', 'user_5', 'user_6'],
         unreadCount: 0,
-        isActive: true
+        isActive: true,
       },
       {
         id: 'foremen_group',
@@ -112,8 +112,8 @@ export default function TeamChatPanel({
         type: 'group',
         participants: ['user_1', 'user_7', 'user_8'],
         unreadCount: 1,
-        isActive: true
-      }
+        isActive: true,
+      },
     ]
 
     const mockMessages: ChatMessage[] = [
@@ -125,7 +125,7 @@ export default function TeamChatPanel({
         content: 'Safety inspection completed for Bay 3. All clear!',
         timestamp: new Date(Date.now() - 300000),
         type: 'text',
-        status: 'read'
+        status: 'read',
       },
       {
         id: 'msg_2',
@@ -136,9 +136,9 @@ export default function TeamChatPanel({
         timestamp: new Date(Date.now() - 180000),
         type: 'image',
         metadata: {
-          imageUrl: '/api/placeholder/300/200'
+          imageUrl: '/api/placeholder/300/200',
         },
-        status: 'read'
+        status: 'read',
       },
       {
         id: 'msg_3',
@@ -148,8 +148,8 @@ export default function TeamChatPanel({
         content: 'Need additional welding rods delivered to Level 2',
         timestamp: new Date(Date.now() - 60000),
         type: 'text',
-        status: 'delivered'
-      }
+        status: 'delivered',
+      },
     ]
 
     setChannels(mockChannels)
@@ -173,7 +173,7 @@ export default function TeamChatPanel({
       content: newMessage.trim(),
       timestamp: new Date(),
       type: 'text',
-      status: 'sending'
+      status: 'sending',
     }
 
     setMessages(prev => [...prev, message])
@@ -181,22 +181,26 @@ export default function TeamChatPanel({
 
     // Simulate message delivery
     setTimeout(() => {
-      setMessages(prev => prev.map(msg => 
-        msg.id === message.id ? { ...msg, status: 'sent' } : msg
-      ))
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.id === message.id ? { ...msg, status: 'sent' } : msg
+        )
+      )
     }, 500)
 
     setTimeout(() => {
-      setMessages(prev => prev.map(msg => 
-        msg.id === message.id ? { ...msg, status: 'delivered' } : msg
-      ))
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.id === message.id ? { ...msg, status: 'delivered' } : msg
+        )
+      )
     }, 1000)
   }
 
   const sendLocationMessage = async () => {
     if (!navigator.geolocation) return
 
-    navigator.geolocation.getCurrentPosition((position) => {
+    navigator.geolocation.getCurrentPosition(position => {
       const message: ChatMessage = {
         id: `msg_${Date.now()}`,
         senderId: currentUserId,
@@ -209,10 +213,10 @@ export default function TeamChatPanel({
           location: {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
-            address: 'Current work site location'
-          }
+            address: 'Current work site location',
+          },
         },
-        status: 'sent'
+        status: 'sent',
       }
 
       setMessages(prev => [...prev, message])
@@ -229,13 +233,13 @@ export default function TeamChatPanel({
       timestamp: new Date(),
       type: 'safety_alert',
       metadata: {
-        safetyLevel: 'critical'
+        safetyLevel: 'critical',
       },
-      status: 'sent'
+      status: 'sent',
     }
 
     setMessages(prev => [...prev, message])
-    
+
     // Switch to emergency channel
     setActiveChannel('emergency')
   }
@@ -249,15 +253,19 @@ export default function TeamChatPanel({
       senderId: currentUserId,
       senderName: currentUserName,
       senderRole: currentUserRole,
-      content: file.type.startsWith('image/') ? 'Shared an image' : `Shared file: ${file.name}`,
+      content: file.type.startsWith('image/')
+        ? 'Shared an image'
+        : `Shared file: ${file.name}`,
       timestamp: new Date(),
       type: file.type.startsWith('image/') ? 'image' : 'file',
       metadata: {
         fileName: file.name,
         fileSize: file.size,
-        imageUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined
+        imageUrl: file.type.startsWith('image/')
+          ? URL.createObjectURL(file)
+          : undefined,
       },
-      status: 'sent'
+      status: 'sent',
     }
 
     setMessages(prev => [...prev, message])
@@ -269,10 +277,14 @@ export default function TeamChatPanel({
 
   const getMessageStatusIcon = (status: ChatMessage['status']) => {
     switch (status) {
-      case 'sending': return <Clock className="w-3 h-3 text-gray-400" />
-      case 'sent': return <CheckCheck className="w-3 h-3 text-gray-400" />
-      case 'delivered': return <CheckCheck className="w-3 h-3 text-blue-500" />
-      case 'read': return <CheckCheck className="w-3 h-3 text-green-500" />
+      case 'sending':
+        return <Clock className="w-3 h-3 text-gray-400" />
+      case 'sent':
+        return <CheckCheck className="w-3 h-3 text-gray-400" />
+      case 'delivered':
+        return <CheckCheck className="w-3 h-3 text-blue-500" />
+      case 'read':
+        return <CheckCheck className="w-3 h-3 text-green-500" />
     }
   }
 
@@ -310,7 +322,7 @@ export default function TeamChatPanel({
             </span>
           )}
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -336,7 +348,7 @@ export default function TeamChatPanel({
         {/* Channel List */}
         <div className="w-24 border-r border-gray-200 bg-gray-50">
           <div className="p-2 space-y-1">
-            {channels.map((channel) => (
+            {channels.map(channel => (
               <button
                 key={channel.id}
                 onClick={() => setActiveChannel(channel.id)}
@@ -351,7 +363,7 @@ export default function TeamChatPanel({
                 {channel.type === 'project' && '🏗️'}
                 {channel.type === 'group' && '👥'}
                 {channel.type === 'direct' && '💬'}
-                
+
                 {channel.unreadCount > 0 && (
                   <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-xs">
                     {channel.unreadCount}
@@ -366,27 +378,31 @@ export default function TeamChatPanel({
         <div className="flex-1 flex flex-col">
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-3 space-y-3">
-            {messages.map((message) => (
+            {messages.map(message => (
               <div
                 key={message.id}
                 className={`flex ${message.senderId === currentUserId ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`max-w-[80%] ${
-                  message.senderId === currentUserId 
-                    ? 'bg-blue-500 text-white' 
-                    : message.type === 'safety_alert'
-                    ? 'bg-red-500 text-white'
-                    : 'bg-gray-100 text-gray-900'
-                } rounded-lg p-3`}>
+                <div
+                  className={`max-w-[80%] ${
+                    message.senderId === currentUserId
+                      ? 'bg-blue-500 text-white'
+                      : message.type === 'safety_alert'
+                        ? 'bg-red-500 text-white'
+                        : 'bg-gray-100 text-gray-900'
+                  } rounded-lg p-3`}
+                >
                   {message.senderId !== currentUserId && (
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-xs">{message.senderName}</span>
+                      <span className="font-semibold text-xs">
+                        {message.senderName}
+                      </span>
                       <span className="text-xs opacity-75 px-1 py-0.5 bg-black/20 rounded">
                         {message.senderRole}
                       </span>
                     </div>
                   )}
-                  
+
                   {message.type === 'image' && message.metadata?.imageUrl && (
                     <img
                       src={message.metadata.imageUrl}
@@ -394,16 +410,19 @@ export default function TeamChatPanel({
                       className="rounded mb-2 max-w-full h-32 object-cover"
                     />
                   )}
-                  
+
                   {message.type === 'location' && (
                     <div className="flex items-center gap-2 mb-2 text-sm">
                       <MapPin className="w-4 h-4" />
-                      <span>{message.metadata?.location?.address || 'Location shared'}</span>
+                      <span>
+                        {message.metadata?.location?.address ||
+                          'Location shared'}
+                      </span>
                     </div>
                   )}
-                  
+
                   <p className="text-sm">{message.content}</p>
-                  
+
                   <div className="flex items-center justify-between mt-2">
                     <span className="text-xs opacity-75">
                       {formatTime(message.timestamp)}
@@ -430,7 +449,7 @@ export default function TeamChatPanel({
                 accept="image/*,*"
                 className="hidden"
               />
-              
+
               <Button
                 variant="ghost"
                 size="icon"
@@ -439,7 +458,7 @@ export default function TeamChatPanel({
               >
                 <Paperclip className="w-4 h-4" />
               </Button>
-              
+
               <Button
                 variant="ghost"
                 size="icon"
@@ -448,16 +467,16 @@ export default function TeamChatPanel({
               >
                 <MapPin className="w-4 h-4" />
               </Button>
-              
+
               <input
                 type="text"
                 value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                onChange={e => setNewMessage(e.target.value)}
+                onKeyPress={e => e.key === 'Enter' && sendMessage()}
                 placeholder="Type a message..."
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
-              
+
               <Button
                 onClick={sendMessage}
                 disabled={!newMessage.trim()}

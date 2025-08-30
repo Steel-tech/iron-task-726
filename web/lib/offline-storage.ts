@@ -40,7 +40,7 @@ class OfflineStorageService {
         resolve()
       }
 
-      request.onupgradeneeded = (event) => {
+      request.onupgradeneeded = event => {
         const db = (event.target as IDBOpenDBRequest).result
 
         // Store for offline media files
@@ -64,7 +64,9 @@ class OfflineStorageService {
     })
   }
 
-  async saveOfflineMedia(media: Omit<OfflineMedia, 'id' | 'timestamp' | 'syncStatus' | 'retryCount'>): Promise<string> {
+  async saveOfflineMedia(
+    media: Omit<OfflineMedia, 'id' | 'timestamp' | 'syncStatus' | 'retryCount'>
+  ): Promise<string> {
     if (!this.db) await this.initDB()
 
     const id = `offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
@@ -73,7 +75,7 @@ class OfflineStorageService {
       id,
       timestamp: Date.now(),
       syncStatus: 'pending',
-      retryCount: 0
+      retryCount: 0,
     }
 
     return new Promise((resolve, reject) => {
@@ -86,16 +88,16 @@ class OfflineStorageService {
     })
   }
 
-  async getOfflineMedia(options?: { 
+  async getOfflineMedia(options?: {
     syncStatus?: OfflineMedia['syncStatus']
-    projectId?: string 
+    projectId?: string
   }): Promise<OfflineMedia[]> {
     if (!this.db) await this.initDB()
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(['media'], 'readonly')
       const store = transaction.objectStore('media')
-      
+
       let request: IDBRequest
 
       if (options?.syncStatus) {
@@ -113,7 +115,11 @@ class OfflineStorageService {
     })
   }
 
-  async updateMediaSyncStatus(id: string, status: OfflineMedia['syncStatus'], retryCount?: number): Promise<void> {
+  async updateMediaSyncStatus(
+    id: string,
+    status: OfflineMedia['syncStatus'],
+    retryCount?: number
+  ): Promise<void> {
     if (!this.db) await this.initDB()
 
     return new Promise((resolve, reject) => {
@@ -197,11 +203,11 @@ class OfflineStorageService {
     if (!this.db) await this.initDB()
 
     const syncedMedia = await this.getOfflineMedia({ syncStatus: 'synced' })
-    
+
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(['media'], 'readwrite')
       const store = transaction.objectStore('media')
-      
+
       let completed = 0
       const total = syncedMedia.length
 
@@ -223,28 +229,31 @@ class OfflineStorageService {
     })
   }
 
-  async getCurrentLocation(): Promise<{ latitude: number; longitude: number } | null> {
-    return new Promise((resolve) => {
+  async getCurrentLocation(): Promise<{
+    latitude: number
+    longitude: number
+  } | null> {
+    return new Promise(resolve => {
       if (!navigator.geolocation) {
         resolve(null)
         return
       }
 
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        position => {
           resolve({
             latitude: position.coords.latitude,
-            longitude: position.coords.longitude
+            longitude: position.coords.longitude,
           })
         },
-        (error) => {
+        error => {
           console.warn('GPS location not available:', error)
           resolve(null)
         },
         {
           enableHighAccuracy: true,
           timeout: 10000,
-          maximumAge: 300000 // 5 minutes
+          maximumAge: 300000, // 5 minutes
         }
       )
     })
@@ -256,7 +265,7 @@ class OfflineStorageService {
   }
 
   async waitForConnection(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       if (this.isOnline()) {
         resolve()
         return
@@ -266,7 +275,7 @@ class OfflineStorageService {
         window.removeEventListener('online', handler)
         resolve()
       }
-      
+
       window.addEventListener('online', handler)
     })
   }

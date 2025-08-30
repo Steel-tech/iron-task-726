@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/Button'
-import { safetyIncidentService, type SafetyIncident, type SafetyMetrics, type ComplianceRequirement } from '@/lib/safety-incident-service'
+import {
+  safetyIncidentService,
+  type SafetyIncident,
+  type SafetyMetrics,
+  type ComplianceRequirement,
+} from '@/lib/safety-incident-service'
 import {
   Shield,
   AlertTriangle,
@@ -24,24 +29,32 @@ import {
   Target,
   Award,
   Eye,
-  Plus
+  Plus,
 } from 'lucide-react'
 
 interface SafetyComplianceDashboardProps {
   projectId?: string
 }
 
-export default function SafetyComplianceDashboard({ projectId }: SafetyComplianceDashboardProps) {
+export default function SafetyComplianceDashboard({
+  projectId,
+}: SafetyComplianceDashboardProps) {
   const [safetyMetrics, setSafetyMetrics] = useState<SafetyMetrics | null>(null)
   const [recentIncidents, setRecentIncidents] = useState<SafetyIncident[]>([])
-  const [complianceRequirements, setComplianceRequirements] = useState<ComplianceRequirement[]>([])
-  const [selectedTimeRange, setSelectedTimeRange] = useState<'7d' | '30d' | '90d'>('30d')
-  const [selectedProject, setSelectedProject] = useState<string>(projectId || 'all')
+  const [complianceRequirements, setComplianceRequirements] = useState<
+    ComplianceRequirement[]
+  >([])
+  const [selectedTimeRange, setSelectedTimeRange] = useState<
+    '7d' | '30d' | '90d'
+  >('30d')
+  const [selectedProject, setSelectedProject] = useState<string>(
+    projectId || 'all'
+  )
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     loadDashboardData()
-    
+
     // Initialize mock data for development
     safetyIncidentService.initializeMockData()
   }, [selectedTimeRange, selectedProject])
@@ -50,15 +63,16 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
     setIsLoading(true)
     try {
       const dateRange = getDateRange(selectedTimeRange)
-      const projectFilter = selectedProject === 'all' ? undefined : selectedProject
+      const projectFilter =
+        selectedProject === 'all' ? undefined : selectedProject
 
       const [metrics, incidents, compliance] = await Promise.all([
         safetyIncidentService.getSafetyMetrics(projectFilter, dateRange),
-        safetyIncidentService.getIncidents({ 
+        safetyIncidentService.getIncidents({
           projectId: projectFilter,
-          dateRange 
+          dateRange,
         }),
-        safetyIncidentService.getComplianceRequirements(projectFilter)
+        safetyIncidentService.getComplianceRequirements(projectFilter),
       ])
 
       setSafetyMetrics(metrics)
@@ -74,7 +88,7 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
   const getDateRange = (range: string) => {
     const end = new Date()
     const start = new Date()
-    
+
     switch (range) {
       case '7d':
         start.setDate(end.getDate() - 7)
@@ -86,54 +100,74 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
         start.setDate(end.getDate() - 90)
         break
     }
-    
+
     return { start, end }
   }
 
   const getSeverityColor = (severity: SafetyIncident['severity']) => {
     switch (severity) {
-      case 'low': return 'text-green-600 bg-green-50'
-      case 'medium': return 'text-yellow-600 bg-yellow-50'
-      case 'high': return 'text-orange-600 bg-orange-50'
-      case 'critical': return 'text-red-600 bg-red-50'
+      case 'low':
+        return 'text-green-600 bg-green-50'
+      case 'medium':
+        return 'text-yellow-600 bg-yellow-50'
+      case 'high':
+        return 'text-orange-600 bg-orange-50'
+      case 'critical':
+        return 'text-red-600 bg-red-50'
     }
   }
 
   const getStatusColor = (status: SafetyIncident['status']) => {
     switch (status) {
-      case 'reported': return 'text-blue-600 bg-blue-50'
-      case 'investigating': return 'text-orange-600 bg-orange-50'
-      case 'resolved': return 'text-green-600 bg-green-50'
-      case 'closed': return 'text-gray-600 bg-gray-50'
+      case 'reported':
+        return 'text-blue-600 bg-blue-50'
+      case 'investigating':
+        return 'text-orange-600 bg-orange-50'
+      case 'resolved':
+        return 'text-green-600 bg-green-50'
+      case 'closed':
+        return 'text-gray-600 bg-gray-50'
     }
   }
 
-  const getComplianceStatusColor = (status: ComplianceRequirement['status']) => {
+  const getComplianceStatusColor = (
+    status: ComplianceRequirement['status']
+  ) => {
     switch (status) {
-      case 'completed': return 'text-green-600 bg-green-50'
-      case 'in_progress': return 'text-blue-600 bg-blue-50'
-      case 'pending': return 'text-yellow-600 bg-yellow-50'
-      case 'overdue': return 'text-red-600 bg-red-50'
+      case 'completed':
+        return 'text-green-600 bg-green-50'
+      case 'in_progress':
+        return 'text-blue-600 bg-blue-50'
+      case 'pending':
+        return 'text-yellow-600 bg-yellow-50'
+      case 'overdue':
+        return 'text-red-600 bg-red-50'
     }
   }
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     })
   }
 
   const getIncidentTypeIcon = (type: SafetyIncident['incidentType']) => {
     switch (type) {
-      case 'near_miss': return '⚠️'
-      case 'injury': return '🩹'
-      case 'property_damage': return '🔨'
-      case 'safety_violation': return '🚫'
-      case 'equipment_failure': return '⚙️'
-      case 'environmental': return '🌍'
+      case 'near_miss':
+        return '⚠️'
+      case 'injury':
+        return '🩹'
+      case 'property_damage':
+        return '🔨'
+      case 'safety_violation':
+        return '🚫'
+      case 'equipment_failure':
+        return '⚙️'
+      case 'environmental':
+        return '🌍'
     }
   }
 
@@ -147,7 +181,9 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
 
   const overallSafetyScore = safetyMetrics?.safetyScore || 0
   const compliancePercentage = safetyMetrics?.compliancePercentage || 0
-  const overdueCompliance = complianceRequirements.filter(req => req.status === 'overdue').length
+  const overdueCompliance = complianceRequirements.filter(
+    req => req.status === 'overdue'
+  ).length
 
   return (
     <div className="space-y-6">
@@ -157,11 +193,11 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
           <Shield className="h-6 w-6 text-red-600" />
           <h2 className="text-2xl font-bold">Safety & Compliance Dashboard</h2>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <select
             value={selectedProject}
-            onChange={(e) => setSelectedProject(e.target.value)}
+            onChange={e => setSelectedProject(e.target.value)}
             className="input-construction text-sm"
           >
             <option value="all">All Projects</option>
@@ -169,22 +205,22 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
             <option value="project_2">Highway Bridge Project</option>
             <option value="project_3">Industrial Warehouse</option>
           </select>
-          
+
           <select
             value={selectedTimeRange}
-            onChange={(e) => setSelectedTimeRange(e.target.value as any)}
+            onChange={e => setSelectedTimeRange(e.target.value as any)}
             className="input-construction text-sm"
           >
             <option value="7d">Last 7 days</option>
             <option value="30d">Last 30 days</option>
             <option value="90d">Last 90 days</option>
           </select>
-          
+
           <Button variant="outline" size="sm" onClick={loadDashboardData}>
             <RefreshCw className="w-4 h-4 mr-1" />
             Refresh
           </Button>
-          
+
           <Button variant="outline" size="sm">
             <Download className="w-4 h-4 mr-1" />
             Export
@@ -199,26 +235,44 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
             <div>
               <p className="text-sm font-medium text-gray-600">Safety Score</p>
               <div className="flex items-baseline gap-2">
-                <p className={`text-3xl font-bold ${
-                  overallSafetyScore >= 90 ? 'text-green-600' :
-                  overallSafetyScore >= 80 ? 'text-yellow-600' :
-                  overallSafetyScore >= 70 ? 'text-orange-600' : 'text-red-600'
-                }`}>
+                <p
+                  className={`text-3xl font-bold ${
+                    overallSafetyScore >= 90
+                      ? 'text-green-600'
+                      : overallSafetyScore >= 80
+                        ? 'text-yellow-600'
+                        : overallSafetyScore >= 70
+                          ? 'text-orange-600'
+                          : 'text-red-600'
+                  }`}
+                >
                   {Math.round(overallSafetyScore)}
                 </p>
                 <span className="text-sm text-gray-500">/100</span>
               </div>
             </div>
-            <div className={`p-3 rounded-lg ${
-              overallSafetyScore >= 90 ? 'bg-green-100' :
-              overallSafetyScore >= 80 ? 'bg-yellow-100' :
-              overallSafetyScore >= 70 ? 'bg-orange-100' : 'bg-red-100'
-            }`}>
-              <Shield className={`h-6 w-6 ${
-                overallSafetyScore >= 90 ? 'text-green-600' :
-                overallSafetyScore >= 80 ? 'text-yellow-600' :
-                overallSafetyScore >= 70 ? 'text-orange-600' : 'text-red-600'
-              }`} />
+            <div
+              className={`p-3 rounded-lg ${
+                overallSafetyScore >= 90
+                  ? 'bg-green-100'
+                  : overallSafetyScore >= 80
+                    ? 'bg-yellow-100'
+                    : overallSafetyScore >= 70
+                      ? 'bg-orange-100'
+                      : 'bg-red-100'
+              }`}
+            >
+              <Shield
+                className={`h-6 w-6 ${
+                  overallSafetyScore >= 90
+                    ? 'text-green-600'
+                    : overallSafetyScore >= 80
+                      ? 'text-yellow-600'
+                      : overallSafetyScore >= 70
+                        ? 'text-orange-600'
+                        : 'text-red-600'
+                }`}
+              />
             </div>
           </div>
         </div>
@@ -226,9 +280,13 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
         <div className="card-construction">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Incidents</p>
+              <p className="text-sm font-medium text-gray-600">
+                Total Incidents
+              </p>
               <div className="flex items-baseline gap-2">
-                <p className="text-3xl font-bold text-red-600">{safetyMetrics?.totalIncidents || 0}</p>
+                <p className="text-3xl font-bold text-red-600">
+                  {safetyMetrics?.totalIncidents || 0}
+                </p>
                 <span className="text-xs text-gray-500">this period</span>
               </div>
             </div>
@@ -241,12 +299,19 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
         <div className="card-construction">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Compliance Rate</p>
+              <p className="text-sm font-medium text-gray-600">
+                Compliance Rate
+              </p>
               <div className="flex items-baseline gap-2">
-                <p className={`text-3xl font-bold ${
-                  compliancePercentage >= 95 ? 'text-green-600' :
-                  compliancePercentage >= 85 ? 'text-yellow-600' : 'text-red-600'
-                }`}>
+                <p
+                  className={`text-3xl font-bold ${
+                    compliancePercentage >= 95
+                      ? 'text-green-600'
+                      : compliancePercentage >= 85
+                        ? 'text-yellow-600'
+                        : 'text-red-600'
+                  }`}
+                >
                   {Math.round(compliancePercentage)}%
                 </p>
                 {overdueCompliance > 0 && (
@@ -256,14 +321,24 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
                 )}
               </div>
             </div>
-            <div className={`p-3 rounded-lg ${
-              compliancePercentage >= 95 ? 'bg-green-100' :
-              compliancePercentage >= 85 ? 'bg-yellow-100' : 'bg-red-100'
-            }`}>
-              <CheckCircle className={`h-6 w-6 ${
-                compliancePercentage >= 95 ? 'text-green-600' :
-                compliancePercentage >= 85 ? 'text-yellow-600' : 'text-red-600'
-              }`} />
+            <div
+              className={`p-3 rounded-lg ${
+                compliancePercentage >= 95
+                  ? 'bg-green-100'
+                  : compliancePercentage >= 85
+                    ? 'bg-yellow-100'
+                    : 'bg-red-100'
+              }`}
+            >
+              <CheckCircle
+                className={`h-6 w-6 ${
+                  compliancePercentage >= 95
+                    ? 'text-green-600'
+                    : compliancePercentage >= 85
+                      ? 'text-yellow-600'
+                      : 'text-red-600'
+                }`}
+              />
             </div>
           </div>
         </div>
@@ -271,12 +346,19 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
         <div className="card-construction">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Near Miss Ratio</p>
+              <p className="text-sm font-medium text-gray-600">
+                Near Miss Ratio
+              </p>
               <div className="flex items-baseline gap-2">
-                <p className={`text-3xl font-bold ${
-                  (safetyMetrics?.nearMissRatio || 0) >= 0.7 ? 'text-green-600' :
-                  (safetyMetrics?.nearMissRatio || 0) >= 0.5 ? 'text-yellow-600' : 'text-red-600'
-                }`}>
+                <p
+                  className={`text-3xl font-bold ${
+                    (safetyMetrics?.nearMissRatio || 0) >= 0.7
+                      ? 'text-green-600'
+                      : (safetyMetrics?.nearMissRatio || 0) >= 0.5
+                        ? 'text-yellow-600'
+                        : 'text-red-600'
+                  }`}
+                >
                   {Math.round((safetyMetrics?.nearMissRatio || 0) * 100)}%
                 </p>
                 <span className="text-xs text-gray-500">of total</span>
@@ -312,20 +394,24 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
                   <p className="text-sm">Great safety record!</p>
                 </div>
               ) : (
-                recentIncidents.map((incident) => (
-                  <div key={incident.id} className="border border-gray-200 rounded-lg p-4">
+                recentIncidents.map(incident => (
+                  <div
+                    key={incident.id}
+                    className="border border-gray-200 rounded-lg p-4"
+                  >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-start gap-3">
                         <div className="text-2xl">
                           {getIncidentTypeIcon(incident.incidentType)}
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900">{incident.title}</h4>
+                          <h4 className="font-semibold text-gray-900">
+                            {incident.title}
+                          </h4>
                           <p className="text-sm text-gray-600 mt-1">
-                            {incident.description.length > 100 
+                            {incident.description.length > 100
                               ? `${incident.description.substring(0, 100)}...`
-                              : incident.description
-                            }
+                              : incident.description}
                           </p>
                           <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
                             <span>{incident.projectName}</span>
@@ -336,32 +422,42 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
                         </div>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <span className={`px-2 py-1 text-xs font-medium rounded ${getSeverityColor(incident.severity)}`}>
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded ${getSeverityColor(incident.severity)}`}
+                        >
                           {incident.severity.toUpperCase()}
                         </span>
-                        <span className={`px-2 py-1 text-xs font-medium rounded ${getStatusColor(incident.status)}`}>
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded ${getStatusColor(incident.status)}`}
+                        >
                           {incident.status.replace('_', ' ').toUpperCase()}
                         </span>
                       </div>
                     </div>
-                    
+
                     {incident.peopleInvolved.length > 0 && (
                       <div className="flex items-center gap-2 mb-2">
                         <Users className="h-4 w-4 text-gray-400" />
                         <span className="text-sm text-gray-600">
                           {incident.peopleInvolved.length} person(s) involved
-                          {incident.peopleInvolved.some(p => p.medicalAttention) && (
-                            <span className="ml-2 text-red-600 font-medium">Medical attention required</span>
+                          {incident.peopleInvolved.some(
+                            p => p.medicalAttention
+                          ) && (
+                            <span className="ml-2 text-red-600 font-medium">
+                              Medical attention required
+                            </span>
                           )}
                         </span>
                       </div>
                     )}
-                    
+
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4 text-xs text-gray-500">
                         <span>Risk Score: {incident.riskScore}/100</span>
                         {incident.followUpRequired && (
-                          <span className="text-orange-600 font-medium">Follow-up required</span>
+                          <span className="text-orange-600 font-medium">
+                            Follow-up required
+                          </span>
                         )}
                       </div>
                       <Button variant="outline" size="sm">
@@ -390,23 +486,29 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
             </div>
 
             <div className="space-y-3">
-              {complianceRequirements.slice(0, 8).map((requirement) => (
-                <div key={requirement.id} className="border border-gray-200 rounded-lg p-3">
+              {complianceRequirements.slice(0, 8).map(requirement => (
+                <div
+                  key={requirement.id}
+                  className="border border-gray-200 rounded-lg p-3"
+                >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
-                      <h4 className="font-medium text-sm text-gray-900">{requirement.title}</h4>
+                      <h4 className="font-medium text-sm text-gray-900">
+                        {requirement.title}
+                      </h4>
                       <p className="text-xs text-gray-600 mt-1">
                         {requirement.description.length > 60
                           ? `${requirement.description.substring(0, 60)}...`
-                          : requirement.description
-                        }
+                          : requirement.description}
                       </p>
                     </div>
-                    <span className={`px-2 py-1 text-xs font-medium rounded ${getComplianceStatusColor(requirement.status)}`}>
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded ${getComplianceStatusColor(requirement.status)}`}
+                    >
                       {requirement.status.replace('_', ' ').toUpperCase()}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <div className="flex items-center gap-2">
                       <span className="px-1 py-0.5 bg-gray-100 rounded text-xs">
@@ -416,12 +518,16 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      <span className={requirement.status === 'overdue' ? 'text-red-600' : ''}>
+                      <span
+                        className={
+                          requirement.status === 'overdue' ? 'text-red-600' : ''
+                        }
+                      >
                         Due {formatDate(requirement.dueDate)}
                       </span>
                     </div>
                   </div>
-                  
+
                   {requirement.assignedTo && (
                     <div className="mt-2 text-xs text-gray-500">
                       Assigned to: {requirement.assignedTo}
@@ -448,27 +554,35 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
             <BarChart3 className="h-5 w-5" />
             Incidents by Type
           </h3>
-          
+
           <div className="space-y-3">
-            {Object.entries(safetyMetrics?.incidentsByType || {}).map(([type, count]) => (
-              <div key={type} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">{getIncidentTypeIcon(type as any)}</span>
-                  <span className="text-sm font-medium capitalize">
-                    {type.replace('_', ' ')}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-20 bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-red-500 h-2 rounded-full"
-                      style={{ width: `${(count / (safetyMetrics?.totalIncidents || 1)) * 100}%` }}
-                    />
+            {Object.entries(safetyMetrics?.incidentsByType || {}).map(
+              ([type, count]) => (
+                <div key={type} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">
+                      {getIncidentTypeIcon(type as any)}
+                    </span>
+                    <span className="text-sm font-medium capitalize">
+                      {type.replace('_', ' ')}
+                    </span>
                   </div>
-                  <span className="text-sm font-bold w-8 text-right">{count}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-20 bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-red-500 h-2 rounded-full"
+                        style={{
+                          width: `${(count / (safetyMetrics?.totalIncidents || 1)) * 100}%`,
+                        }}
+                      />
+                    </div>
+                    <span className="text-sm font-bold w-8 text-right">
+                      {count}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         </div>
 
@@ -478,34 +592,47 @@ export default function SafetyComplianceDashboard({ projectId }: SafetyComplianc
             <PieChart className="h-5 w-5" />
             Incidents by Severity
           </h3>
-          
+
           <div className="space-y-3">
-            {Object.entries(safetyMetrics?.incidentsBySeverity || {}).map(([severity, count]) => {
-              const severityColors = {
-                low: 'bg-green-500',
-                medium: 'bg-yellow-500',
-                high: 'bg-orange-500',
-                critical: 'bg-red-500'
-              }
-              
-              return (
-                <div key={severity} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${severityColors[severity as keyof typeof severityColors]}`} />
-                    <span className="text-sm font-medium capitalize">{severity}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-20 bg-gray-200 rounded-full h-2">
+            {Object.entries(safetyMetrics?.incidentsBySeverity || {}).map(
+              ([severity, count]) => {
+                const severityColors = {
+                  low: 'bg-green-500',
+                  medium: 'bg-yellow-500',
+                  high: 'bg-orange-500',
+                  critical: 'bg-red-500',
+                }
+
+                return (
+                  <div
+                    key={severity}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2">
                       <div
-                        className={`h-2 rounded-full ${severityColors[severity as keyof typeof severityColors]}`}
-                        style={{ width: `${(count / (safetyMetrics?.totalIncidents || 1)) * 100}%` }}
+                        className={`w-3 h-3 rounded-full ${severityColors[severity as keyof typeof severityColors]}`}
                       />
+                      <span className="text-sm font-medium capitalize">
+                        {severity}
+                      </span>
                     </div>
-                    <span className="text-sm font-bold w-8 text-right">{count}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-20 bg-gray-200 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full ${severityColors[severity as keyof typeof severityColors]}`}
+                          style={{
+                            width: `${(count / (safetyMetrics?.totalIncidents || 1)) * 100}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-sm font-bold w-8 text-right">
+                        {count}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              )
-            })}
+                )
+              }
+            )}
           </div>
         </div>
       </div>

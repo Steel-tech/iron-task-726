@@ -35,21 +35,25 @@ describe('Button Component', () => {
   it('handles click events', () => {
     const handleClick = jest.fn()
     render(<Button onClick={handleClick}>Click me</Button>)
-    
+
     const button = screen.getByRole('button', { name: 'Click me' })
     fireEvent.click(button)
-    
+
     expect(handleClick).toHaveBeenCalledTimes(1)
   })
 
   it('can be disabled', () => {
     const handleClick = jest.fn()
-    render(<Button disabled onClick={handleClick}>Disabled</Button>)
-    
+    render(
+      <Button disabled onClick={handleClick}>
+        Disabled
+      </Button>
+    )
+
     const button = screen.getByRole('button', { name: 'Disabled' })
     expect(button).toBeDisabled()
     expect(button).toHaveClass('disabled:opacity-50')
-    
+
     fireEvent.click(button)
     expect(handleClick).not.toHaveBeenCalled()
   })
@@ -63,7 +67,7 @@ describe('Button Component', () => {
   it('forwards ref correctly', () => {
     const ref = React.createRef<HTMLButtonElement>()
     render(<Button ref={ref}>With Ref</Button>)
-    
+
     expect(ref.current).toBeInstanceOf(HTMLButtonElement)
     expect(ref.current?.textContent).toBe('With Ref')
   })

@@ -17,7 +17,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Camera,
-  HardHat
+  HardHat,
 } from 'lucide-react'
 import { BoltRotationIcon } from '@/components/icons/SteelConstructionIcons'
 
@@ -44,26 +44,26 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [error, setError] = useState('')
-  
+
   // Form states
   const [profileForm, setProfileForm] = useState({
     name: '',
     phoneNumber: '',
-    unionMember: false
+    unionMember: false,
   })
-  
+
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   })
-  
+
   const [notificationForm, setNotificationForm] = useState({
     email: true,
     sms: false,
     projectUpdates: true,
     safetyAlerts: true,
-    weeklyReports: false
+    weeklyReports: false,
   })
 
   useEffect(() => {
@@ -80,15 +80,15 @@ export default function SettingsPage() {
           sms: false,
           projectUpdates: true,
           safetyAlerts: true,
-          weeklyReports: false
-        }
+          weeklyReports: false,
+        },
       }
-      
+
       setUserSettings(settings)
       setProfileForm({
         name: settings.name,
         phoneNumber: settings.phoneNumber || '',
-        unionMember: settings.unionMember
+        unionMember: settings.unionMember,
       })
       setNotificationForm(settings.notificationPreferences)
     } catch (error) {
@@ -102,7 +102,7 @@ export default function SettingsPage() {
   const handleProfileSave = async () => {
     setError('')
     setIsSaving(true)
-    
+
     try {
       await api.patch(`/users/${userSettings?.id}`, profileForm)
       setSaveSuccess(true)
@@ -117,27 +117,31 @@ export default function SettingsPage() {
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    
+
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       setError('New passwords do not match')
       return
     }
-    
+
     if (passwordForm.newPassword.length < 8) {
       setError('Password must be at least 8 characters')
       return
     }
-    
+
     setIsSaving(true)
-    
+
     try {
       await api.post('/auth/change-password', {
         currentPassword: passwordForm.currentPassword,
-        newPassword: passwordForm.newPassword
+        newPassword: passwordForm.newPassword,
       })
-      
+
       setSaveSuccess(true)
-      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+      setPasswordForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      })
       setTimeout(() => setSaveSuccess(false), 3000)
     } catch (error: any) {
       setError(error.response?.data?.error || 'Failed to change password')
@@ -150,7 +154,7 @@ export default function SettingsPage() {
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'security', label: 'Security', icon: Shield },
     { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'preferences', label: 'Preferences', icon: Palette }
+    { id: 'preferences', label: 'Preferences', icon: Palette },
   ]
 
   if (isLoading) {
@@ -172,7 +176,7 @@ export default function SettingsPage() {
       {/* Tab Navigation */}
       <div className="brushed-metal rounded-lg shadow-lg p-2">
         <div className="flex space-x-1">
-          {tabs.map((tab) => {
+          {tabs.map(tab => {
             const Icon = tab.icon
             return (
               <button
@@ -180,9 +184,10 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`
                   flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200
-                  ${activeTab === tab.id 
-                    ? 'bg-arc-flash-yellow text-steel-gray arc-weld-glow' 
-                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                  ${
+                    activeTab === tab.id
+                      ? 'bg-arc-flash-yellow text-steel-gray arc-weld-glow'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-700'
                   }
                 `}
               >
@@ -199,11 +204,13 @@ export default function SettingsPage() {
         <div className="rounded-md bg-green-900/20 border border-green-800 p-4">
           <div className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-green-500" />
-            <p className="text-sm text-green-400">Settings saved successfully!</p>
+            <p className="text-sm text-green-400">
+              Settings saved successfully!
+            </p>
           </div>
         </div>
       )}
-      
+
       {error && (
         <div className="rounded-md bg-red-900/20 border border-red-800 p-4">
           <div className="flex items-center gap-2">
@@ -217,8 +224,10 @@ export default function SettingsPage() {
       <div className="brushed-metal rounded-lg shadow-lg p-6">
         {activeTab === 'profile' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Profile Information</h2>
-            
+            <h2 className="text-xl font-semibold text-white mb-4">
+              Profile Information
+            </h2>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -231,12 +240,14 @@ export default function SettingsPage() {
                   <input
                     type="text"
                     value={profileForm.name}
-                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                    onChange={e =>
+                      setProfileForm({ ...profileForm, name: e.target.value })
+                    }
                     className="w-full pl-10 pr-3 py-3 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-safety-orange focus:border-transparent transition-all"
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Email Address
@@ -252,9 +263,11 @@ export default function SettingsPage() {
                     className="w-full pl-10 pr-3 py-3 bg-gray-900 border border-gray-700 rounded-md text-gray-400 cursor-not-allowed"
                   />
                 </div>
-                <p className="mt-1 text-xs text-gray-500">Email cannot be changed</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Email cannot be changed
+                </p>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Phone Number
@@ -266,13 +279,18 @@ export default function SettingsPage() {
                   <input
                     type="tel"
                     value={profileForm.phoneNumber}
-                    onChange={(e) => setProfileForm({ ...profileForm, phoneNumber: e.target.value })}
+                    onChange={e =>
+                      setProfileForm({
+                        ...profileForm,
+                        phoneNumber: e.target.value,
+                      })
+                    }
                     className="w-full pl-10 pr-3 py-3 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-safety-orange focus:border-transparent transition-all"
                     placeholder="(555) 123-4567"
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Role
@@ -290,19 +308,26 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
-            
+
             <div>
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={profileForm.unionMember}
-                  onChange={(e) => setProfileForm({ ...profileForm, unionMember: e.target.checked })}
+                  onChange={e =>
+                    setProfileForm({
+                      ...profileForm,
+                      unionMember: e.target.checked,
+                    })
+                  }
                   className="h-4 w-4 bg-gray-800 border-gray-700 rounded text-safety-orange focus:ring-safety-orange"
                 />
-                <span className="text-sm text-gray-300">I am a union member</span>
+                <span className="text-sm text-gray-300">
+                  I am a union member
+                </span>
               </label>
             </div>
-            
+
             <Button
               onClick={handleProfileSave}
               disabled={isSaving}
@@ -325,9 +350,14 @@ export default function SettingsPage() {
 
         {activeTab === 'security' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Security Settings</h2>
-            
-            <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
+            <h2 className="text-xl font-semibold text-white mb-4">
+              Security Settings
+            </h2>
+
+            <form
+              onSubmit={handlePasswordChange}
+              className="space-y-4 max-w-md"
+            >
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Current Password
@@ -339,13 +369,18 @@ export default function SettingsPage() {
                   <input
                     type="password"
                     value={passwordForm.currentPassword}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                    onChange={e =>
+                      setPasswordForm({
+                        ...passwordForm,
+                        currentPassword: e.target.value,
+                      })
+                    }
                     className="w-full pl-10 pr-3 py-3 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-safety-orange focus:border-transparent transition-all"
                     required
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   New Password
@@ -357,14 +392,19 @@ export default function SettingsPage() {
                   <input
                     type="password"
                     value={passwordForm.newPassword}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                    onChange={e =>
+                      setPasswordForm({
+                        ...passwordForm,
+                        newPassword: e.target.value,
+                      })
+                    }
                     className="w-full pl-10 pr-3 py-3 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-safety-orange focus:border-transparent transition-all"
                     placeholder="Minimum 8 characters"
                     required
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Confirm New Password
@@ -376,13 +416,18 @@ export default function SettingsPage() {
                   <input
                     type="password"
                     value={passwordForm.confirmPassword}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                    onChange={e =>
+                      setPasswordForm({
+                        ...passwordForm,
+                        confirmPassword: e.target.value,
+                      })
+                    }
                     className="w-full pl-10 pr-3 py-3 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-safety-orange focus:border-transparent transition-all"
                     required
                   />
                 </div>
               </div>
-              
+
               <Button
                 type="submit"
                 disabled={isSaving}
@@ -401,13 +446,20 @@ export default function SettingsPage() {
                 )}
               </Button>
             </form>
-            
+
             <hr className="weld-seam" />
-            
+
             <div>
-              <h3 className="text-lg font-semibold text-white mb-3">Two-Factor Authentication</h3>
-              <p className="text-gray-400 mb-4">Add an extra layer of security to your account</p>
-              <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-700">
+              <h3 className="text-lg font-semibold text-white mb-3">
+                Two-Factor Authentication
+              </h3>
+              <p className="text-gray-400 mb-4">
+                Add an extra layer of security to your account
+              </p>
+              <Button
+                variant="outline"
+                className="border-gray-600 text-white hover:bg-gray-700"
+              >
                 <Shield className="h-4 w-4 mr-2" />
                 Enable 2FA
               </Button>
@@ -417,92 +469,129 @@ export default function SettingsPage() {
 
         {activeTab === 'notifications' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white mb-4">Notification Preferences</h2>
-            
+            <h2 className="text-xl font-semibold text-white mb-4">
+              Notification Preferences
+            </h2>
+
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-white font-medium">Email Notifications</p>
-                  <p className="text-sm text-gray-400">Receive updates via email</p>
+                  <p className="text-sm text-gray-400">
+                    Receive updates via email
+                  </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={notificationForm.email}
-                    onChange={(e) => setNotificationForm({ ...notificationForm, email: e.target.checked })}
+                    onChange={e =>
+                      setNotificationForm({
+                        ...notificationForm,
+                        email: e.target.checked,
+                      })
+                    }
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-safety-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-safety-orange"></div>
                 </label>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-white font-medium">SMS Notifications</p>
-                  <p className="text-sm text-gray-400">Receive text messages for urgent updates</p>
+                  <p className="text-sm text-gray-400">
+                    Receive text messages for urgent updates
+                  </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={notificationForm.sms}
-                    onChange={(e) => setNotificationForm({ ...notificationForm, sms: e.target.checked })}
+                    onChange={e =>
+                      setNotificationForm({
+                        ...notificationForm,
+                        sms: e.target.checked,
+                      })
+                    }
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-safety-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-safety-orange"></div>
                 </label>
               </div>
-              
+
               <hr className="border-gray-700" />
-              
+
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-white font-medium">Project Updates</p>
-                  <p className="text-sm text-gray-400">New photos, milestones, and progress</p>
+                  <p className="text-sm text-gray-400">
+                    New photos, milestones, and progress
+                  </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={notificationForm.projectUpdates}
-                    onChange={(e) => setNotificationForm({ ...notificationForm, projectUpdates: e.target.checked })}
+                    onChange={e =>
+                      setNotificationForm({
+                        ...notificationForm,
+                        projectUpdates: e.target.checked,
+                      })
+                    }
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-safety-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-safety-orange"></div>
                 </label>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-white font-medium">Safety Alerts</p>
-                  <p className="text-sm text-gray-400">Critical safety notifications and incidents</p>
+                  <p className="text-sm text-gray-400">
+                    Critical safety notifications and incidents
+                  </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={notificationForm.safetyAlerts}
-                    onChange={(e) => setNotificationForm({ ...notificationForm, safetyAlerts: e.target.checked })}
+                    onChange={e =>
+                      setNotificationForm({
+                        ...notificationForm,
+                        safetyAlerts: e.target.checked,
+                      })
+                    }
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-safety-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-safety-orange"></div>
                 </label>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-white font-medium">Weekly Reports</p>
-                  <p className="text-sm text-gray-400">Summary of weekly project activity</p>
+                  <p className="text-sm text-gray-400">
+                    Summary of weekly project activity
+                  </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={notificationForm.weeklyReports}
-                    onChange={(e) => setNotificationForm({ ...notificationForm, weeklyReports: e.target.checked })}
+                    onChange={e =>
+                      setNotificationForm({
+                        ...notificationForm,
+                        weeklyReports: e.target.checked,
+                      })
+                    }
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-safety-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-safety-orange"></div>
                 </label>
               </div>
             </div>
-            
+
             <Button
               onClick={() => {
                 setSaveSuccess(true)
@@ -518,11 +607,15 @@ export default function SettingsPage() {
 
         {activeTab === 'preferences' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white mb-4">App Preferences</h2>
-            
+            <h2 className="text-xl font-semibold text-white mb-4">
+              App Preferences
+            </h2>
+
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-medium text-white mb-3">Display Settings</h3>
+                <h3 className="text-lg font-medium text-white mb-3">
+                  Display Settings
+                </h3>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -534,7 +627,7 @@ export default function SettingsPage() {
                       <option>French</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Date Format
@@ -547,11 +640,13 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </div>
-              
+
               <hr className="weld-seam" />
-              
+
               <div>
-                <h3 className="text-lg font-medium text-white mb-3">Default Settings</h3>
+                <h3 className="text-lg font-medium text-white mb-3">
+                  Default Settings
+                </h3>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -563,7 +658,7 @@ export default function SettingsPage() {
                       <option>Timeline View</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Default Media Quality
@@ -576,30 +671,36 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </div>
-              
+
               <hr className="weld-seam" />
-              
+
               <div>
-                <h3 className="text-lg font-medium text-white mb-3">Photo Annotation</h3>
+                <h3 className="text-lg font-medium text-white mb-3">
+                  Photo Annotation
+                </h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-white font-medium">Auto-Edit Mode</p>
-                      <p className="text-sm text-gray-400">Automatically open annotation tools after capturing photos</p>
+                      <p className="text-sm text-gray-400">
+                        Automatically open annotation tools after capturing
+                        photos
+                      </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="sr-only peer"
-                      />
+                      <input type="checkbox" className="sr-only peer" />
                       <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-safety-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-safety-orange"></div>
                     </label>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-white font-medium">Default Annotation Color</p>
-                      <p className="text-sm text-gray-400">Pre-selected color for annotations</p>
+                      <p className="text-white font-medium">
+                        Default Annotation Color
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        Pre-selected color for annotations
+                      </p>
                     </div>
                     <select className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-safety-orange focus:border-transparent">
                       <option value="#ff6600">Safety Orange</option>
@@ -609,23 +710,24 @@ export default function SettingsPage() {
                       <option value="#ff0000">Alert Red</option>
                     </select>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-white font-medium">Show Logo Watermark</p>
-                      <p className="text-sm text-gray-400">Automatically add company logo to annotated photos</p>
+                      <p className="text-white font-medium">
+                        Show Logo Watermark
+                      </p>
+                      <p className="text-sm text-gray-400">
+                        Automatically add company logo to annotated photos
+                      </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="sr-only peer"
-                      />
+                      <input type="checkbox" className="sr-only peer" />
                       <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-safety-orange/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-safety-orange"></div>
                     </label>
                   </div>
                 </div>
               </div>
-              
+
               <Button
                 onClick={() => {
                   setSaveSuccess(true)

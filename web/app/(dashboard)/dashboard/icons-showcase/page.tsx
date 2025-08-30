@@ -11,7 +11,7 @@ import {
   MediaGalleryIcon,
   SparkAnimationIcon,
   CraneHookAnimationIcon,
-  BoltRotationIcon
+  BoltRotationIcon,
 } from '@/components/icons/SteelConstructionIcons'
 
 export default function IconsShowcasePage() {
@@ -22,44 +22,44 @@ export default function IconsShowcasePage() {
       name: 'Hard Hat',
       description: 'Hard hat silhouette - Dashboard',
       icon: HardHatIcon,
-      filename: 'icon-helmet.svg'
+      filename: 'icon-helmet.svg',
     },
     {
       name: 'I-Beam with Crane',
       description: 'I-beam floating with crane hook',
       icon: IBeamCraneIcon,
-      filename: 'icon-beam.svg'
+      filename: 'icon-beam.svg',
     },
     {
       name: 'Welding Torch',
       description: 'Torch with spark - Capture',
       icon: WeldingTorchIcon,
-      filename: 'icon-weld.svg'
+      filename: 'icon-weld.svg',
     },
     {
       name: 'Ironworkers Team',
       description: 'Group of ironworkers - Team',
       icon: IronworkersTeamIcon,
-      filename: 'icon-team-ironworker.svg'
+      filename: 'icon-team-ironworker.svg',
     },
     {
       name: 'Upload Fabrication',
       description: 'Up arrow with plate steel - Upload',
       icon: UploadFabricationIcon,
-      filename: 'icon-upload-fabrication.svg'
+      filename: 'icon-upload-fabrication.svg',
     },
     {
       name: 'Project Drawings',
       description: 'Rolled-up blueprints - Projects',
       icon: ProjectDrawingsIcon,
-      filename: 'icon-project-drawings.svg'
+      filename: 'icon-project-drawings.svg',
     },
     {
       name: 'Media Gallery',
       description: 'Photo frames - Media',
       icon: MediaGalleryIcon,
-      filename: 'icon-media-gallery.svg'
-    }
+      filename: 'icon-media-gallery.svg',
+    },
   ]
 
   const animatedIcons = [
@@ -67,26 +67,28 @@ export default function IconsShowcasePage() {
       name: 'Spark Animation',
       description: 'Welding sparks effect',
       icon: SparkAnimationIcon,
-      isAnimating: true
+      isAnimating: true,
     },
     {
       name: 'Crane Hook Animation',
       description: 'Lifting motion',
       icon: CraneHookAnimationIcon,
-      isAnimating: true
+      isAnimating: true,
     },
     {
       name: 'Bolt Rotation',
       description: 'Tightening animation',
       icon: BoltRotationIcon,
-      isAnimating: true
-    }
+      isAnimating: true,
+    },
   ]
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold font-shogun mb-2">Steel Construction Icons</h1>
+        <h1 className="text-3xl font-bold font-shogun mb-2">
+          Steel Construction Icons
+        </h1>
         <p className="text-muted-foreground">Custom icon set for Iron Task</p>
       </div>
 
@@ -126,7 +128,7 @@ export default function IconsShowcasePage() {
       <div className="bg-card rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4">Navigation Icons</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {icons.map((item) => {
+          {icons.map(item => {
             const Icon = item.icon
             return (
               <div
@@ -136,16 +138,22 @@ export default function IconsShowcasePage() {
                 onMouseLeave={() => setHoveredIcon(null)}
               >
                 <div className="inline-flex items-center justify-center w-16 h-16 mb-3 bg-gray-100 rounded-lg">
-                  <Icon 
+                  <Icon
                     className={`h-8 w-8 ${
-                      hoveredIcon === item.name ? 'text-aisc-blue' : 'text-steel-gray'
-                    }`} 
-                    size={32} 
+                      hoveredIcon === item.name
+                        ? 'text-aisc-blue'
+                        : 'text-steel-gray'
+                    }`}
+                    size={32}
                   />
                 </div>
                 <h3 className="font-medium text-sm">{item.name}</h3>
-                <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
-                <p className="text-xs text-gray-400 mt-1 font-mono">{item.filename}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {item.description}
+                </p>
+                <p className="text-xs text-gray-400 mt-1 font-mono">
+                  {item.filename}
+                </p>
               </div>
             )
           })}
@@ -156,7 +164,7 @@ export default function IconsShowcasePage() {
       <div className="bg-card rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4">Hover Animations</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {animatedIcons.map((item) => {
+          {animatedIcons.map(item => {
             const Icon = item.icon
             return (
               <div
@@ -164,14 +172,16 @@ export default function IconsShowcasePage() {
                 className="text-center p-6 rounded-lg bg-gray-100"
               >
                 <div className="inline-flex items-center justify-center w-20 h-20 mb-3">
-                  <Icon 
-                    className="h-10 w-10 text-safety-orange" 
-                    size={40} 
+                  <Icon
+                    className="h-10 w-10 text-safety-orange"
+                    size={40}
                     isAnimating={item.isAnimating}
                   />
                 </div>
                 <h3 className="font-medium">{item.name}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {item.description}
+                </p>
               </div>
             )
           })}
