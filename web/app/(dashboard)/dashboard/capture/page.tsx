@@ -88,12 +88,15 @@ export default function CapturePage() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           position => setLocation(position),
-          error => console.error('Location error:', error),
+          error => {
+            // Location access denied or failed - continue without GPS
+            // In production, this would be logged to error monitoring
+          },
           { enableHighAccuracy: true }
         )
       }
     } catch (error) {
-      console.error('Error accessing camera:', error)
+      // Camera access failed - show user-friendly error
       alert('Failed to access camera. Please check permissions.')
     }
   }, [facingMode, captureMode])
@@ -229,7 +232,7 @@ export default function CapturePage() {
       alert('Media uploaded successfully!')
       router.push(`/dashboard/projects/${projectId}`)
     } catch (error) {
-      console.error('Upload error:', error)
+      // Upload failed - show user-friendly error
       alert('Failed to upload media. Please try again.')
     } finally {
       setIsUploading(false)
@@ -253,7 +256,7 @@ export default function CapturePage() {
         const response = await api.get('/projects')
         setProjects(response.data.projects || [])
       } catch (error) {
-        console.error('Failed to load projects:', error)
+        // Failed to load projects - will show empty state
       } finally {
         setLoadingProjects(false)
       }

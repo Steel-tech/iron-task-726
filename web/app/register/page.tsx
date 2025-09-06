@@ -15,7 +15,6 @@ import {
   Loader2,
   CheckCircle,
   Users,
-  HardHat,
   Zap,
   Wrench,
 } from 'lucide-react'

@@ -1,7 +1,5 @@
 const MediaUploadService = require('./mediaUpload')
-const { PrismaClient } = require('@prisma/client')
-
-const prisma = new PrismaClient()
+const prisma = require('../lib/prisma')
 const mediaService = new MediaUploadService(prisma)
 
 module.exports = {

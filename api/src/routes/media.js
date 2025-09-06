@@ -1,10 +1,8 @@
+const prisma = require('../lib/prisma')
 const MediaUploadService = require('../services/mediaUpload')
 const LocalStorageService = require('../services/localStorageService')
 const SupabaseStorageService = require('../services/supabaseStorageService')
 const { uploadRateLimit } = require('../middleware/rateLimit')
-const { PrismaClient } = require('@prisma/client')
-
-const prisma = new PrismaClient()
 
 async function routes(fastify, options) {
   // Determine which storage service to use

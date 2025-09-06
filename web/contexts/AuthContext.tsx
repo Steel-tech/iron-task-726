@@ -51,13 +51,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Validate JWT token format
       if (!token || typeof token !== 'string') {
-        console.warn('Invalid token provided to setupSessionWarning')
+        // Invalid token format - silently return
         return
       }
 
       const tokenParts = token.split('.')
       if (tokenParts.length !== 3) {
-        console.warn('Invalid JWT token format')
+        // Invalid JWT token format - silently return
         return
       }
 
@@ -66,13 +66,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         decodedPayload = atob(tokenParts[1])
       } catch (decodeError) {
-        console.warn('Failed to decode JWT token payload:', decodeError)
+        // Failed to decode JWT token payload - silently return
         return
       }
 
       const payload = JSON.parse(decodedPayload)
       if (!payload.exp) {
-        console.warn('Token payload missing exp field')
+        // Token payload missing exp field - silently return
         return
       }
 
@@ -86,7 +86,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }, timeUntilWarning)
       }
     } catch (error) {
-      console.error('Error setting up session warning:', error)
+      // Error setting up session warning - silently fail
+      // In production, this would be logged to error monitoring service
     }
   }
 
@@ -95,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userData = await authApi.getMe()
       setUser(userData)
     } catch (error) {
-      console.error('Failed to fetch user:', error)
+      // Failed to fetch user - token might be invalid
       // Token might be invalid, clear it
       if (typeof window !== 'undefined') {
         localStorage.removeItem('accessToken')
@@ -123,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await authApi.logout()
     } catch (error) {
-      console.error('Logout error:', error)
+      // Logout error - continue with cleanup anyway
     }
 
     // Clear token and user - authApi.logout already removes accessToken

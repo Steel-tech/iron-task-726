@@ -1,6 +1,5 @@
 const { supabaseAdmin, auth } = require('../lib/supabase')
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
+const prisma = require('../lib/prisma')
 
 /**
  * Supabase Auth Service

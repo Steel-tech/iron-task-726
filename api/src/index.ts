@@ -19,6 +19,18 @@ import timelinesRoutes from './routes/timelines'
 import { commentRoutes } from './routes/comments'
 import { teamChatRoutes } from './routes/team-chat'
 import { notificationRoutes } from './routes/notifications'
+// Additional route imports
+import feedRoutes from './routes/feed'
+import filtersRoutes from './routes/filters'
+import formsRoutes from './routes/forms'
+import labelsRoutes from './routes/labels'
+import pushSubscriptionsRoutes from './routes/push-subscriptions'
+import qualityRoutes from './routes/quality'
+import reportsRoutes from './routes/reports'
+import safetyRoutes from './routes/safety'
+import tagsRoutes from './routes/tags'
+import twoFactorRoutes from './routes/two-factor'
+import userPreferencesRoutes from './routes/user-preferences'
 
 const fastify = Fastify({
   logger: true,
@@ -72,6 +84,19 @@ fastify.register(timelinesRoutes, { prefix: '/api' })
 fastify.register(commentRoutes, { prefix: '/api' })
 fastify.register(teamChatRoutes, { prefix: '/api' })
 fastify.register(notificationRoutes, { prefix: '/api' })
+
+// Additional routes
+fastify.register(feedRoutes, { prefix: '/api' })
+fastify.register(filtersRoutes, { prefix: '/api/filters' })
+fastify.register(formsRoutes, { prefix: '/api' })
+fastify.register(labelsRoutes, { prefix: '/api/labels' })
+fastify.register(pushSubscriptionsRoutes, { prefix: '/api/push' })
+fastify.register(qualityRoutes, { prefix: '/api/quality' })
+fastify.register(reportsRoutes, { prefix: '/api' })
+fastify.register(safetyRoutes, { prefix: '/api/safety' })
+fastify.register(tagsRoutes, { prefix: '/api/tags' })
+fastify.register(twoFactorRoutes, { prefix: '/api/auth/two-factor' })
+fastify.register(userPreferencesRoutes, { prefix: '/api/users' })
 
 // Health check
 fastify.get('/health', async (request, reply) => {

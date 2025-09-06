@@ -39,7 +39,7 @@ class SupabaseStorageService {
         )
 
         if (error) throw error
-        console.log(`✅ Created Supabase storage bucket: ${this.bucketName}`)
+        // Bucket created successfully - log at info level
       }
     } catch (error) {
       console.error('Error ensuring bucket:', error)
@@ -121,7 +121,11 @@ class SupabaseStorageService {
             upsert: false,
           })
 
-        if (thumbError) console.error('Thumbnail upload error:', thumbError)
+        if (thumbError) {
+          // Log thumbnail upload failure but don't fail the main upload
+          const logger = require('../utils/logger') || console
+          logger.warn('Thumbnail upload failed', { error: thumbError.message, mediaId: fileId })
+        }
       } else if (isVideo) {
         // For videos, set placeholder values
         duration = 0
@@ -182,12 +186,22 @@ class SupabaseStorageService {
 
       return media
     } catch (error) {
-      console.error('Upload error:', error)
+      const logger = require('../utils/logger') || console
+      logger.error('Media upload failed', { 
+        error: error.message, 
+        projectId, 
+        fileName: file.filename,
+        fileSize: file.file ? 'stream' : 'unknown'
+      })
+      
       // Try to clean up if upload partially succeeded
       try {
         await this.supabase.storage.from(this.bucketName).remove([filePath])
       } catch (cleanupError) {
-        console.error('Cleanup error:', cleanupError)
+        logger.warn('Failed to cleanup partial upload', { 
+          error: cleanupError.message, 
+          filePath 
+        })
       }
       throw error
     }
@@ -202,13 +216,21 @@ class SupabaseStorageService {
         .createSignedUrl(filePath, expiresIn)
 
       if (error) {
-        console.error('Error creating signed URL:', error)
+        const logger = require('../utils/logger') || console
+        logger.warn('Failed to create signed URL', { 
+          error: error.message, 
+          filePath: filePath?.substring(0, 50) + '...' 
+        })
         return null
       }
 
       return data.signedUrl
     } catch (error) {
-      console.error('Error getting signed URL:', error)
+      const logger = require('../utils/logger') || console
+      logger.error('Error getting signed URL', { 
+        error: error.message, 
+        filePath: filePath?.substring(0, 50) + '...' 
+      })
       return null
     }
   }
@@ -233,7 +255,12 @@ class SupabaseStorageService {
       .remove(filesToDelete.filter(Boolean))
 
     if (error) {
-      console.error('Error deleting from storage:', error)
+      const logger = require('../utils/logger') || console
+      logger.warn('Failed to delete files from storage', { 
+        error: error.message, 
+        mediaId, 
+        fileCount: filesToDelete.length 
+      })
     }
 
     // Delete from database

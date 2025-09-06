@@ -1,6 +1,5 @@
 const { z } = require('zod')
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
+const prisma = require('../lib/prisma')
 
 // Validation schemas
 const createTagSchema = z.object({

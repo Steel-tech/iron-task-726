@@ -1,13 +1,11 @@
 const { z } = require('zod')
-const { PrismaClient } = require('@prisma/client')
+const prisma = require('../lib/prisma')
 const pdfReportService = require('../services/pdfReportService')
 const {
   reportRateLimit,
   notificationRateLimit,
 } = require('../middleware/rateLimit')
 const { format } = require('date-fns')
-
-const prisma = new PrismaClient()
 
 // Validation schemas
 const createReportSchema = z.object({
@@ -963,5 +961,12 @@ async function streamPDFFile(reply, filepath, reportTitle) {
 // Send SMS notification
 async function sendReportSMS(phone, report, shareUrl) {
   // In production, integrate with SMS service
-  console.log(`Sending report SMS to ${phone} with link: ${shareUrl}`)
+  // TODO: Implement SMS service integration
+  // For now, log at info level for audit trail
+  const logger = require('fastify').log || console
+  logger.info('SMS notification queued', {
+    phone: phone.substring(0, 3) + '***',
+    reportId: report.id,
+    hasShareUrl: !!shareUrl
+  })
 }

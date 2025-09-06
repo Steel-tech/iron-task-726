@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt')
+const prisma = require('../lib/prisma')
 const constants = require('../config/constants')
 const { validate } = require('../middleware/validation')
 const authSchemas = require('../schemas/auth')
@@ -8,17 +9,8 @@ const TwoFactorService = require('../services/twoFactorService')
 const { UserService } = require('../services/database')
 const {
   AuthenticationError,
-  NotFoundError,
   ValidationError,
 } = require('../utils/errors')
-
-// Helper to extract client info
-function getClientInfo(request) {
-  return {
-    ipAddress: request.ip,
-    userAgent: request.headers['user-agent'],
-  }
-}
 
 async function routes(fastify, options) {
   // Register new user
@@ -114,20 +106,20 @@ async function routes(fastify, options) {
 
       try {
         // Log login attempt
-        ;(request.logger?.info || console.log)('Login attempt', { email })
+        fastify.log.info('Login attempt', { email })
 
         // Find user with password
         const user = await UserService.findWithPassword(email)
 
         if (!user) {
-          console.log('Login failed - user not found', { email })
+          fastify.log.warn('Login failed - user not found', { email: email.substring(0, 3) + '***' })
           return reply.code(401).send({ error: 'Invalid credentials' })
         }
 
         // Verify password
         const validPassword = await bcrypt.compare(password, user.password)
         if (!validPassword) {
-          console.log('Login failed - invalid credentials', {
+          fastify.log.warn('Login failed - invalid credentials', {
             email: email.substring(0, 3) + '***',
             timestamp: new Date().toISOString(),
           })
@@ -148,7 +140,7 @@ async function routes(fastify, options) {
           try {
             await TwoFactorService.verifyToken(user.id, twoFactorToken)
           } catch (twoFactorError) {
-            console.log('Login failed - invalid 2FA token', {
+            fastify.log.warn('Login failed - invalid 2FA token', {
               email: email.substring(0, 3) + '***',
               timestamp: new Date().toISOString(),
             })
@@ -187,7 +179,7 @@ async function routes(fastify, options) {
         })
 
         // Log successful login
-        ;(request.logger?.info || console.log)('Login successful', {
+        fastify.log.info('Login successful', {
           email,
           userId: user.id,
           role: user.role,

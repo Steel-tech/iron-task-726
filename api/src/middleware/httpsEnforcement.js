@@ -24,9 +24,13 @@ function httpsEnforcement() {
       const httpsUrl = `https://${host}${request.url}`
 
       // Log the redirect for monitoring
-      console.warn(
-        `HTTPS redirect: ${request.method} ${request.url} from ${request.ip}`
-      )
+      const logger = require('../utils/logger') || console
+      logger.info('HTTPS redirect performed', {
+        method: request.method,
+        url: request.url,
+        ip: request.ip,
+        userAgent: request.headers['user-agent']?.substring(0, 100)
+      })
 
       // Redirect to HTTPS
       return reply.code(301).redirect(httpsUrl)
@@ -102,10 +106,14 @@ function requestValidation() {
 
     for (const pattern of suspiciousPatterns) {
       if (pattern.test(urlToCheck) || pattern.test(userAgent)) {
-        console.warn(
-          `Suspicious request blocked: ${request.method} ${request.url} from ${request.ip}`
-        )
-        console.warn(`User-Agent: ${userAgent}`)
+        const logger = require('../utils/logger') || console
+        logger.warn('Suspicious request blocked', {
+          method: request.method,
+          url: request.url,
+          ip: request.ip,
+          userAgent: userAgent.substring(0, 200),
+          pattern: pattern.toString()
+        })
 
         return reply.code(400).send({ error: 'Invalid request' })
       }
@@ -113,7 +121,13 @@ function requestValidation() {
 
     // Block requests with excessive headers (potential attack)
     if (Object.keys(request.headers).length > 50) {
-      console.warn(`Request with excessive headers blocked from ${request.ip}`)
+      const logger = require('../utils/logger') || console
+      logger.warn('Request with excessive headers blocked', {
+        ip: request.ip,
+        headerCount: Object.keys(request.headers).length,
+        method: request.method,
+        url: request.url
+      })
       return reply.code(400).send({ error: 'Too many headers' })
     }
 
@@ -121,9 +135,13 @@ function requestValidation() {
     const contentLength = parseInt(request.headers['content-length'] || '0')
     if (contentLength > 100 * 1024 * 1024) {
       // 100MB
-      console.warn(
-        `Request with excessive content-length blocked from ${request.ip}`
-      )
+      const logger = require('../utils/logger') || console
+      logger.warn('Request with excessive content-length blocked', {
+        ip: request.ip,
+        contentLength,
+        method: request.method,
+        url: request.url
+      })
       return reply.code(413).send({ error: 'Payload too large' })
     }
   }
@@ -147,13 +165,15 @@ function ipFiltering() {
 
     // Check blacklist
     if (blacklistedIPs.has(clientIP)) {
-      console.warn(`Blacklisted IP blocked: ${clientIP}`)
+      const logger = require('../utils/logger') || console
+      logger.warn('Blacklisted IP blocked', { ip: clientIP })
       return reply.code(403).send({ error: 'Access denied' })
     }
 
     // If whitelist is configured and IP is not whitelisted
     if (whitelistedIPs.size > 0 && !whitelistedIPs.has(clientIP)) {
-      console.warn(`Non-whitelisted IP blocked: ${clientIP}`)
+      const logger = require('../utils/logger') || console
+      logger.warn('Non-whitelisted IP blocked', { ip: clientIP })
       return reply.code(403).send({ error: 'Access denied' })
     }
   }
@@ -194,8 +214,9 @@ function securityLogging() {
 
     // In production, you would send these to a security monitoring service
     if (env.NODE_ENV === 'production' && Math.random() < 0.01) {
-      // 1% sampling
-      console.info('Security event sample:', event)
+      // 1% sampling for performance
+      const logger = require('../utils/logger') || console
+      logger.info('Security event sample', event)
     }
   }
 }

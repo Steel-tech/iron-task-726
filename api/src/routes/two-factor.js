@@ -1,8 +1,6 @@
 const bcrypt = require('bcrypt')
 const TwoFactorService = require('../services/twoFactorService')
-const { PrismaClient } = require('@prisma/client')
-
-const prisma = new PrismaClient()
+const prisma = require('../lib/prisma')
 
 async function routes(fastify, options) {
   // Generate 2FA setup (QR code and secret)

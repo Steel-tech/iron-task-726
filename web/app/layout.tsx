@@ -138,46 +138,8 @@ export default function RootLayout({
           {/* <PWAInstallPrompt /> */}
         </Providers>
 
-        {/* Service Worker Registration - TEMPORARILY DISABLED FOR DEBUGGING */}
-        {/* <Script
-          id="sw-registration"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/service-worker.js')
-                    .then(function(registration) {
-                      console.log('SW registered: ', registration);
-                      
-                      // Check for updates
-                      registration.addEventListener('updatefound', () => {
-                        const newWorker = registration.installing;
-                        if (newWorker) {
-                          newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                              // New version available
-                              if (confirm('New version available! Reload to update?')) {
-                                newWorker.postMessage({ type: 'SKIP_WAITING' });
-                              }
-                            }
-                          });
-                        }
-                      });
-                    })
-                    .catch(function(registrationError) {
-                      console.log('SW registration failed: ', registrationError);
-                    });
-                    
-                  // Handle service worker updates
-                  navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    window.location.reload();
-                  });
-                });
-              }
-            `,
-          }}
-        /> */}
+        {/* Service Worker Registration - DISABLED FOR DEVELOPMENT 
+            Enable for production by uncommenting and removing debug logs */}
       </body>
     </html>
   )
