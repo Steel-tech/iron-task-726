@@ -14,6 +14,8 @@
     "test:ci": "jest --ci --coverage --watchAll=false",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
+    "format": "prettier --write \"**/*.{js,ts,tsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,tsx,json,css,md}\"",
     "typecheck": "tsc --noEmit",
     "docker:build": "docker build -f Dockerfile.production -t fsw-web:latest .",
     "docker:build:dev": "docker build -f Dockerfile -t fsw-web:dev .",
@@ -61,6 +63,7 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8",
+    "prettier": "^3.6.2",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }
