@@ -1,0 +1,65 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: no-commit-to-branch
+        args: ['--branch', 'master', '--branch', 'main']
+        stages: [commit]
+
+  - repo: local
+    hooks:
+      - id: no-console-log
+        name: Check for console.log statements
+        entry: bash -c 'if grep -r --include="*.js" --include="*.ts" --include="*.tsx" --exclude-dir=node_modules --exclude="*.test.*" --exclude="*.spec.*" "console\." api/ web/ 2>/dev/null; then echo "❌ Found console statements! Use proper logging instead."; exit 1; fi'
+        language: system
+        pass_filenames: false
+        stages: [commit]
+
+      - id: no-debugger
+        name: Check for debugger statements
+        entry: bash -c 'if grep -r --include="*.js" --include="*.ts" --include="*.tsx" --exclude-dir=node_modules "debugger" api/ web/ 2>/dev/null; then echo "❌ Found debugger statements! Remove before committing."; exit 1; fi'
+        language: system
+        pass_filenames: false
+        stages: [commit]
+
+      - id: api-lint
+        name: Lint API code
+        entry: bash -c 'cd api && npm run lint 2>/dev/null || echo "⚠️  API lint not configured"'
+        language: system
+        pass_filenames: false
+        stages: [commit]
+
+      - id: web-lint
+        name: Lint Web code
+        entry: bash -c 'cd web && npm run lint'
+        language: system
+        pass_filenames: false
+        stages: [commit]
+
+      - id: api-test
+        name: Run API tests
+        entry: bash -c 'cd api && npm test'
+        language: system
+        pass_filenames: false
+        stages: [push]
+
+      - id: web-test
+        name: Run Web tests
+        entry: bash -c 'cd web && npm test -- --passWithNoTests'
+        language: system
+        pass_filenames: false
+        stages: [push]
+
+      - id: check-todos
+        name: Check TODO count
+        entry: bash -c 'TODO_COUNT=$(grep -r --include="*.js" --include="*.ts" --include="*.tsx" --exclude-dir=node_modules "TODO\|FIXME" api/ web/ 2>/dev/null | wc -l); if [ "$TODO_COUNT" -gt 20 ]; then echo "⚠️  Warning: $TODO_COUNT TODO/FIXME comments found. Consider addressing some."; fi'
+        language: system
+        pass_filenames: false
+        stages: [commit]

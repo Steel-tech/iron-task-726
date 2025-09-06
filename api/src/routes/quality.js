@@ -13,8 +13,8 @@ async function routes(fastify, options) {
         const { status, inspectionType } = request.query
 
         const where = { projectId }
-        if (status) where.status = status
-        if (inspectionType) where.inspectionType = inspectionType
+        if (status) {where.status = status}
+        if (inspectionType) {where.inspectionType = inspectionType}
 
         const inspections = await prisma.qualityInspection.findMany({
           where,
@@ -169,13 +169,13 @@ async function routes(fastify, options) {
         const updateData = request.body
 
         if (updateData.scheduledDate)
-          updateData.scheduledDate = new Date(updateData.scheduledDate)
+          {updateData.scheduledDate = new Date(updateData.scheduledDate)}
         if (updateData.startedAt)
-          updateData.startedAt = new Date(updateData.startedAt)
+          {updateData.startedAt = new Date(updateData.startedAt)}
         if (updateData.completedAt)
-          updateData.completedAt = new Date(updateData.completedAt)
+          {updateData.completedAt = new Date(updateData.completedAt)}
         if (updateData.approvedAt)
-          updateData.approvedAt = new Date(updateData.approvedAt)
+          {updateData.approvedAt = new Date(updateData.approvedAt)}
 
         if (updateData.status === 'IN_PROGRESS' && !updateData.startedAt) {
           updateData.startedAt = new Date()
@@ -230,9 +230,9 @@ async function routes(fastify, options) {
         const inspectionIds = inspections.map(i => i.id)
 
         const where = { inspectionId: { in: inspectionIds } }
-        if (status) where.status = status
-        if (severity) where.severity = severity
-        if (defectType) where.defectType = defectType
+        if (status) {where.status = status}
+        if (severity) {where.severity = severity}
+        if (defectType) {where.defectType = defectType}
 
         const defects = await prisma.qualityDefect.findMany({
           where,
@@ -337,9 +337,9 @@ async function routes(fastify, options) {
         const { status, priority, trade } = request.query
 
         const where = { projectId }
-        if (status) where.status = status
-        if (priority) where.priority = priority
-        if (trade) where.trade = trade
+        if (status) {where.status = status}
+        if (priority) {where.priority = priority}
+        if (trade) {where.trade = trade}
 
         const punchItems = await prisma.punchListItem.findMany({
           where,

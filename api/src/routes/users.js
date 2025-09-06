@@ -86,8 +86,8 @@ async function routes(fastify, options) {
       }
 
       const updateData = {}
-      if (name) updateData.name = name
-      if (role && userRole === 'ADMIN') updateData.role = role
+      if (name) {updateData.name = name}
+      if (role && userRole === 'ADMIN') {updateData.role = role}
 
       const user = await prisma.user.update({
         where: { id },

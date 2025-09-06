@@ -1,0 +1,136 @@
+name: Code Quality & Tests
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: |
+          api/package-lock.json
+          web/package-lock.json
+          
+    - name: Install API dependencies
+      run: |
+        cd api
+        npm ci
+        
+    - name: Install Web dependencies
+      run: |
+        cd web
+        npm ci
+        
+    - name: Lint API code
+      run: |
+        cd api
+        npm run lint || echo "API linting not configured yet"
+        
+    - name: Lint Web code
+      run: |
+        cd web
+        npm run lint
+        
+    - name: Check for console.log statements
+      run: |
+        echo "🔍 Checking for console.log statements..."
+        if grep -r --include="*.js" --include="*.ts" --include="*.tsx" --exclude-dir=node_modules --exclude="*.test.*" --exclude="*.spec.*" "console\." api/ web/ || true; then
+          echo "❌ Found console statements! Please remove them before committing."
+          echo "💡 Use proper logging (fastify.log for API, proper error handling for web)"
+          exit 1
+        else
+          echo "✅ No console statements found!"
+        fi
+        
+    - name: Check for TODO/FIXME comments
+      run: |
+        echo "📝 Checking for TODO/FIXME comments..."
+        TODO_COUNT=$(grep -r --include="*.js" --include="*.ts" --include="*.tsx" --exclude-dir=node_modules "TODO\|FIXME" api/ web/ | wc -l || echo "0")
+        echo "Found $TODO_COUNT TODO/FIXME comments"
+        if [ "$TODO_COUNT" -gt 10 ]; then
+          echo "⚠️  Warning: High number of TODO/FIXME comments ($TODO_COUNT). Consider addressing some."
+        fi
+        
+    - name: Run API tests
+      run: |
+        cd api
+        npm test
+        
+    - name: Run Web tests  
+      run: |
+        cd web
+        npm test -- --passWithNoTests
+        
+    - name: Test API build
+      run: |
+        cd api
+        npm run build || echo "No API build script configured"
+        
+    - name: Test Web build
+      run: |
+        cd web
+        npm run build
+        
+    - name: Security audit
+      run: |
+        echo "🔐 Running security audit..."
+        cd api && npm audit --audit-level=moderate
+        cd ../web && npm audit --audit-level=moderate
+
+  code-quality-report:
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        
+    - name: Install dependencies
+      run: |
+        cd api && npm ci
+        cd ../web && npm ci
+        
+    - name: Generate code quality metrics
+      run: |
+        echo "📊 Code Quality Report" > quality-report.txt
+        echo "======================" >> quality-report.txt
+        echo "" >> quality-report.txt
+        
+        echo "📁 File Count:" >> quality-report.txt
+        echo "API JS/TS files: $(find api/src -name '*.js' -o -name '*.ts' | wc -l)" >> quality-report.txt
+        echo "Web JS/TS/TSX files: $(find web -name '*.js' -o -name '*.ts' -o -name '*.tsx' | grep -v node_modules | wc -l)" >> quality-report.txt
+        echo "" >> quality-report.txt
+        
+        echo "🔍 Code Analysis:" >> quality-report.txt
+        echo "Total lines of code: $(find api/src web/app web/components web/contexts -name '*.js' -o -name '*.ts' -o -name '*.tsx' | xargs wc -l | tail -1)" >> quality-report.txt
+        echo "Console statements: $(grep -r "console\." api/src web/app web/components web/contexts 2>/dev/null | wc -l)" >> quality-report.txt
+        echo "TODO comments: $(grep -r "TODO\|FIXME" api/src web/app web/components web/contexts 2>/dev/null | wc -l)" >> quality-report.txt
+        
+        cat quality-report.txt
+        
+    - name: Upload quality report
+      uses: actions/upload-artifact@v3
+      with:
+        name: code-quality-report
+        path: quality-report.txt

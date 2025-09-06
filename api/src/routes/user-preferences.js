@@ -98,9 +98,9 @@ async function routes(fastify, options) {
 
         // Only update provided fields
         if (emailNotifications !== undefined)
-          data.emailNotifications = emailNotifications
+          {data.emailNotifications = emailNotifications}
         if (pushNotifications !== undefined)
-          data.pushNotifications = pushNotifications
+          {data.pushNotifications = pushNotifications}
 
         if (notificationTypes) {
           data.notificationTypes = existing

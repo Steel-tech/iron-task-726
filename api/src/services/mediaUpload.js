@@ -216,7 +216,7 @@ class MediaUploadService {
   }
 
   async getSignedUrl(key, expiresIn = 3600) {
-    if (!key) return null
+    if (!key) {return null}
 
     const command = new AWS.GetObjectCommand({
       Bucket: this.bucket,

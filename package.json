@@ -1,28 +1,37 @@
 {
-  "name": "fsw-iron-task",
+  "name": "iron-task-726",
   "version": "1.0.0",
-  "description": "Professional Construction Documentation System built by ironworkers, for ironworkers. Document your projects, ensure safety compliance, and track progress with the most trusted platform in steel construction.",
-  "main": "index.js",
+  "description": "Iron Task 726 construction documentation system",
+  "private": true,
+  "workspaces": [
+    "api",
+    "web"
+  ],
   "scripts": {
-    "start": "cd api && npm start",
-    "build": "cd api && npm run build",
-    "dev": "cd api && npm run dev",
-    "test": "cd api && npm test"
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "cd api && npm run dev",
+    "dev:web": "cd web && npm run dev",
+    "build": "npm run build:api && npm run build:web",
+    "build:api": "cd api && npm run build",
+    "build:web": "cd web && npm run build",
+    "test": "npm run test:api && npm run test:web",
+    "test:api": "cd api && npm test",
+    "test:web": "cd web && npm test",
+    "lint": "npm run lint:api && npm run lint:web",
+    "lint:api": "cd api && npm run lint",
+    "lint:web": "cd web && npm run lint",
+    "format": "prettier --write \"**/*.{js,ts,tsx,json,css,md}\" --ignore-path .prettierignore",
+    "format:check": "prettier --check \"**/*.{js,ts,tsx,json,css,md}\" --ignore-path .prettierignore",
+    "quality:check": "npm run lint && npm run format:check && npm run test",
+    "setup:hooks": "pip install pre-commit && pre-commit install",
+    "postinstall": "cd api && npm install && cd ../web && npm install"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Steel-tech/FSW-Iron-Track.git"
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier": "^3.6.2"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/Steel-tech/FSW-Iron-Track/issues"
-  },
-  "homepage": "https://github.com/Steel-tech/FSW-Iron-Track#readme",
-  "dependencies": {
-    "@supabase/supabase-js": "^2.50.5",
-    "dotenv": "^17.2.0"
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   }
 }

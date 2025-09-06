@@ -112,8 +112,8 @@ module.exports = async function reportRoutes(fastify, options) {
         }
 
         const where = { projectId }
-        if (reportType) where.reportType = reportType
-        if (status) where.status = status
+        if (reportType) {where.reportType = reportType}
+        if (status) {where.status = status}
 
         const reports = await prisma.aIReport.findMany({
           where,
@@ -437,7 +437,7 @@ module.exports = async function reportRoutes(fastify, options) {
 
       try {
         const where = { companyId }
-        if (reportType) where.reportType = reportType
+        if (reportType) {where.reportType = reportType}
 
         const templates = await prisma.reportTemplate.findMany({
           where,
@@ -623,7 +623,7 @@ function groupActivitiesByDate(activities) {
   const workByDate = {}
   activities.forEach(activity => {
     const date = format(new Date(activity.timestamp), 'yyyy-MM-dd')
-    if (!workByDate[date]) workByDate[date] = []
+    if (!workByDate[date]) {workByDate[date] = []}
     workByDate[date].push(activity)
   })
   return workByDate
@@ -644,7 +644,7 @@ function groupMediaByCategory(media) {
   const photosByCategory = {}
   media.forEach(mediaItem => {
     const category = mediaItem.mediaTags[0]?.tag.name || 'General'
-    if (!photosByCategory[category]) photosByCategory[category] = []
+    if (!photosByCategory[category]) {photosByCategory[category] = []}
     photosByCategory[category].push({
       id: mediaItem.id,
       url: mediaItem.fileUrl,
@@ -734,7 +734,7 @@ function generateObservations(media) {
   // Group by activity type
   const byActivity = {}
   media.forEach(m => {
-    if (!byActivity[m.activityType]) byActivity[m.activityType] = 0
+    if (!byActivity[m.activityType]) {byActivity[m.activityType] = 0}
     byActivity[m.activityType]++
   })
 

@@ -152,7 +152,7 @@ class LocalStorageService {
   }
 
   async getSignedUrl(relativePath, expiresIn = 3600) {
-    if (!relativePath) return null
+    if (!relativePath) {return null}
 
     // For local storage, return a URL to the API endpoint
     const baseUrl =

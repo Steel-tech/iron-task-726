@@ -32,7 +32,7 @@ class SupabaseAuthService {
           },
         })
 
-      if (authError) throw authError
+      if (authError) {throw authError}
 
       // Create user in our database
       const user = await prisma.user.create({
@@ -76,7 +76,7 @@ class SupabaseAuthService {
         password,
       })
 
-      if (error) throw error
+      if (error) {throw error}
 
       // Get user from our database
       const user = await prisma.user.findUnique({
@@ -158,7 +158,7 @@ class SupabaseAuthService {
         redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/reset-password`,
       })
 
-      if (error) throw error
+      if (error) {throw error}
 
       return { success: true }
     } catch (error) {
@@ -176,7 +176,7 @@ class SupabaseAuthService {
         password: newPassword,
       })
 
-      if (error) throw error
+      if (error) {throw error}
 
       return { success: true }
     } catch (error) {

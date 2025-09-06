@@ -245,8 +245,8 @@ class McpService {
       ]
     }
 
-    if (status) where.status = status
-    if (companyId) where.companyId = companyId
+    if (status) {where.status = status}
+    if (companyId) {where.companyId = companyId}
 
     const projects = await prisma.project.findMany({
       where,
@@ -273,7 +273,7 @@ class McpService {
   async getProjectMedia({ projectId, mediaType, tagId, limit = 20 }) {
     const where = { projectId }
 
-    if (mediaType) where.type = mediaType
+    if (mediaType) {where.type = mediaType}
     if (tagId) {
       where.tags = {
         some: { tagId },
@@ -318,7 +318,7 @@ class McpService {
   async getProjectReports({ projectId, reportType, limit = 10 }) {
     const where = { projectId }
 
-    if (reportType) where.type = reportType
+    if (reportType) {where.type = reportType}
 
     const reports = await prisma.aIReport.findMany({
       where,
@@ -349,7 +349,7 @@ class McpService {
       createdAt: { gte: startDate },
     }
 
-    if (activityType) where.type = activityType
+    if (activityType) {where.type = activityType}
 
     const activities = await prisma.activity.findMany({
       where,
@@ -407,8 +407,8 @@ class McpService {
 
     if (startDate || endDate) {
       where.capturedAt = {}
-      if (startDate) where.capturedAt.gte = new Date(startDate)
-      if (endDate) where.capturedAt.lte = new Date(endDate)
+      if (startDate) {where.capturedAt.gte = new Date(startDate)}
+      if (endDate) {where.capturedAt.lte = new Date(endDate)}
     }
 
     if (hasLocation !== undefined) {
@@ -443,7 +443,7 @@ class McpService {
   async getTeamMembers({ projectId, companyId, role }) {
     const where = {}
 
-    if (role) where.role = role
+    if (role) {where.role = role}
 
     let users
 

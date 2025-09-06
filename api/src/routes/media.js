@@ -50,13 +50,13 @@ async function routes(fastify, options) {
           },
         }
 
-        if (mediaType) where.mediaType = mediaType
-        if (activityType) where.activityType = activityType
-        if (userId) where.userId = userId
+        if (mediaType) {where.mediaType = mediaType}
+        if (activityType) {where.activityType = activityType}
+        if (userId) {where.userId = userId}
         if (startDate || endDate) {
           where.timestamp = {}
-          if (startDate) where.timestamp.gte = new Date(startDate)
-          if (endDate) where.timestamp.lte = new Date(endDate)
+          if (startDate) {where.timestamp.gte = new Date(startDate)}
+          if (endDate) {where.timestamp.lte = new Date(endDate)}
         }
 
         const [media, total] = await Promise.all([
@@ -370,13 +370,13 @@ async function routes(fastify, options) {
 
         const where = { projectId }
 
-        if (mediaType) where.mediaType = mediaType
-        if (userId) where.userId = userId
-        if (tags) where.tags = { hasSome: tags.split(',') }
+        if (mediaType) {where.mediaType = mediaType}
+        if (userId) {where.userId = userId}
+        if (tags) {where.tags = { hasSome: tags.split(',') }}
         if (startDate || endDate) {
           where.timestamp = {}
-          if (startDate) where.timestamp.gte = new Date(startDate)
-          if (endDate) where.timestamp.lte = new Date(endDate)
+          if (startDate) {where.timestamp.gte = new Date(startDate)}
+          if (endDate) {where.timestamp.lte = new Date(endDate)}
         }
 
         const [media, total] = await Promise.all([

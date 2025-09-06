@@ -221,7 +221,7 @@ class PDFReportService {
    * Add activities summary section
    */
   addActivitiesSummarySection(doc, report) {
-    if (!report.metadata?.activities) return
+    if (!report.metadata?.activities) {return}
 
     doc
       .fontSize(12)
@@ -243,7 +243,7 @@ class PDFReportService {
    * Add key accomplishments section
    */
   addKeyAccomplishmentsSection(doc, report) {
-    if (!report.content?.accomplishments) return
+    if (!report.content?.accomplishments) {return}
 
     doc
       .fontSize(12)
@@ -265,7 +265,7 @@ class PDFReportService {
    * Add safety notes section
    */
   addSafetyNotesSection(doc, report) {
-    if (!report.content?.safetyNotes) return
+    if (!report.content?.safetyNotes) {return}
 
     doc.fontSize(12).font('Helvetica-Bold').text('Safety Notes', this.margin)
     doc.moveDown(0.5)

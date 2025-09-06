@@ -12,7 +12,7 @@ async function routes(fastify, options) {
 
       // Base queries
       let projectWhere = {}
-      let mediaWhere = {}
+      const mediaWhere = {}
 
       // Workers only see their own data
       if (role === 'WORKER') {
@@ -86,7 +86,7 @@ async function routes(fastify, options) {
       const { role, userId } = request.user
       const { limit = 20, offset = 0 } = request.query
 
-      let where = {}
+      const where = {}
       if (role === 'WORKER') {
         where.userId = userId
       }

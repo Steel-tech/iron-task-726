@@ -1,23 +1,28 @@
 # Dependencies
 node_modules/
+package-lock.json
 
 # Build outputs
 .next/
-out/
-dist/
 build/
+dist/
+coverage/
 
-# Generated files
-*.min.js
-*.min.css
-
-# Package files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-# Env files
-.env*
+# Database
+prisma/migrations/
 
 # Logs
 *.log
+
+# Environment files
+.env*
+
+# Vercel
+.vercel/
+
+# Cache
+.cache/
+.swc/
+
+# Generated files
+*.tsbuildinfo

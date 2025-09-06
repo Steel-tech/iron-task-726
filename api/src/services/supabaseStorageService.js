@@ -38,7 +38,7 @@ class SupabaseStorageService {
           }
         )
 
-        if (error) throw error
+        if (error) {throw error}
         // Bucket created successfully - log at info level
       }
     } catch (error) {
@@ -100,7 +100,7 @@ class SupabaseStorageService {
             upsert: false,
           })
 
-      if (uploadError) throw uploadError
+      if (uploadError) {throw uploadError}
 
       let width, height, duration, thumbnailPath
 
@@ -208,7 +208,7 @@ class SupabaseStorageService {
   }
 
   async getSignedUrl(filePath, expiresIn = 3600) {
-    if (!filePath) return null
+    if (!filePath) {return null}
 
     try {
       const { data, error } = await this.supabase.storage
@@ -246,9 +246,9 @@ class SupabaseStorageService {
 
     // Delete from Supabase Storage
     const filesToDelete = [media.fileUrl]
-    if (media.thumbnailUrl) filesToDelete.push(media.thumbnailUrl)
-    if (media.frontCameraUrl) filesToDelete.push(media.frontCameraUrl)
-    if (media.backCameraUrl) filesToDelete.push(media.backCameraUrl)
+    if (media.thumbnailUrl) {filesToDelete.push(media.thumbnailUrl)}
+    if (media.frontCameraUrl) {filesToDelete.push(media.frontCameraUrl)}
+    if (media.backCameraUrl) {filesToDelete.push(media.backCameraUrl)}
 
     const { error } = await this.supabase.storage
       .from(this.bucketName)

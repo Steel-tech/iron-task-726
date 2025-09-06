@@ -39,7 +39,7 @@ module.exports = async function feedRoutes(fastify, options) {
         })
 
         // Build the query
-        let where = {
+        const where = {
           companyId,
           status: { not: 'ARCHIVED' },
         }
