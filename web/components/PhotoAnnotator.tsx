@@ -453,14 +453,20 @@ export default function PhotoAnnotator({
   const undo = () => {
     if (historyIndex > 0) {
       setHistoryIndex(historyIndex - 1)
-      setAnnotations(history[historyIndex - 1])
+      const prevState = history[historyIndex - 1]
+      if (prevState) {
+        setAnnotations(prevState)
+      }
     }
   }
 
   const redo = () => {
     if (historyIndex < history.length - 1) {
       setHistoryIndex(historyIndex + 1)
-      setAnnotations(history[historyIndex + 1])
+      const nextState = history[historyIndex + 1]
+      if (nextState) {
+        setAnnotations(nextState)
+      }
     }
   }
 

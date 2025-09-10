@@ -76,7 +76,7 @@ export default function IncidentWorkflowManager({
       setIncidents(incidentList)
 
       // Auto-select first incident if none selected
-      if (!selectedIncident && incidentList.length > 0) {
+      if (!selectedIncident && incidentList.length > 0 && incidentList[0]) {
         setSelectedIncident(incidentList[0])
         populateWorkflowForm(incidentList[0])
       }

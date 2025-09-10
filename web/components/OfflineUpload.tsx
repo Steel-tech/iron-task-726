@@ -128,7 +128,7 @@ export default function OfflineUpload() {
         try {
           const offlineProjects = await offlineStorage.getProjects()
           setProjects(offlineProjects)
-          if (offlineProjects.length > 0) {
+          if (offlineProjects.length > 0 && offlineProjects[0]) {
             setSelectedProjectId(offlineProjects[0].id)
           }
         } catch (offlineError) {
@@ -186,7 +186,7 @@ export default function OfflineUpload() {
         preview: URL.createObjectURL(file),
         progress: 0,
         status: 'pending' as const,
-        gpsCoordinates: gpsCoordinates || undefined,
+        ...(gpsCoordinates && { gpsCoordinates }),
       }))
 
     setFiles(prev => [...prev, ...newFiles])
@@ -297,7 +297,7 @@ export default function OfflineUpload() {
             mediaType: fileUpload.file.type.startsWith('video/')
               ? 'VIDEO'
               : 'PHOTO',
-            gpsCoordinates: fileUpload.gpsCoordinates,
+            ...(fileUpload.gpsCoordinates && { gpsCoordinates: fileUpload.gpsCoordinates }),
           })
 
           setFiles(prev =>

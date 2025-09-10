@@ -88,7 +88,7 @@ export default function FSWMaterialDeliveryLog({
   projectId,
 }: FSWMaterialDeliveryLogProps) {
   const [formData, setFormData] = useState<MaterialDeliveryData>({
-    deliveryDate: new Date().toISOString().split('T')[0],
+    deliveryDate: new Date().toISOString().split('T')[0] || new Date().toISOString().slice(0, 10),
     deliveryTime: new Date().toTimeString().slice(0, 5),
     projectLocation: '',
     poNumber: '',

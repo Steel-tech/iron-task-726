@@ -119,7 +119,7 @@ export default function RegisterPage() {
         email: formData.email,
         password: formData.password,
         name: formData.name,
-        phoneNumber: formData.phoneNumber || undefined,
+        ...(formData.phoneNumber && { phoneNumber: formData.phoneNumber }),
         role: formData.role,
         unionMember: formData.unionMember,
       })

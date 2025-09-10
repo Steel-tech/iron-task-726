@@ -165,6 +165,7 @@ export default function ProjectFeedPage() {
 
       return () => clearInterval(interval)
     }
+    return undefined
   }, [preferences.autoRefresh, preferences.refreshInterval, fetchProjectFeed])
 
   const toggleProjectStar = async (projectId: string) => {
@@ -478,7 +479,7 @@ export default function ProjectFeedPage() {
                   {project.members.length}
                 </span>
               </div>
-              {project.feedEvents.length > 0 && (
+              {project.feedEvents.length > 0 && project.feedEvents[0] && (
                 <div className="text-xs text-gray-500">
                   {project.feedEvents[0].user.name}{' '}
                   {formatEventDescription(project.feedEvents[0])}

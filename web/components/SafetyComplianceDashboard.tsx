@@ -69,7 +69,7 @@ export default function SafetyComplianceDashboard({
       const [metrics, incidents, compliance] = await Promise.all([
         safetyIncidentService.getSafetyMetrics(projectFilter, dateRange),
         safetyIncidentService.getIncidents({
-          projectId: projectFilter,
+          ...(projectFilter && { projectId: projectFilter }),
           dateRange,
         }),
         safetyIncidentService.getComplianceRequirements(projectFilter),

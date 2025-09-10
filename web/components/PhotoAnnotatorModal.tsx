@@ -59,7 +59,7 @@ export default function PhotoAnnotatorModal({
           <PhotoAnnotator
             imageUrl={imageUrl}
             onSave={handleSave}
-            companyLogoUrl={companyLogoUrl}
+            {...(companyLogoUrl && { companyLogoUrl })}
           />
         </div>
       </div>

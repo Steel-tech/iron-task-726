@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2022",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -13,6 +13,14 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "tsBuildInfoFile": ".next/tsbuildinfo",
+    // Enhanced strict mode options for better performance and safety
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitOverride": true,
+    "useDefineForClassFields": true,
     "plugins": [
       {
         "name": "next"

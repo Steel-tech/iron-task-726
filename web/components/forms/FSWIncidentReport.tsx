@@ -94,8 +94,8 @@ export default function FSWIncidentReport({
   const [formData, setFormData] = useState<IncidentReportData>({
     reporterName: '',
     reporterRole: '',
-    reportDate: new Date().toISOString().split('T')[0],
-    incidentDate: new Date().toISOString().split('T')[0],
+    reportDate: new Date().toISOString().split('T')[0] || new Date().toISOString().slice(0, 10),
+    incidentDate: new Date().toISOString().split('T')[0] || new Date().toISOString().slice(0, 10),
     incidentTime: '',
     location: '',
     specificLocation: '',

@@ -193,7 +193,7 @@ class TeamActivityService {
       projectName: '', // Will be filled by server
       type: 'check_in',
       description: 'Checked in to project',
-      metadata: location ? { location: location.address } : undefined,
+      ...(location?.address && { metadata: { location: location.address } }),
     }
 
     await this.trackActivity(activity)
@@ -262,7 +262,7 @@ class TeamActivityService {
       projectName: '',
       type: 'photo_upload',
       description: `Uploaded ${mediaCount} ${mediaCount === 1 ? 'photo' : 'photos'}`,
-      metadata: { mediaCount, location },
+      metadata: location ? { mediaCount, location } : { mediaCount },
     })
   }
 
@@ -276,7 +276,7 @@ class TeamActivityService {
       projectName: '',
       type: 'safety_check',
       description: `Completed safety check (Score: ${safetyScore}/100)`,
-      metadata: { safetyScore, location },
+      metadata: location ? { safetyScore, location } : { safetyScore },
     })
   }
 
@@ -324,23 +324,20 @@ class TeamActivityService {
       'Lisa Anderson',
     ]
 
-    return Array.from({ length: count }, (_, i) => ({
-      id: `user_${i + 1}`,
-      name: names[i] || `Worker ${i + 1}`,
-      role: roles[i % roles.length],
-      isOnline: Math.random() > 0.3,
-      lastSeen: new Date(Date.now() - Math.random() * 3600000),
-      currentProject:
-        Math.random() > 0.5
-          ? `project_${Math.floor(Math.random() * 3) + 1}`
-          : undefined,
-      currentActivity:
-        Math.random() > 0.5
-          ? ['Welding', 'Erection', 'Safety Check'][
-              Math.floor(Math.random() * 3)
-            ]
-          : undefined,
-    }))
+    return Array.from({ length: count }, (_, i) => {
+      const currentProject = Math.random() > 0.5 ? `project_${Math.floor(Math.random() * 3) + 1}` : undefined
+      const currentActivity = Math.random() > 0.5 ? (['Welding', 'Erection', 'Safety Check'][Math.floor(Math.random() * 3)] || 'Welding') : undefined
+      
+      return {
+        id: `user_${i + 1}`,
+        name: names[i] || `Worker ${i + 1}`,
+        role: roles[i % roles.length] || 'IRONWORKER',
+        isOnline: Math.random() > 0.3,
+        lastSeen: new Date(Date.now() - Math.random() * 3600000),
+        ...(currentProject && { currentProject }),
+        ...(currentActivity && { currentActivity }),
+      }
+    })
   }
 
   generateMockActivities(count: number = 10): ActivityEvent[] {
@@ -361,11 +358,11 @@ class TeamActivityService {
     return Array.from({ length: count }, (_, i) => ({
       id: `activity_${i + 1}`,
       userId: `user_${(i % 3) + 1}`,
-      userName: users[i % users.length],
+      userName: users[i % users.length] || 'Unknown User',
       userRole: 'IRONWORKER',
       projectId: `project_${(i % 3) + 1}`,
-      projectName: projects[i % projects.length],
-      type: types[Math.floor(Math.random() * types.length)],
+      projectName: projects[i % projects.length] || 'Unknown Project',
+      type: types[Math.floor(Math.random() * types.length)] || 'check_in',
       description: `Mock activity ${i + 1}`,
       timestamp: new Date(Date.now() - Math.random() * 86400000),
       metadata: {

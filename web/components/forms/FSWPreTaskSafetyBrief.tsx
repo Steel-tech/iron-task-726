@@ -89,7 +89,7 @@ export default function FSWPreTaskSafetyBrief({
   projectId,
 }: FSWPreTaskSafetyBriefProps) {
   const [formData, setFormData] = useState<PreTaskSafetyData>({
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().split('T')[0] || new Date().toISOString().slice(0, 10),
     time: new Date().toTimeString().slice(0, 5),
     location: '',
     workDescription: '',

@@ -5,7 +5,6 @@ import { Button } from '@/components/Button'
 import Calendar from '@/components/Calendar'
 import LiveTeamDashboard from '@/components/LiveTeamDashboard'
 import ProgressAnalyticsDashboard from '@/components/ProgressAnalyticsDashboard'
-import TeamChatPanel from '@/components/TeamChatPanel'
 import SafetyComplianceDashboard from '@/components/SafetyComplianceDashboard'
 import Link from 'next/link'
 import {
@@ -318,12 +317,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Floating Team Chat Panel */}
-      <TeamChatPanel
-        currentUserId="user_1"
-        currentUserName="Current User"
-        currentUserRole="FOREMAN"
-      />
     </div>
   )
 }

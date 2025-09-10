@@ -239,7 +239,10 @@ export default function DemoPage() {
   ]
 
   const renderDemoContent = () => {
-    switch (demoSteps[currentStep].component) {
+    const step = demoSteps[currentStep]
+    if (!step) return null
+    
+    switch (step.component) {
       case 'dashboard':
         return (
           <div className="space-y-6">
@@ -721,10 +724,10 @@ export default function DemoPage() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-white mb-2">
-                {demoSteps[currentStep].title}
+                {demoSteps[currentStep]?.title || 'Demo'}
               </h2>
               <p className="text-gray-400">
-                {demoSteps[currentStep].description}
+                {demoSteps[currentStep]?.description || 'Interactive demo'}
               </p>
             </div>
 

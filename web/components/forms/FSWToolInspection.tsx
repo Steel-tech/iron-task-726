@@ -42,7 +42,7 @@ export default function FSWToolInspection({
 }: FSWToolInspectionProps) {
   const [formData, setFormData] = useState<ToolInspectionData>({
     inspectorName: '',
-    inspectionDate: new Date().toISOString().split('T')[0],
+    inspectionDate: new Date().toISOString().split('T')[0] || new Date().toISOString().slice(0, 10),
     inspectionType: 'daily',
     powerTools: [
       { item: 'Angle Grinder', serialNumber: '', condition: null, notes: '' },
@@ -308,7 +308,7 @@ export default function FSWToolInspection({
       // Reset form
       setFormData({
         inspectorName: '',
-        inspectionDate: new Date().toISOString().split('T')[0],
+        inspectionDate: new Date().toISOString().split('T')[0] || new Date().toISOString().slice(0, 10),
         inspectionType: 'daily',
         powerTools: [
           {

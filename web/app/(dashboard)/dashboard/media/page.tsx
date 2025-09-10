@@ -1451,7 +1451,7 @@ export default function MediaPage() {
           onClose={() => setSelectedMedia(null)}
           title={
             selectedProject
-              ? projects.find(p => p.id === selectedProject)?.name
+              ? projects.find(p => p.id === selectedProject)?.name || 'Unknown Project'
               : 'All Media'
           }
           subtitle={`${filteredMedia.length} items`}

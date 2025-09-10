@@ -106,6 +106,7 @@ export default function Comments({
         socket.off('reaction:removed')
       }
     }
+    return undefined
   }, [mediaId, socket])
 
   const fetchComments = async () => {

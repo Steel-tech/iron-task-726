@@ -66,7 +66,7 @@ export default function FSWHarnessInspection({
     // Inspector Information
     inspectorName: '',
     inspectorSignature: '',
-    inspectionDate: new Date().toISOString().split('T')[0],
+    inspectionDate: new Date().toISOString().split('T')[0] || new Date().toISOString().slice(0, 10),
 
     // Equipment Information
     equipmentType: 'Full Body Harness',

@@ -53,6 +53,7 @@ export default function NotificationBell() {
         socket.off('notification')
       }
     }
+    return undefined
   }, [socket])
 
   const fetchNotifications = async () => {

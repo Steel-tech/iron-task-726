@@ -328,14 +328,20 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
     value: any
   ) => {
     const newEmployees = [...timesheetData.employees]
-    newEmployees[index] = { ...newEmployees[index], [field]: value }
+    const existingEmployee = newEmployees[index]
+    if (!existingEmployee) return
+    
+    newEmployees[index] = { ...existingEmployee, [field]: value }
 
     if (field === 'startTime' || field === 'lunch' || field === 'stopTime') {
-      newEmployees[index].total = calculateHours(
-        newEmployees[index].startTime,
-        newEmployees[index].lunch,
-        newEmployees[index].stopTime
-      )
+      const updatedEmployee = newEmployees[index]
+      if (updatedEmployee) {
+        updatedEmployee.total = calculateHours(
+          updatedEmployee.startTime,
+          updatedEmployee.lunch,
+          updatedEmployee.stopTime
+        )
+      }
     }
 
     setTimesheetData({ ...timesheetData, employees: newEmployees })
@@ -1103,8 +1109,11 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                       value={welder.fswNumber}
                       onChange={e => {
                         const newWelders = [...welderInspections]
-                        newWelders[welderIndex].fswNumber = e.target.value
-                        setWelderInspections(newWelders)
+                        const welder = newWelders[welderIndex]
+                        if (welder) {
+                          welder.fswNumber = e.target.value
+                          setWelderInspections(newWelders)
+                        }
                       }}
                       className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                     />
@@ -1118,8 +1127,11 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                       value={welder.description}
                       onChange={e => {
                         const newWelders = [...welderInspections]
-                        newWelders[welderIndex].description = e.target.value
-                        setWelderInspections(newWelders)
+                        const welder = newWelders[welderIndex]
+                        if (welder) {
+                          welder.description = e.target.value
+                          setWelderInspections(newWelders)
+                        }
                       }}
                       className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                     />
@@ -1133,8 +1145,11 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                       value={welder.currentHours}
                       onChange={e => {
                         const newWelders = [...welderInspections]
-                        newWelders[welderIndex].currentHours = e.target.value
-                        setWelderInspections(newWelders)
+                        const welder = newWelders[welderIndex]
+                        if (welder) {
+                          welder.currentHours = e.target.value
+                          setWelderInspections(newWelders)
+                        }
                       }}
                       className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
                     />
@@ -1156,10 +1171,13 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                           checked={checked}
                           onChange={e => {
                             const newWelders = [...welderInspections]
-                            newWelders[welderIndex].checks[
-                              check as keyof typeof welder.checks
-                            ] = e.target.checked
-                            setWelderInspections(newWelders)
+                            const welder = newWelders[welderIndex]
+                            if (welder) {
+                              welder.checks[
+                                check as keyof typeof welder.checks
+                              ] = e.target.checked
+                              setWelderInspections(newWelders)
+                            }
                           }}
                           className="mr-2"
                         />
@@ -1179,8 +1197,11 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                     value={welder.notes}
                     onChange={e => {
                       const newWelders = [...welderInspections]
-                      newWelders[welderIndex].notes = e.target.value
-                      setWelderInspections(newWelders)
+                      const welder = newWelders[welderIndex]
+                      if (welder) {
+                        welder.notes = e.target.value
+                        setWelderInspections(newWelders)
+                      }
                     }}
                     rows={2}
                     className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
@@ -1464,11 +1485,14 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                             value={attendee.name}
                             onChange={e => {
                               const newAttendees = [...safetyMeeting.attendees]
-                              newAttendees[index].name = e.target.value
-                              setSafetyMeeting({
-                                ...safetyMeeting,
-                                attendees: newAttendees,
-                              })
+                              const attendee = newAttendees[index]
+                              if (attendee) {
+                                attendee.name = e.target.value
+                                setSafetyMeeting({
+                                  ...safetyMeeting,
+                                  attendees: newAttendees,
+                                })
+                              }
                             }}
                             className="w-full px-2 py-1 bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                           />
@@ -1480,11 +1504,14 @@ const FSWIronTask: React.FC<FSWIronTaskProps> = ({ projectId }) => {
                             placeholder="Type name to sign"
                             onChange={e => {
                               const newAttendees = [...safetyMeeting.attendees]
-                              newAttendees[index].signature = e.target.value
-                              setSafetyMeeting({
-                                ...safetyMeeting,
-                                attendees: newAttendees,
-                              })
+                              const attendee = newAttendees[index]
+                              if (attendee) {
+                                attendee.signature = e.target.value
+                                setSafetyMeeting({
+                                  ...safetyMeeting,
+                                  attendees: newAttendees,
+                                })
+                              }
                             }}
                             className="w-full px-2 py-1 bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                           />

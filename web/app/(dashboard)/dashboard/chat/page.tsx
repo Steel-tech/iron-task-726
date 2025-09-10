@@ -267,7 +267,7 @@ export default function ChatPage() {
                 projectName={
                   selectedProject === 'company-general'
                     ? 'Company General Chat'
-                    : projects.find(p => p.id === selectedProject)?.name
+                    : projects.find(p => p.id === selectedProject)?.name || 'Unknown Project'
                 }
               />
             ) : (

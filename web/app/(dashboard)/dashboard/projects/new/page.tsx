@@ -49,7 +49,7 @@ export default function NewProjectPage() {
 
     try {
       // Ensure company is selected
-      if (!formData.companyId && companies.length === 1) {
+      if (!formData.companyId && companies.length === 1 && companies[0]) {
         formData.companyId = companies[0].id
       }
 
