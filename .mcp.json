@@ -8,13 +8,7 @@
         "--project-ref=rhuuwuomwtibkkomwcbw"
       ],
       "env": {
-        "SUPABASE_ACCESS_TOKEN": "sbp_ce8d3283c535f63ed2e4a6dbc85d32975802d890"
-      }
-    },
-    "vercel-awesome-ai": {
-      "transport": {
-        "type": "http",
-        "url": "https://mcp.vercel.com/my-team/my-awesome-project"
+        "SUPABASE_ACCESS_TOKEN": "sbp_7d420514b5d51af949aa8efb9e76fe11fb7c4586"
       }
     }
   }
