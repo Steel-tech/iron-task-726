@@ -9,22 +9,1052 @@ datasource db {
 }
 
 model Company {
-  id             String           @id @default(uuid())
-  name           String           @unique
-  users          User[]
-  projects       Project[]
-  tags           Tag[]
-  labels         Label[]
-  savedFilters   SavedFilter[]
-  reportTemplates ReportTemplate[]
-  
-  // New Feature Relations
-  trainingCourses       TrainingCourse[]
-  vendors               Vendor[]
+  id                    String                 @id @default(uuid())
+  name                  String                 @unique
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  labels                Label[]
   performanceBenchmarks PerformanceBenchmark[]
-  
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  projects              Project[]
+  reportTemplates       ReportTemplate[]
+  savedFilters          SavedFilter[]
+  tags                  Tag[]
+  trainingCourses       TrainingCourse[]
+  users                 User[]
+  vendors               Vendor[]
+}
+
+model User {
+  id                     String                @id @default(uuid())
+  email                  String                @unique
+  password               String
+  name                   String
+  role                   UserRole
+  companyId              String
+  unionMember            Boolean               @default(false)
+  phoneNumber            String?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  aiReports              AIReport[]
+  activities             Activity[]
+  annotations            Annotation[]
+  checklistSubmissions   ChecklistSubmission[]
+  comments               Comment[]
+  feedEvents             FeedEvent[]
+  feedPreferences        FeedPreferences?
+  formsData              FormsData[]
+  galleries              Gallery[]
+  createdLabels          Label[]
+  receivedDeliveries     MaterialDelivery[]
+  taggedMedia            MediaTag[]
+  mediaViews             MediaView[]
+  notifications          Notification[]
+  ppeDetections          PPEDetection[]
+  assignedLabels         ProjectLabel[]
+  projectMembers         ProjectMember[]
+  assignedPunchItems     PunchListItem[]       @relation("PunchListAssignee")
+  createdPunchItems      PunchListItem[]       @relation("PunchListCreator")
+  verifiedPunchItems     PunchListItem[]       @relation("PunchListVerifier")
+  pushSubscriptions      PushSubscription[]
+  assignedDefects        QualityDefect[]       @relation("DefectAssignee")
+  discoveredDefects      QualityDefect[]       @relation("DefectDiscoverer")
+  verifiedDefects        QualityDefect[]       @relation("DefectVerifier")
+  approvedInspections    QualityInspection[]   @relation("InspectionApprover")
+  assignedInspections    QualityInspection[]   @relation("InspectionAssigner")
+  qualityInspections     QualityInspection[]   @relation("QualityInspector")
+  reactions              Reaction[]
+  refreshTokens          RefreshToken[]
+  reportShares           ReportShare[]
+  safetyActions          SafetyAction[]
+  assignedIncidents      SafetyIncident[]      @relation("AssignedIncidents")
+  reportedIncidents      SafetyIncident[]      @relation("ReportedIncidents")
+  savedFilters           SavedFilter[]
+  starredProjects        StarredProject[]
+  starredByUsers         StarredUser[]         @relation("StarredUser")
+  starringUsers          StarredUser[]         @relation("StarringUser")
+  createdTags            Tag[]
+  teamChats              TeamChat[]
+  trainingEnrollments    TrainingEnrollment[]
+  trainingRecords        TrainingRecord[]
+  verifiedCertifications TrainingRecord[]      @relation("CertificationVerifier")
+  company                Company               @relation(fields: [companyId], references: [id])
+  media                  Media[]
+}
+
+model Project {
+  id                 String              @id @default(uuid())
+  jobNumber          String              @unique
+  name               String
+  location           String
+  address            String?
+  status             ProjectStatus       @default(ACTIVE)
+  companyId          String
+  metadata           Json?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  aiReports          AIReport[]
+  activities         Activity[]
+  feedEvents         FeedEvent[]
+  formsData          FormsData[]
+  galleries          Gallery[]
+  materialDeliveries MaterialDelivery[]
+  company            Company             @relation(fields: [companyId], references: [id])
+  labels             ProjectLabel[]
+  members            ProjectMember[]
+  projectMetrics     ProjectMetrics[]
+  timeline           ProjectTimeline?
+  punchListItems     PunchListItem[]
+  qualityInspections QualityInspection[]
+  safetyChecklists   SafetyChecklist[]
+  safetyIncidents    SafetyIncident[]
+  starredBy          StarredProject[]
+  teamChats          TeamChat[]
+  media              Media[]
+}
+
+model ProjectMember {
+  projectId  String
+  userId     String
+  role       String?
+  assignedAt DateTime @default(now())
+  project    Project  @relation(fields: [projectId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@id([projectId, userId])
+  @@index([userId])
+}
+
+model Media {
+  id                 String         @id @default(uuid())
+  projectId          String
+  userId             String
+  fileUrl            String
+  thumbnailUrl       String?
+  mediaType          MediaType
+  fileSize           Int
+  width              Int?
+  height             Int?
+  duration           Int?
+  latitude           Float?
+  longitude          Float?
+  address            String?
+  tags               String[]
+  timestamp          DateTime       @default(now())
+  activityType       ActivityType
+  location           String?
+  notes              String?
+  metadata           Json?
+  isPictureInPicture Boolean        @default(false)
+  frontCameraUrl     String?
+  backCameraUrl      String?
+  status             MediaStatus    @default(PROCESSING)
+  processedAt        DateTime?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  annotations        Annotation[]
+  comments           Comment[]
+  galleryItems       GalleryItem[]
+  mediaTags          MediaTag[]
+  views              MediaView[]
+  ppeDetections      PPEDetection[]
+  project            Project        @relation(fields: [projectId], references: [id])
+  user               User           @relation(fields: [userId], references: [id])
+
+  @@index([projectId, timestamp])
+  @@index([userId])
+  @@index([activityType])
+  @@index([status])
+  @@map("media")
+}
+
+model MediaView {
+  id       String   @id @default(uuid())
+  mediaId  String
+  userId   String
+  viewedAt DateTime @default(now())
+  media    Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([mediaId, userId])
+  @@index([mediaId])
+  @@index([userId])
+}
+
+model Annotation {
+  id        String   @id @default(uuid())
+  mediaId   String
+  userId    String
+  data      Json
+  createdAt DateTime @default(now())
+  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([mediaId])
+  @@index([userId])
+}
+
+model Activity {
+  id          String       @id @default(uuid())
+  projectId   String
+  userId      String
+  type        ActivityType
+  description String
+  mediaIds    String[]
+  timestamp   DateTime     @default(now())
+  project     Project      @relation(fields: [projectId], references: [id])
+  user        User         @relation(fields: [userId], references: [id])
+
+  @@index([projectId, timestamp])
+  @@index([userId])
+}
+
+model Gallery {
+  id          String        @id @default(uuid())
+  projectId   String
+  createdById String
+  name        String
+  description String?
+  shareToken  String        @unique @default(cuid())
+  isPublic    Boolean       @default(false)
+  password    String?
+  expiresAt   DateTime?
+  brandLogo   String?
+  brandColor  String?
+  watermark   Boolean       @default(true)
+  viewCount   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  createdBy   User          @relation(fields: [createdById], references: [id])
+  project     Project       @relation(fields: [projectId], references: [id])
+  items       GalleryItem[]
+  views       GalleryView[]
+
+  @@index([projectId])
+  @@index([createdById])
+  @@index([shareToken])
+}
+
+model GalleryItem {
+  id        String  @id @default(uuid())
+  galleryId String
+  mediaId   String
+  order     Int     @default(0)
+  caption   String?
+  gallery   Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  media     Media   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([galleryId, mediaId])
+  @@index([galleryId, order])
+}
+
+model GalleryView {
+  id         String   @id @default(uuid())
+  galleryId  String
+  viewerIp   String
+  viewerInfo Json?
+  viewedAt   DateTime @default(now())
+  gallery    Gallery  @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+
+  @@index([galleryId, viewedAt])
+}
+
+model ProjectTimeline {
+  id            String         @id @default(uuid())
+  projectId     String         @unique
+  shareToken    String         @unique @default(cuid())
+  isPublic      Boolean        @default(false)
+  password      String?
+  showAllMedia  Boolean        @default(true)
+  mediaTypes    String[]       @default(["PHOTO", "VIDEO"])
+  activityTypes String[]
+  brandLogo     String?
+  brandColor    String?
+  title         String?
+  description   String?
+  viewCount     Int            @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  project       Project        @relation(fields: [projectId], references: [id])
+  views         TimelineView[]
+
+  @@index([shareToken])
+}
+
+model TimelineView {
+  id         String          @id @default(uuid())
+  timelineId String
+  viewerIp   String
+  viewerInfo Json?
+  viewedAt   DateTime        @default(now())
+  timeline   ProjectTimeline @relation(fields: [timelineId], references: [id], onDelete: Cascade)
+
+  @@index([timelineId, viewedAt])
+}
+
+model Comment {
+  id           String     @id @default(uuid())
+  content      String
+  originalLang String     @default("en")
+  translations Json?
+  mediaId      String
+  userId       String
+  parentId     String?
+  mentions     String[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  media        Media      @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  parent       Comment?   @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies      Comment[]  @relation("CommentReplies")
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reactions    Reaction[]
+
+  @@index([mediaId])
+  @@index([userId])
+  @@index([parentId])
+}
+
+model Reaction {
+  id        String   @id @default(uuid())
+  type      String
+  commentId String
+  userId    String
+  createdAt DateTime @default(now())
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId, type])
+  @@index([commentId])
+  @@index([userId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  type      String
+  title     String
+  message   String
+  data      Json?
+  userId    String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+}
+
+model PushSubscription {
+  id         String   @id @default(uuid())
+  userId     String
+  endpoint   String
+  p256dh     String
+  auth       String
+  deviceName String   @default("Unknown Device")
+  createdAt  DateTime @default(now())
+  lastUsed   DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, endpoint])
+  @@index([userId])
+  @@index([lastUsed])
+}
+
+model TeamChat {
+  id           String   @id @default(uuid())
+  projectId    String
+  userId       String
+  message      String
+  originalLang String   @default("en")
+  translations Json?
+  mentions     String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Tag {
+  id          String     @id @default(uuid())
+  name        String
+  slug        String
+  color       String     @default("#3B82F6")
+  description String?
+  companyId   String
+  createdById String
+  category    String?
+  isSystem    Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  mediaTags   MediaTag[]
+  company     Company    @relation(fields: [companyId], references: [id])
+  createdBy   User       @relation(fields: [createdById], references: [id])
+
+  @@unique([companyId, slug])
+  @@index([companyId, category])
+  @@index([name])
+}
+
+model Label {
+  id          String         @id @default(uuid())
+  name        String
+  slug        String
+  color       String         @default("#10B981")
+  description String?
+  companyId   String
+  createdById String
+  type        String
+  icon        String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  company     Company        @relation(fields: [companyId], references: [id])
+  createdBy   User           @relation(fields: [createdById], references: [id])
+  projects    ProjectLabel[]
+
+  @@unique([companyId, slug])
+  @@index([companyId, type])
+  @@index([name])
+}
+
+model MediaTag {
+  id         String   @id @default(uuid())
+  mediaId    String
+  tagId      String
+  taggedById String
+  taggedAt   DateTime @default(now())
+  media      Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  taggedBy   User     @relation(fields: [taggedById], references: [id])
+
+  @@unique([mediaId, tagId])
+  @@index([mediaId])
+  @@index([tagId])
+  @@index([taggedAt])
+}
+
+model ProjectLabel {
+  id           String   @id @default(uuid())
+  projectId    String
+  labelId      String
+  assignedById String
+  assignedAt   DateTime @default(now())
+  assignedBy   User     @relation(fields: [assignedById], references: [id])
+  label        Label    @relation(fields: [labelId], references: [id], onDelete: Cascade)
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, labelId])
+  @@index([projectId])
+  @@index([labelId])
+}
+
+model SavedFilter {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  companyId   String
+  createdById String
+  filters     Json
+  isPublic    Boolean  @default(false)
+  shareToken  String   @unique @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  company     Company  @relation(fields: [companyId], references: [id])
+  createdBy   User     @relation(fields: [createdById], references: [id])
+
+  @@index([companyId])
+  @@index([createdById])
+  @@index([shareToken])
+}
+
+model StarredProject {
+  id        String   @id @default(uuid())
+  userId    String
+  projectId String
+  starredAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+  @@index([userId])
+  @@index([projectId])
+  @@index([starredAt])
+}
+
+model StarredUser {
+  id          String   @id @default(uuid())
+  userId      String
+  starredId   String
+  starredAt   DateTime @default(now())
+  starredUser User     @relation("StarredUser", fields: [starredId], references: [id], onDelete: Cascade)
+  user        User     @relation("StarringUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, starredId])
+  @@index([userId])
+  @@index([starredId])
+}
+
+model FeedPreferences {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  projectOrder       String[]
+  showStarredFirst   Boolean  @default(true)
+  hideInactive       Boolean  @default(false)
+  hiddenProjects     String[]
+  viewMode           String   @default("grid")
+  itemsPerPage       Int      @default(20)
+  autoRefresh        Boolean  @default(true)
+  refreshInterval    Int      @default(30)
+  emailNotifications Boolean  @default(true)
+  pushNotifications  Boolean  @default(true)
+  notificationTypes  Json?
+  feedSettings       Json?
+  updatedAt          DateTime @updatedAt
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model FeedEvent {
+  id         String   @id @default(uuid())
+  projectId  String
+  userId     String
+  eventType  String
+  entityType String
+  entityId   String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([projectId, createdAt])
+  @@index([userId])
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+model AIReport {
+  id          String        @id @default(uuid())
+  projectId   String
+  userId      String
+  reportType  ReportType
+  status      ReportStatus  @default(PENDING)
+  title       String
+  dateRange   Json?
+  mediaIds    String[]
+  sections    Json?
+  content     Json?
+  summary     String?
+  todoItems   Json?
+  pdfUrl      String?
+  shareToken  String        @unique @default(cuid())
+  generatedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id])
+  shares      ReportShare[]
+
+  @@index([projectId])
+  @@index([userId])
+  @@index([reportType])
+  @@index([shareToken])
+  @@index([createdAt])
+}
+
+model ReportShare {
+  id             String    @id @default(uuid())
+  reportId       String
+  sharedById     String
+  recipientEmail String?
+  recipientPhone String?
+  expiresAt      DateTime?
+  viewCount      Int       @default(0)
+  lastViewedAt   DateTime?
+  method         String
+  createdAt      DateTime  @default(now())
+  report         AIReport  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  sharedBy       User      @relation(fields: [sharedById], references: [id])
+
+  @@index([reportId])
+  @@index([sharedById])
+  @@index([createdAt])
+}
+
+model ReportTemplate {
+  id         String     @id @default(uuid())
+  companyId  String
+  name       String
+  reportType ReportType
+  sections   Json
+  styling    Json?
+  logoUrl    String?
+  isDefault  Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  company    Company    @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+  @@index([reportType])
+}
+
+model FormsData {
+  id          String   @id @default(uuid())
+  projectId   String
+  userId      String
+  formType    String
+  data        Json
+  submittedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  project     Project  @relation(fields: [projectId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([projectId])
+  @@index([userId])
+  @@index([formType])
+  @@index([submittedAt])
+}
+
+model RefreshToken {
+  id            String    @id @default(uuid())
+  token         String    @unique
+  userId        String
+  family        String    @default(uuid())
+  issuedAt      DateTime  @default(now())
+  expiresAt     DateTime
+  rotatedAt     DateTime?
+  ipAddress     String?
+  userAgent     String?
+  revokedAt     DateTime?
+  revokedReason String?
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([family])
+  @@index([expiresAt])
+  @@index([revokedAt])
+}
+
+model SafetyIncident {
+  id                 String             @id @default(uuid())
+  projectId          String
+  reportedById       String
+  assignedToId       String?
+  incidentType       SafetyIncidentType
+  severity           SafetySeverity
+  status             SafetyStatus       @default(OPEN)
+  title              String
+  description        String
+  location           String?
+  coordinates        Json?
+  mediaIds           String[]
+  witnessIds         String[]
+  oshaReportable     Boolean            @default(false)
+  oshaFormData       Json?
+  oshaFiledAt        DateTime?
+  occurredAt         DateTime
+  reportedAt         DateTime           @default(now())
+  dueDate            DateTime?
+  resolvedAt         DateTime?
+  investigationNotes String?
+  rootCause          String?
+  correctiveActions  Json?
+  metadata           Json?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  actions            SafetyAction[]
+  assignedTo         User?              @relation("AssignedIncidents", fields: [assignedToId], references: [id])
+  project            Project            @relation(fields: [projectId], references: [id])
+  reportedBy         User               @relation("ReportedIncidents", fields: [reportedById], references: [id])
+
+  @@index([projectId, occurredAt])
+  @@index([reportedById])
+  @@index([status])
+  @@index([severity])
+}
+
+model SafetyAction {
+  id               String         @id @default(uuid())
+  incidentId       String
+  assignedToId     String
+  title            String
+  description      String
+  priority         ActionPriority @default(MEDIUM)
+  status           ActionStatus   @default(OPEN)
+  dueDate          DateTime
+  completedAt      DateTime?
+  completionNotes  String?
+  evidenceMediaIds String[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  assignedTo       User           @relation(fields: [assignedToId], references: [id])
+  incident         SafetyIncident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId])
+  @@index([assignedToId])
+  @@index([dueDate])
+}
+
+model PPEDetection {
+  id           String    @id @default(uuid())
+  mediaId      String
+  detectedById String?
+  aiConfidence Float
+  detectedPPE  Json
+  missingPPE   String[]
+  verified     Boolean   @default(false)
+  verifiedAt   DateTime?
+  actualPPE    Json?
+  compliant    Boolean   @default(true)
+  violations   String[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  detectedBy   User?     @relation(fields: [detectedById], references: [id])
+  media        Media     @relation(fields: [mediaId], references: [id])
+
+  @@index([mediaId])
+  @@index([compliant])
+  @@index([createdAt])
+}
+
+model SafetyChecklist {
+  id              String                @id @default(uuid())
+  projectId       String
+  name            String
+  description     String?
+  category        String
+  frequency       ChecklistFrequency
+  items           Json
+  assignedToRoles String[]
+  isActive        Boolean               @default(true)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  submissions     ChecklistSubmission[]
+  project         Project               @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+  @@index([category])
+}
+
+model ChecklistSubmission {
+  id            String           @id @default(uuid())
+  checklistId   String
+  submittedById String
+  responses     Json
+  score         Float?
+  status        SubmissionStatus @default(COMPLETED)
+  mediaIds      String[]
+  notes         String?
+  submittedAt   DateTime         @default(now())
+  checklist     SafetyChecklist  @relation(fields: [checklistId], references: [id])
+  submittedBy   User             @relation(fields: [submittedById], references: [id])
+
+  @@index([checklistId])
+  @@index([submittedById])
+  @@index([submittedAt])
+}
+
+model QualityInspection {
+  id             String            @id @default(uuid())
+  projectId      String
+  inspectorId    String
+  assignedById   String?
+  inspectionType InspectionType
+  workScope      String
+  location       String?
+  scheduledDate  DateTime
+  startedAt      DateTime?
+  completedAt    DateTime?
+  status         InspectionStatus  @default(SCHEDULED)
+  overallResult  InspectionResult?
+  score          Float?
+  checklistItems Json
+  mediaIds       String[]
+  notes          String?
+  defectsFound   Int               @default(0)
+  criticalIssues Int               @default(0)
+  approvedById   String?
+  approvedAt     DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  defects        QualityDefect[]
+  approvedBy     User?             @relation("InspectionApprover", fields: [approvedById], references: [id])
+  assignedBy     User?             @relation("InspectionAssigner", fields: [assignedById], references: [id])
+  inspector      User              @relation("QualityInspector", fields: [inspectorId], references: [id])
+  project        Project           @relation(fields: [projectId], references: [id])
+
+  @@index([projectId, scheduledDate])
+  @@index([inspectorId])
+  @@index([status])
+}
+
+model QualityDefect {
+  id              String            @id @default(uuid())
+  inspectionId    String
+  discoveredById  String
+  defectType      DefectType
+  severity        DefectSeverity
+  category        String
+  description     String
+  location        String?
+  coordinates     Json?
+  mediaIds        String[]
+  measurementData Json?
+  status          DefectStatus      @default(OPEN)
+  assignedToId    String?
+  dueDate         DateTime?
+  resolutionNotes String?
+  resolvedAt      DateTime?
+  verifiedById    String?
+  verifiedAt      DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  assignedTo      User?             @relation("DefectAssignee", fields: [assignedToId], references: [id])
+  discoveredBy    User              @relation("DefectDiscoverer", fields: [discoveredById], references: [id])
+  inspection      QualityInspection @relation(fields: [inspectionId], references: [id])
+  verifiedBy      User?             @relation("DefectVerifier", fields: [verifiedById], references: [id])
+
+  @@index([inspectionId])
+  @@index([status])
+  @@index([severity])
+}
+
+model PunchListItem {
+  id              String        @id @default(uuid())
+  projectId       String
+  createdById     String
+  assignedToId    String?
+  title           String
+  description     String
+  location        String?
+  trade           String?
+  priority        PunchPriority @default(MEDIUM)
+  status          PunchStatus   @default(OPEN)
+  mediaIds        String[]
+  dueDate         DateTime?
+  completedAt     DateTime?
+  verifiedAt      DateTime?
+  completionNotes String?
+  verifiedById    String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  assignedTo      User?         @relation("PunchListAssignee", fields: [assignedToId], references: [id])
+  createdBy       User          @relation("PunchListCreator", fields: [createdById], references: [id])
+  project         Project       @relation(fields: [projectId], references: [id])
+  verifiedBy      User?         @relation("PunchListVerifier", fields: [verifiedById], references: [id])
+
+  @@index([projectId])
+  @@index([assignedToId])
+  @@index([status])
+  @@index([priority])
+}
+
+model MaterialDelivery {
+  id                  String         @id @default(uuid())
+  projectId           String
+  receivedById        String?
+  supplierName        String
+  supplierContact     String?
+  driverName          String?
+  purchaseOrderNumber String?
+  billOfLading        String?
+  materialType        String
+  description         String
+  quantity            String
+  unit                String?
+  scheduledDate       DateTime
+  actualDate          DateTime?
+  status              DeliveryStatus @default(SCHEDULED)
+  verified            Boolean        @default(false)
+  verifiedAt          DateTime?
+  mediaIds            String[]
+  notes               String?
+  qualityCheck        Json?
+  damageReported      Boolean        @default(false)
+  damageNotes         String?
+  storageLocation     String?
+  coordinates         Json?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  items               DeliveryItem[]
+  project             Project        @relation(fields: [projectId], references: [id])
+  receivedBy          User?          @relation(fields: [receivedById], references: [id])
+
+  @@index([projectId, scheduledDate])
+  @@index([status])
+  @@index([supplierName])
+}
+
+model DeliveryItem {
+  id           String           @id @default(uuid())
+  deliveryId   String
+  itemNumber   String?
+  description  String
+  specifiedQty String
+  actualQty    String?
+  unit         String
+  condition    ItemCondition    @default(GOOD)
+  notes        String?
+  mediaIds     String[]
+  createdAt    DateTime         @default(now())
+  delivery     MaterialDelivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@index([deliveryId])
+}
+
+model Vendor {
+  id           String     @id @default(uuid())
+  companyId    String
+  name         String
+  contactName  String?
+  email        String?
+  phone        String?
+  address      String?
+  vendorType   VendorType
+  specialties  String[]
+  rating       Float?
+  totalOrders  Int        @default(0)
+  onTimeRate   Float?
+  qualityScore Float?
+  isActive     Boolean    @default(true)
+  isPreferred  Boolean    @default(false)
+  notes        String?
+  metadata     Json?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  company      Company    @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+  @@index([vendorType])
+}
+
+model TrainingRecord {
+  id                  String              @id @default(uuid())
+  userId              String
+  certificationType   CertificationType
+  certificationName   String
+  issuingOrganization String?
+  completedDate       DateTime
+  expirationDate      DateTime?
+  reminderDate        DateTime?
+  certificateNumber   String?
+  mediaIds            String[]
+  verified            Boolean             @default(false)
+  verifiedById        String?
+  verifiedAt          DateTime?
+  status              CertificationStatus @default(ACTIVE)
+  notes               String?
+  metadata            Json?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  user                User                @relation(fields: [userId], references: [id])
+  verifiedBy          User?               @relation("CertificationVerifier", fields: [verifiedById], references: [id])
+
+  @@index([userId])
+  @@index([certificationType])
+  @@index([expirationDate])
+  @@index([status])
+}
+
+model TrainingCourse {
+  id             String               @id @default(uuid())
+  companyId      String
+  title          String
+  description    String
+  category       String
+  duration       Int?
+  modules        Json
+  mediaIds       String[]
+  requiredFor    String[]
+  prerequisites  String[]
+  isActive       Boolean              @default(true)
+  validityPeriod Int?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  company        Company              @relation(fields: [companyId], references: [id])
+  enrollments    TrainingEnrollment[]
+
+  @@index([companyId])
+  @@index([category])
+}
+
+model TrainingEnrollment {
+  id          String           @id @default(uuid())
+  courseId    String
+  userId      String
+  status      EnrollmentStatus @default(ENROLLED)
+  progress    Float            @default(0)
+  startedAt   DateTime?
+  completedAt DateTime?
+  score       Float?
+  attempts    Int              @default(0)
+  maxAttempts Int              @default(3)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  course      TrainingCourse   @relation(fields: [courseId], references: [id])
+  user        User             @relation(fields: [userId], references: [id])
+
+  @@unique([courseId, userId])
+  @@index([userId])
+  @@index([status])
+}
+
+model ProjectMetrics {
+  id                  String   @id @default(uuid())
+  projectId           String
+  date                DateTime @db.Date
+  safetyScore         Float?
+  incidentCount       Int      @default(0)
+  nearMissCount       Int      @default(0)
+  daysWithoutIncident Int      @default(0)
+  qualityScore        Float?
+  inspectionCount     Int      @default(0)
+  defectCount         Int      @default(0)
+  reworkHours         Float?
+  plannedProgress     Float?
+  actualProgress      Float?
+  mediaCount          Int      @default(0)
+  activityCount       Int      @default(0)
+  activeUsers         Int      @default(0)
+  totalHours          Float?
+  productivityScore   Float?
+  deliveriesPlanned   Int      @default(0)
+  deliveriesOnTime    Int      @default(0)
+  materialIssues      Int      @default(0)
+  efficiencyRatio     Float?
+  safetyIncidentRate  Float?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  project             Project  @relation(fields: [projectId], references: [id])
+
+  @@unique([projectId, date])
+  @@index([projectId])
+  @@index([date])
+}
+
+model PerformanceBenchmark {
+  id              String   @id @default(uuid())
+  companyId       String
+  name            String
+  category        String
+  metric          String
+  targetValue     Float
+  minAcceptable   Float?
+  maxAcceptable   Float?
+  industryAverage Float?
+  industryBest    Float?
+  projectTypes    String[]
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  company         Company  @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+  @@index([category])
 }
 
 enum UserRole {
@@ -58,188 +1088,6 @@ enum ActivityType {
   OTHER
 }
 
-model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  password     String
-  name         String
-  role         UserRole
-  companyId    String
-  unionMember  Boolean  @default(false)
-  phoneNumber  String?
-  
-  // Two-Factor Authentication
-  twoFactorEnabled     Boolean  @default(false)
-  twoFactorSecret      String?
-  twoFactorBackupCodes String[] @default([])
-  
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  
-  company         Company          @relation(fields: [companyId], references: [id])
-  media           Media[]
-  mediaViews      MediaView[]
-  annotations     Annotation[]
-  activities      Activity[]
-  projectMembers  ProjectMember[]
-  galleries       Gallery[]
-  comments        Comment[]
-  reactions       Reaction[]
-  notifications   Notification[]
-  teamChats       TeamChat[]
-  createdTags     Tag[]
-  createdLabels   Label[]
-  taggedMedia     MediaTag[]
-  assignedLabels  ProjectLabel[]
-  savedFilters    SavedFilter[]
-  starredProjects StarredProject[]
-  starringUsers   StarredUser[]    @relation("StarringUser")
-  starredByUsers  StarredUser[]    @relation("StarredUser")
-  feedPreferences FeedPreferences?
-  feedEvents      FeedEvent[]
-  aiReports       AIReport[]
-  reportShares    ReportShare[]
-  formsData         FormsData[]
-  refreshTokens     RefreshToken[]
-  pushSubscriptions PushSubscription[]
-  
-  // Safety & Compliance Relations
-  reportedIncidents     SafetyIncident[]    @relation("ReportedIncidents")
-  assignedIncidents     SafetyIncident[]    @relation("AssignedIncidents")
-  safetyActions         SafetyAction[]
-  ppeDetections         PPEDetection[]
-  checklistSubmissions  ChecklistSubmission[]
-  
-  // Quality Control Relations
-  qualityInspections    QualityInspection[] @relation("QualityInspector")
-  assignedInspections   QualityInspection[] @relation("InspectionAssigner")
-  approvedInspections   QualityInspection[] @relation("InspectionApprover")
-  discoveredDefects     QualityDefect[]     @relation("DefectDiscoverer")
-  assignedDefects       QualityDefect[]     @relation("DefectAssignee")
-  verifiedDefects       QualityDefect[]     @relation("DefectVerifier")
-  createdPunchItems     PunchListItem[]     @relation("PunchListCreator")
-  assignedPunchItems    PunchListItem[]     @relation("PunchListAssignee")
-  verifiedPunchItems    PunchListItem[]     @relation("PunchListVerifier")
-  
-  // Supply Chain Relations
-  receivedDeliveries    MaterialDelivery[]
-  
-  // Training Relations
-  trainingRecords       TrainingRecord[]
-  verifiedCertifications TrainingRecord[]   @relation("CertificationVerifier")
-  trainingEnrollments   TrainingEnrollment[]
-}
-
-model Project {
-  id         String        @id @default(uuid())
-  jobNumber  String        @unique
-  name       String
-  location   String
-  address    String?
-  status     ProjectStatus @default(ACTIVE)
-  companyId  String
-  metadata   Json?
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-  
-  company    Company         @relation(fields: [companyId], references: [id])
-  media      Media[]
-  activities Activity[]
-  members    ProjectMember[]
-  galleries  Gallery[]
-  timeline   ProjectTimeline?
-  teamChats  TeamChat[]
-  labels     ProjectLabel[]
-  starredBy  StarredProject[]
-  feedEvents FeedEvent[]
-  aiReports  AIReport[]
-  formsData  FormsData[]
-  
-  // Safety & Compliance Relations
-  safetyIncidents       SafetyIncident[]
-  safetyChecklists      SafetyChecklist[]
-  
-  // Quality Control Relations
-  qualityInspections    QualityInspection[]
-  punchListItems        PunchListItem[]
-  
-  // Supply Chain Relations
-  materialDeliveries    MaterialDelivery[]
-  
-  // Analytics Relations
-  projectMetrics        ProjectMetrics[]
-}
-
-model ProjectMember {
-  projectId  String
-  userId     String
-  role       String?
-  assignedAt DateTime @default(now())
-  
-  project Project @relation(fields: [projectId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
-  
-  @@id([projectId, userId])
-  @@index([userId])
-}
-
-model Media {
-  id           String       @id @default(uuid())
-  projectId    String
-  userId       String
-  fileUrl      String       // S3/MinIO URL
-  thumbnailUrl String?      // For videos
-  mediaType    MediaType    
-  
-  // File metadata
-  fileSize     Int          // In bytes
-  width        Int?         // For images/videos
-  height       Int?         // For images/videos
-  duration     Int?         // For videos (in seconds)
-  
-  // Location data
-  latitude     Float?
-  longitude    Float?
-  address      String?
-  
-  // Business data
-  tags         String[]
-  timestamp    DateTime     @default(now())
-  activityType ActivityType
-  location     String?      // Building location (e.g., "Bay 3, Level 2")
-  notes        String?
-  metadata     Json?        // EXIF data, device info, video codec, etc.
-  
-  // Dual camera support
-  isPictureInPicture Boolean  @default(false)
-  frontCameraUrl     String?  // For PiP videos
-  backCameraUrl      String?  // For PiP videos
-  
-  // Processing status
-  status       MediaStatus  @default(PROCESSING)
-  processedAt  DateTime?
-  
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  
-  project     Project      @relation(fields: [projectId], references: [id])
-  user        User         @relation(fields: [userId], references: [id])
-  annotations Annotation[]
-  views       MediaView[]
-  galleryItems GalleryItem[]
-  comments    Comment[]
-  mediaTags   MediaTag[]
-  
-  // Safety Relations
-  ppeDetections PPEDetection[]
-  
-  @@index([projectId, timestamp])
-  @@index([userId])
-  @@index([activityType])
-  @@index([status])
-  @@map("media")
-}
-
 enum MediaType {
   PHOTO
   VIDEO
@@ -253,448 +1101,16 @@ enum MediaStatus {
   FAILED
 }
 
-model MediaView {
-  id        String   @id @default(uuid())
-  mediaId   String
-  userId    String
-  viewedAt  DateTime @default(now())
-  
-  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@unique([mediaId, userId])
-  @@index([mediaId])
-  @@index([userId])
-}
-
-model Annotation {
-  id        String   @id @default(uuid())
-  mediaId   String
-  userId    String
-  data      Json     // Stores drawing data, text, measurements, etc.
-  createdAt DateTime @default(now())
-  
-  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id])
-  
-  @@index([mediaId])
-  @@index([userId])
-}
-
-model Activity {
-  id        String       @id @default(uuid())
-  projectId String
-  userId    String
-  type      ActivityType
-  description String
-  mediaIds  String[]     // Array of related media IDs
-  timestamp DateTime     @default(now())
-  
-  project Project @relation(fields: [projectId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
-  
-  @@index([projectId, timestamp])
-  @@index([userId])
-}
-
-// Gallery Models for sharing collections
-model Gallery {
-  id          String         @id @default(uuid())
-  projectId   String
-  createdById String
-  name        String
-  description String?
-  shareToken  String         @unique @default(cuid())
-  isPublic    Boolean        @default(false)
-  password    String?        // Optional password protection
-  expiresAt   DateTime?      // Optional expiration
-  
-  // Branding
-  brandLogo   String?        // URL to custom logo
-  brandColor  String?        // Hex color for theming
-  watermark   Boolean        @default(true)
-  
-  // Analytics
-  viewCount   Int            @default(0)
-  
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  
-  project     Project        @relation(fields: [projectId], references: [id])
-  createdBy   User           @relation(fields: [createdById], references: [id])
-  items       GalleryItem[]
-  views       GalleryView[]
-  
-  @@index([projectId])
-  @@index([createdById])
-  @@index([shareToken])
-}
-
-model GalleryItem {
-  id        String   @id @default(uuid())
-  galleryId String
-  mediaId   String
-  order     Int      @default(0)
-  caption   String?
-  
-  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
-  media   Media   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-  
-  @@unique([galleryId, mediaId])
-  @@index([galleryId, order])
-}
-
-model GalleryView {
-  id         String   @id @default(uuid())
-  galleryId  String
-  viewerIp   String   // Track unique viewers by IP
-  viewerInfo Json?    // User agent, referrer, etc.
-  viewedAt   DateTime @default(now())
-  
-  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
-  
-  @@index([galleryId, viewedAt])
-}
-
-// Timeline Models
-model ProjectTimeline {
-  id           String    @id @default(uuid())
-  projectId    String    @unique
-  shareToken   String    @unique @default(cuid())
-  isPublic     Boolean   @default(false)
-  password     String?   // Optional password protection
-  
-  // Display settings
-  showAllMedia Boolean   @default(true)  // Show all project media or filtered
-  mediaTypes   String[]  @default(["PHOTO", "VIDEO"]) // Which media types to show
-  activityTypes String[] // Which activity types to show (empty = all)
-  
-  // Branding
-  brandLogo    String?   // URL to custom logo
-  brandColor   String?   // Hex color for theming
-  title        String?   // Custom timeline title
-  description  String?   // Custom description
-  
-  // Analytics
-  viewCount    Int       @default(0)
-  
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  
-  project      Project   @relation(fields: [projectId], references: [id])
-  views        TimelineView[]
-  
-  @@index([shareToken])
-}
-
-model TimelineView {
-  id         String          @id @default(uuid())
-  timelineId String
-  viewerIp   String          // Track unique viewers by IP
-  viewerInfo Json?           // User agent, referrer, etc.
-  viewedAt   DateTime        @default(now())
-  
-  timeline ProjectTimeline @relation(fields: [timelineId], references: [id], onDelete: Cascade)
-  
-  @@index([timelineId, viewedAt])
-}
-
-// Communication Models
-model Comment {
-  id             String    @id @default(uuid())
-  content        String
-  originalLang   String    @default("en")
-  translations   Json?     // Store translations as JSON
-  mediaId        String
-  userId         String
-  parentId       String?   // For threaded comments
-  mentions       String[]  // Array of mentioned user IDs
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  
-  media     Media       @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parent    Comment?    @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   Comment[]   @relation("CommentReplies")
-  reactions Reaction[]
-  
-  @@index([mediaId])
-  @@index([userId])
-  @@index([parentId])
-}
-
-model Reaction {
-  id        String   @id @default(uuid())
-  type      String   // 'like', 'thumbsup', 'thumbsdown', 'question', 'check'
-  commentId String
-  userId    String
-  createdAt DateTime @default(now())
-  
-  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@unique([commentId, userId, type])
-  @@index([commentId])
-  @@index([userId])
-}
-
-model Notification {
-  id        String   @id @default(uuid())
-  type      String   // 'mention', 'comment', 'reply', 'reaction', 'project_update'
-  title     String
-  message   String
-  data      Json?    // Additional data like mediaId, commentId, etc.
-  userId    String
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-  
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([userId])
-  @@index([read])
-  @@index([createdAt])
-}
-
-model PushSubscription {
-  id         String   @id @default(uuid())
-  userId     String
-  endpoint   String   @db.Text
-  p256dh     String
-  auth       String
-  deviceName String   @default("Unknown Device")
-  createdAt  DateTime @default(now())
-  lastUsed   DateTime @default(now())
-  
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@unique([userId, endpoint])
-  @@index([userId])
-  @@index([lastUsed])
-}
-
-model TeamChat {
-  id           String   @id @default(uuid())
-  projectId    String
-  userId       String
-  message      String
-  originalLang String   @default("en")
-  translations Json?
-  mentions     String[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([projectId])
-  @@index([userId])
-  @@index([createdAt])
-}
-
-// Tag System Models
-model Tag {
-  id          String      @id @default(uuid())
-  name        String
-  slug        String      // URL-friendly version
-  color       String      @default("#3B82F6") // Hex color
-  description String?
-  companyId   String
-  createdById String
-  
-  // Tag categories for organization
-  category    String?     // e.g., "Material", "Room Type", "Status", "Trade"
-  isSystem    Boolean     @default(false) // System tags can't be deleted
-  
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
-  company     Company     @relation(fields: [companyId], references: [id])
-  createdBy   User        @relation(fields: [createdById], references: [id])
-  mediaTags   MediaTag[]
-  
-  @@unique([companyId, slug])
-  @@index([companyId, category])
-  @@index([name])
-}
-
-model Label {
-  id          String      @id @default(uuid())
-  name        String
-  slug        String      // URL-friendly version
-  color       String      @default("#10B981") // Hex color
-  description String?
-  companyId   String
-  createdById String
-  
-  // Label types for projects
-  type        String      // e.g., "project_type", "project_status", "budget_range"
-  icon        String?     // Icon identifier
-  
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
-  company     Company     @relation(fields: [companyId], references: [id])
-  createdBy   User        @relation(fields: [createdById], references: [id])
-  projects    ProjectLabel[]
-  
-  @@unique([companyId, slug])
-  @@index([companyId, type])
-  @@index([name])
-}
-
-// Many-to-many relationship for media tags
-model MediaTag {
-  id         String   @id @default(uuid())
-  mediaId    String
-  tagId      String
-  taggedById String
-  taggedAt   DateTime @default(now())
-  
-  media      Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  taggedBy   User     @relation(fields: [taggedById], references: [id])
-  
-  @@unique([mediaId, tagId])
-  @@index([mediaId])
-  @@index([tagId])
-  @@index([taggedAt])
-}
-
-// Many-to-many relationship for project labels
-model ProjectLabel {
-  id         String   @id @default(uuid())
-  projectId  String
-  labelId    String
-  assignedById String
-  assignedAt DateTime @default(now())
-  
-  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  label      Label    @relation(fields: [labelId], references: [id], onDelete: Cascade)
-  assignedBy User     @relation(fields: [assignedById], references: [id])
-  
-  @@unique([projectId, labelId])
-  @@index([projectId])
-  @@index([labelId])
-}
-
-// Saved search filters for custom catalogs
-model SavedFilter {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  companyId   String
-  createdById String
-  
-  // Filter criteria stored as JSON
-  filters     Json     // { tags: [], labels: [], dateRange: {}, mediaTypes: [], etc. }
-  
-  // Display settings
-  isPublic    Boolean  @default(false) // Available to all company users
-  shareToken  String   @unique @default(cuid()) // For external sharing
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  company     Company  @relation(fields: [companyId], references: [id])
-  createdBy   User     @relation(fields: [createdById], references: [id])
-  
-  @@index([companyId])
-  @@index([createdById])
-  @@index([shareToken])
-}
-
-// Project starring and feed preferences
-model StarredProject {
-  id         String   @id @default(uuid())
-  userId     String
-  projectId  String
-  starredAt  DateTime @default(now())
-  
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
-  @@unique([userId, projectId])
-  @@index([userId])
-  @@index([projectId])
-  @@index([starredAt])
-}
-
-model StarredUser {
-  id          String   @id @default(uuid())
-  userId      String   // The user doing the starring
-  starredId   String   // The user being starred
-  starredAt   DateTime @default(now())
-  
-  user        User     @relation("StarringUser", fields: [userId], references: [id], onDelete: Cascade)
-  starredUser User     @relation("StarredUser", fields: [starredId], references: [id], onDelete: Cascade)
-  
-  @@unique([userId, starredId])
-  @@index([userId])
-  @@index([starredId])
-}
-
-model FeedPreferences {
-  id               String   @id @default(uuid())
-  userId           String   @unique
-  
-  // Feed ordering preferences
-  projectOrder     String[] // Array of project IDs in custom order
-  showStarredFirst Boolean  @default(true)
-  
-  // Feed filtering preferences
-  hideInactive     Boolean  @default(false)
-  hiddenProjects   String[] // Array of project IDs to hide
-  
-  // Feed display preferences
-  viewMode         String   @default("grid") // grid, list, compact
-  itemsPerPage     Int      @default(20)
-  autoRefresh      Boolean  @default(true)
-  refreshInterval  Int      @default(30) // seconds
-  
-  // Notification preferences
-  emailNotifications Boolean @default(true)
-  pushNotifications  Boolean @default(true)
-  notificationTypes  Json?   // Object with notification type preferences
-  feedSettings       Json?   // Additional feed settings
-  
-  updatedAt        DateTime @updatedAt
-  
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([userId])
-}
-
-// Project activity feed events
-model FeedEvent {
-  id           String      @id @default(uuid())
-  projectId    String
-  userId       String
-  eventType    String      // media_uploaded, comment_added, tag_applied, member_added, etc.
-  entityType   String      // media, comment, tag, user, etc.
-  entityId     String      // ID of the related entity
-  metadata     Json?       // Additional event data
-  createdAt    DateTime    @default(now())
-  
-  project      Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user         User        @relation(fields: [userId], references: [id])
-  
-  @@index([projectId, createdAt])
-  @@index([userId])
-  @@index([eventType])
-  @@index([createdAt])
-}
-
-// AI Report Generation
 enum ReportType {
-  PROGRESS_RECAP    // Comprehensive project progress report
-  SUMMARY           // Quick summary for group of photos
-  DAILY_LOG         // Daily activity log with todo list
-  SAFETY_REPORT     // Safety incident and compliance report
-  QUALITY_REPORT    // Quality inspection and defect report
-  COMPLIANCE_REPORT // Regulatory compliance report
-  TRAINING_REPORT   // Training and certification report
-  SUPPLY_CHAIN_REPORT // Material delivery and vendor report
-  ANALYTICS_DASHBOARD // Performance analytics report
+  PROGRESS_RECAP
+  SUMMARY
+  DAILY_LOG
+  SAFETY_REPORT
+  QUALITY_REPORT
+  COMPLIANCE_REPORT
+  TRAINING_REPORT
+  SUPPLY_CHAIN_REPORT
+  ANALYTICS_DASHBOARD
 }
 
 enum ReportStatus {
@@ -703,144 +1119,6 @@ enum ReportStatus {
   COMPLETED
   FAILED
 }
-
-model AIReport {
-  id           String       @id @default(uuid())
-  projectId    String
-  userId       String
-  reportType   ReportType
-  status       ReportStatus @default(PENDING)
-  
-  // Report configuration
-  title        String
-  dateRange    Json?        // { start: Date, end: Date }
-  mediaIds     String[]     // Selected media for the report
-  sections     Json?        // Custom sections for progress recap
-  
-  // Generated content
-  content      Json?        // The generated report content
-  summary      String?      // Brief summary
-  todoItems    Json?        // For daily logs
-  
-  // File storage
-  pdfUrl       String?      // Generated PDF URL
-  shareToken   String       @unique @default(cuid())
-  
-  // Metadata
-  generatedAt  DateTime?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  
-  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user         User         @relation(fields: [userId], references: [id])
-  shares       ReportShare[]
-  
-  @@index([projectId])
-  @@index([userId])
-  @@index([reportType])
-  @@index([shareToken])
-  @@index([createdAt])
-}
-
-model ReportShare {
-  id          String   @id @default(uuid())
-  reportId    String
-  sharedById  String
-  
-  // Share settings
-  recipientEmail String?
-  recipientPhone String?
-  expiresAt      DateTime?
-  viewCount      Int      @default(0)
-  lastViewedAt   DateTime?
-  
-  // Share method
-  method         String   // email, sms, link
-  
-  createdAt      DateTime @default(now())
-  
-  report         AIReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
-  sharedBy       User     @relation(fields: [sharedById], references: [id])
-  
-  @@index([reportId])
-  @@index([sharedById])
-  @@index([createdAt])
-}
-
-// Report templates for customization
-model ReportTemplate {
-  id          String   @id @default(uuid())
-  companyId   String
-  name        String
-  reportType  ReportType
-  
-  // Template configuration
-  sections    Json     // Sections to include
-  styling     Json?    // Custom styling options
-  logoUrl     String?  // Company logo
-  
-  isDefault   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  company     Company  @relation(fields: [companyId], references: [id])
-  
-  @@index([companyId])
-  @@index([reportType])
-}
-
-// Forms data storage
-model FormsData {
-  id          String   @id @default(uuid())
-  projectId   String   // Associated project
-  userId      String
-  formType    String   // e.g., "FSW_IRON_TASK", "DAILY_TIMESHEET", etc.
-  data        Json     // JSON blob containing all form data
-  submittedAt DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  project     Project  @relation(fields: [projectId], references: [id])
-  user        User     @relation(fields: [userId], references: [id])
-  
-  @@index([projectId])
-  @@index([userId])
-  @@index([formType])
-  @@index([submittedAt])
-}
-
-// Refresh Token Management
-model RefreshToken {
-  id          String   @id @default(uuid())
-  token       String   @unique
-  userId      String
-  
-  // Token metadata
-  family      String   @default(uuid()) // Token family for rotation tracking
-  issuedAt    DateTime @default(now())
-  expiresAt   DateTime
-  rotatedAt   DateTime? // When this token was rotated (replaced)
-  
-  // Security tracking
-  ipAddress   String?
-  userAgent   String?
-  
-  // Revocation
-  revokedAt   DateTime?
-  revokedReason String? // 'logout', 'rotation', 'suspicious', 'manual'
-  
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([userId])
-  @@index([token])
-  @@index([family])
-  @@index([expiresAt])
-  @@index([revokedAt])
-}
-
-// ================================
-// SAFETY & COMPLIANCE MODELS
-// ================================
 
 enum SafetyIncidentType {
   NEAR_MISS
@@ -869,60 +1147,6 @@ enum SafetyStatus {
   CLOSED
 }
 
-model SafetyIncident {
-  id            String            @id @default(uuid())
-  projectId     String
-  reportedById  String
-  assignedToId  String?
-  
-  // Incident Classification
-  incidentType  SafetyIncidentType
-  severity      SafetySeverity
-  status        SafetyStatus      @default(OPEN)
-  
-  // Incident Details
-  title         String
-  description   String
-  location      String?           // Building location (e.g., "Bay 3, Level 2")
-  coordinates   Json?             // GPS coordinates if available
-  
-  // Evidence & Documentation
-  mediaIds      String[]          // Photos, videos of incident
-  witnessIds    String[]          // User IDs of witnesses
-  
-  // OSHA Integration
-  oshaReportable Boolean         @default(false)
-  oshaFormData   Json?           // OSHA 300/301 form data
-  oshaFiledAt    DateTime?
-  
-  // Timeline
-  occurredAt    DateTime
-  reportedAt    DateTime         @default(now())
-  dueDate       DateTime?        // Investigation due date
-  resolvedAt    DateTime?
-  
-  // Investigation
-  investigationNotes String?
-  rootCause         String?
-  correctiveActions Json?         // Array of corrective action items
-  
-  // Metadata
-  metadata      Json?
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  
-  // Relations
-  project       Project          @relation(fields: [projectId], references: [id])
-  reportedBy    User             @relation("ReportedIncidents", fields: [reportedById], references: [id])
-  assignedTo    User?            @relation("AssignedIncidents", fields: [assignedToId], references: [id])
-  actions       SafetyAction[]
-  
-  @@index([projectId, occurredAt])
-  @@index([reportedById])
-  @@index([status])
-  @@index([severity])
-}
-
 enum ActionPriority {
   LOW
   MEDIUM
@@ -937,64 +1161,6 @@ enum ActionStatus {
   CANCELLED
 }
 
-model SafetyAction {
-  id          String        @id @default(uuid())
-  incidentId  String
-  assignedToId String
-  
-  title       String
-  description String
-  priority    ActionPriority @default(MEDIUM)
-  status      ActionStatus   @default(OPEN)
-  
-  dueDate     DateTime
-  completedAt DateTime?
-  
-  // Evidence of completion
-  completionNotes String?
-  evidenceMediaIds String[]
-  
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  
-  incident    SafetyIncident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
-  assignedTo  User           @relation(fields: [assignedToId], references: [id])
-  
-  @@index([incidentId])
-  @@index([assignedToId])
-  @@index([dueDate])
-}
-
-model PPEDetection {
-  id          String         @id @default(uuid())
-  mediaId     String
-  detectedById String?       // User who verified/corrected detection
-  
-  // AI Detection Results
-  aiConfidence Float         // 0.0 - 1.0 confidence score
-  detectedPPE  Json          // { hardhat: true, vest: false, gloves: true, etc. }
-  missingPPE   String[]      // Array of missing PPE items
-  
-  // Manual Verification
-  verified     Boolean       @default(false)
-  verifiedAt   DateTime?
-  actualPPE    Json?         // Manual correction of AI detection
-  
-  // Compliance
-  compliant    Boolean       @default(true)
-  violations   String[]      // Array of violation types
-  
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  
-  media        Media         @relation(fields: [mediaId], references: [id])
-  detectedBy   User?         @relation(fields: [detectedById], references: [id])
-  
-  @@index([mediaId])
-  @@index([compliant])
-  @@index([createdAt])
-}
-
 enum ChecklistFrequency {
   DAILY
   WEEKLY
@@ -1004,64 +1170,11 @@ enum ChecklistFrequency {
   AS_NEEDED
 }
 
-model SafetyChecklist {
-  id          String              @id @default(uuid())
-  projectId   String
-  name        String
-  description String?
-  
-  // Checklist Configuration
-  category    String              // PRE_SHIFT, EQUIPMENT, SITE_INSPECTION, etc.
-  frequency   ChecklistFrequency  // DAILY, WEEKLY, MONTHLY, etc.
-  items       Json                // Array of checklist items
-  
-  // Assignment
-  assignedToRoles String[]        // User roles required to complete
-  
-  isActive    Boolean             @default(true)
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  
-  project     Project             @relation(fields: [projectId], references: [id])
-  submissions ChecklistSubmission[]
-  
-  @@index([projectId])
-  @@index([category])
-}
-
 enum SubmissionStatus {
   COMPLETED
   INCOMPLETE
   REQUIRES_ACTION
 }
-
-model ChecklistSubmission {
-  id          String          @id @default(uuid())
-  checklistId String
-  submittedById String
-  
-  // Submission Data
-  responses   Json            // Responses to checklist items
-  score       Float?          // Calculated compliance score
-  status      SubmissionStatus @default(COMPLETED)
-  
-  // Evidence
-  mediaIds    String[]        // Supporting photos/videos
-  notes       String?
-  
-  submittedAt DateTime        @default(now())
-  
-  checklist   SafetyChecklist @relation(fields: [checklistId], references: [id])
-  submittedBy User            @relation(fields: [submittedById], references: [id])
-  
-  @@index([checklistId])
-  @@index([submittedById])
-  @@index([submittedAt])
-}
-
-// ================================
-// QUALITY CONTROL & INSPECTION MODELS
-// ================================
 
 enum InspectionType {
   STRUCTURAL_STEEL
@@ -1087,55 +1200,6 @@ enum InspectionResult {
   PASSED_WITH_NOTES
   FAILED
   REQUIRES_REWORK
-}
-
-model QualityInspection {
-  id              String            @id @default(uuid())
-  projectId       String
-  inspectorId     String
-  assignedById    String?
-  
-  // Inspection Details
-  inspectionType  InspectionType
-  workScope       String            // Description of work being inspected
-  location        String?           // Building location
-  
-  // Scheduling
-  scheduledDate   DateTime
-  startedAt       DateTime?
-  completedAt     DateTime?
-  
-  // Status & Results
-  status          InspectionStatus  @default(SCHEDULED)
-  overallResult   InspectionResult?
-  score           Float?            // 0-100 quality score
-  
-  // Documentation
-  checklistItems  Json              // Inspection criteria and results
-  mediaIds        String[]          // Photos/videos of work and issues
-  notes           String?
-  
-  // Defects & Issues
-  defectsFound    Int               @default(0)
-  criticalIssues  Int               @default(0)
-  
-  // Approval
-  approvedById    String?
-  approvedAt      DateTime?
-  
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  
-  // Relations
-  project         Project           @relation(fields: [projectId], references: [id])
-  inspector       User              @relation("QualityInspector", fields: [inspectorId], references: [id])
-  assignedBy      User?             @relation("InspectionAssigner", fields: [assignedById], references: [id])
-  approvedBy      User?             @relation("InspectionApprover", fields: [approvedById], references: [id])
-  defects         QualityDefect[]
-  
-  @@index([projectId, scheduledDate])
-  @@index([inspectorId])
-  @@index([status])
 }
 
 enum DefectType {
@@ -1165,49 +1229,6 @@ enum DefectStatus {
   CLOSED
 }
 
-model QualityDefect {
-  id              String          @id @default(uuid())
-  inspectionId    String
-  discoveredById  String
-  
-  // Defect Classification
-  defectType      DefectType
-  severity        DefectSeverity
-  category        String          // DIMENSIONAL, VISUAL, STRUCTURAL, etc.
-  
-  // Defect Details
-  description     String
-  location        String?
-  coordinates     Json?           // Precise location coordinates
-  
-  // Documentation
-  mediaIds        String[]        // Photos showing the defect
-  measurementData Json?           // Actual vs required measurements
-  
-  // Resolution
-  status          DefectStatus    @default(OPEN)
-  assignedToId    String?
-  dueDate         DateTime?
-  
-  resolutionNotes String?
-  resolvedAt      DateTime?
-  verifiedById    String?
-  verifiedAt      DateTime?
-  
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  
-  // Relations
-  inspection      QualityInspection @relation(fields: [inspectionId], references: [id])
-  discoveredBy    User              @relation("DefectDiscoverer", fields: [discoveredById], references: [id])
-  assignedTo      User?             @relation("DefectAssignee", fields: [assignedToId], references: [id])
-  verifiedBy      User?             @relation("DefectVerifier", fields: [verifiedById], references: [id])
-  
-  @@index([inspectionId])
-  @@index([status])
-  @@index([severity])
-}
-
 enum PunchPriority {
   LOW
   MEDIUM
@@ -1223,53 +1244,6 @@ enum PunchStatus {
   CLOSED
 }
 
-model PunchListItem {
-  id            String          @id @default(uuid())
-  projectId     String
-  createdById   String
-  assignedToId  String?
-  
-  // Item Details
-  title         String
-  description   String
-  location      String?
-  trade         String?         // STRUCTURAL, ELECTRICAL, PLUMBING, etc.
-  
-  // Priority & Status
-  priority      PunchPriority   @default(MEDIUM)
-  status        PunchStatus     @default(OPEN)
-  
-  // Documentation
-  mediaIds      String[]        // Before/after photos
-  
-  // Timeline
-  dueDate       DateTime?
-  completedAt   DateTime?
-  verifiedAt    DateTime?
-  
-  // Resolution
-  completionNotes String?
-  verifiedById    String?
-  
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  
-  // Relations
-  project       Project         @relation(fields: [projectId], references: [id])
-  createdBy     User            @relation("PunchListCreator", fields: [createdById], references: [id])
-  assignedTo    User?           @relation("PunchListAssignee", fields: [assignedToId], references: [id])
-  verifiedBy    User?           @relation("PunchListVerifier", fields: [verifiedById], references: [id])
-  
-  @@index([projectId])
-  @@index([assignedToId])
-  @@index([status])
-  @@index([priority])
-}
-
-// ================================
-// SUPPLY CHAIN MANAGEMENT MODELS
-// ================================
-
 enum DeliveryStatus {
   SCHEDULED
   IN_TRANSIT
@@ -1280,89 +1254,11 @@ enum DeliveryStatus {
   PARTIAL
 }
 
-model MaterialDelivery {
-  id              String            @id @default(uuid())
-  projectId       String
-  receivedById    String?
-  
-  // Supplier Information
-  supplierName    String
-  supplierContact String?
-  driverName      String?
-  
-  // Delivery Details
-  purchaseOrderNumber String?
-  billOfLading    String?
-  materialType    String
-  description     String
-  quantity        String
-  unit            String?           // TONS, PIECES, FEET, etc.
-  
-  // Scheduling
-  scheduledDate   DateTime
-  actualDate      DateTime?
-  
-  // Status & Verification
-  status          DeliveryStatus    @default(SCHEDULED)
-  verified        Boolean           @default(false)
-  verifiedAt      DateTime?
-  
-  // Documentation
-  mediaIds        String[]          // Photos of materials, BOL, etc.
-  notes           String?
-  
-  // Quality Check
-  qualityCheck    Json?             // Quality verification data
-  damageReported  Boolean           @default(false)
-  damageNotes     String?
-  
-  // Location
-  storageLocation String?
-  coordinates     Json?             // GPS coordinates
-  
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  
-  // Relations
-  project         Project           @relation(fields: [projectId], references: [id])
-  receivedBy      User?             @relation(fields: [receivedById], references: [id])
-  items           DeliveryItem[]
-  
-  @@index([projectId, scheduledDate])
-  @@index([status])
-  @@index([supplierName])
-}
-
 enum ItemCondition {
   GOOD
   DAMAGED
   DEFECTIVE
   MISSING
-}
-
-model DeliveryItem {
-  id            String            @id @default(uuid())
-  deliveryId    String
-  
-  // Item Details
-  itemNumber    String?
-  description   String
-  specifiedQty  String
-  actualQty     String?
-  unit          String
-  
-  // Quality
-  condition     ItemCondition     @default(GOOD)
-  notes         String?
-  
-  // Documentation
-  mediaIds      String[]          // Item-specific photos
-  
-  createdAt     DateTime          @default(now())
-  
-  delivery      MaterialDelivery  @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
-  
-  @@index([deliveryId])
 }
 
 enum VendorType {
@@ -1373,48 +1269,6 @@ enum VendorType {
   SUBCONTRACTOR
   MATERIAL_SUPPLIER
 }
-
-model Vendor {
-  id            String        @id @default(uuid())
-  companyId     String
-  
-  // Vendor Information
-  name          String
-  contactName   String?
-  email         String?
-  phone         String?
-  address       String?
-  
-  // Business Details
-  vendorType    VendorType
-  specialties   String[]      // STRUCTURAL_STEEL, REBAR, MISC_METALS, etc.
-  
-  // Performance Tracking
-  rating        Float?        // 1-5 stars
-  totalOrders   Int           @default(0)
-  onTimeRate    Float?        // Percentage of on-time deliveries
-  qualityScore  Float?        // Average quality score
-  
-  // Status
-  isActive      Boolean       @default(true)
-  isPreferred   Boolean       @default(false)
-  
-  // Metadata
-  notes         String?
-  metadata      Json?
-  
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  
-  company       Company       @relation(fields: [companyId], references: [id])
-  
-  @@index([companyId])
-  @@index([vendorType])
-}
-
-// ================================
-// TRAINING & CERTIFICATION MODELS
-// ================================
 
 enum CertificationType {
   OSHA_10
@@ -1437,198 +1291,10 @@ enum CertificationStatus {
   REVOKED
 }
 
-model TrainingRecord {
-  id                String              @id @default(uuid())
-  userId            String
-  
-  // Training Details
-  certificationType CertificationType
-  certificationName String
-  issuingOrganization String?
-  
-  // Dates
-  completedDate     DateTime
-  expirationDate    DateTime?
-  reminderDate      DateTime?         // When to send renewal reminder
-  
-  // Documentation
-  certificateNumber String?
-  mediaIds          String[]          // Certificate photos/PDFs
-  
-  // Verification
-  verified          Boolean           @default(false)
-  verifiedById      String?
-  verifiedAt        DateTime?
-  
-  // Status
-  status            CertificationStatus @default(ACTIVE)
-  
-  // Metadata
-  notes             String?
-  metadata          Json?             // Additional training details
-  
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  
-  // Relations
-  user              User              @relation(fields: [userId], references: [id])
-  verifiedBy        User?             @relation("CertificationVerifier", fields: [verifiedById], references: [id])
-  
-  @@index([userId])
-  @@index([certificationType])
-  @@index([expirationDate])
-  @@index([status])
-}
-
-model TrainingCourse {
-  id            String          @id @default(uuid())
-  companyId     String
-  
-  // Course Details
-  title         String
-  description   String
-  category      String          // SAFETY, TECHNICAL, COMPLIANCE, etc.
-  duration      Int?            // Duration in minutes
-  
-  // Content
-  modules       Json            // Course modules/lessons
-  mediaIds      String[]        // Training videos, documents
-  
-  // Requirements
-  requiredFor   String[]        // User roles that require this training
-  prerequisites String[]        // Required courses before this one
-  
-  // Validity
-  isActive      Boolean         @default(true)
-  validityPeriod Int?           // Months before renewal required
-  
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  
-  company       Company         @relation(fields: [companyId], references: [id])
-  enrollments   TrainingEnrollment[]
-  
-  @@index([companyId])
-  @@index([category])
-}
-
 enum EnrollmentStatus {
   ENROLLED
   IN_PROGRESS
   COMPLETED
   FAILED
   CANCELLED
-}
-
-model TrainingEnrollment {
-  id            String              @id @default(uuid())
-  courseId      String
-  userId        String
-  
-  // Progress
-  status        EnrollmentStatus    @default(ENROLLED)
-  progress      Float               @default(0) // 0-100 percentage
-  
-  // Completion
-  startedAt     DateTime?
-  completedAt   DateTime?
-  score         Float?              // Test score if applicable
-  
-  // Attempts
-  attempts      Int                 @default(0)
-  maxAttempts   Int                 @default(3)
-  
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  
-  course        TrainingCourse      @relation(fields: [courseId], references: [id])
-  user          User                @relation(fields: [userId], references: [id])
-  
-  @@unique([courseId, userId])
-  @@index([userId])
-  @@index([status])
-}
-
-// ================================
-// ANALYTICS & PERFORMANCE MODELS
-// ================================
-
-model ProjectMetrics {
-  id            String      @id @default(uuid())
-  projectId     String
-  
-  // Date for metrics
-  date          DateTime    @db.Date
-  
-  // Safety Metrics
-  safetyScore   Float?      // 0-100 safety compliance score
-  incidentCount Int         @default(0)
-  nearMissCount Int         @default(0)
-  daysWithoutIncident Int   @default(0)
-  
-  // Quality Metrics
-  qualityScore    Float?    // 0-100 quality score
-  inspectionCount Int       @default(0)
-  defectCount     Int       @default(0)
-  reworkHours     Float?    // Hours spent on rework
-  
-  // Progress Metrics
-  plannedProgress Float?    // Planned % completion
-  actualProgress  Float?    // Actual % completion
-  mediaCount      Int       @default(0)
-  activityCount   Int       @default(0)
-  
-  // Team Metrics
-  activeUsers       Int     @default(0)
-  totalHours        Float?  // Total hours worked
-  productivityScore Float?  // Productivity metric
-  
-  // Supply Chain Metrics
-  deliveriesPlanned   Int   @default(0)
-  deliveriesOnTime    Int   @default(0)
-  materialIssues      Int   @default(0)
-  
-  // Calculated fields
-  efficiencyRatio   Float?  // Actual vs planned progress
-  safetyIncidentRate Float? // Incidents per hours worked
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  project         Project   @relation(fields: [projectId], references: [id])
-  
-  @@unique([projectId, date])
-  @@index([projectId])
-  @@index([date])
-}
-
-model PerformanceBenchmark {
-  id            String      @id @default(uuid())
-  companyId     String
-  
-  // Benchmark Details
-  name          String
-  category      String      // SAFETY, QUALITY, PRODUCTIVITY, etc.
-  metric        String      // Specific metric being benchmarked
-  
-  // Target Values
-  targetValue   Float
-  minAcceptable Float?
-  maxAcceptable Float?
-  
-  // Industry Standards
-  industryAverage Float?
-  industryBest    Float?
-  
-  // Applicability
-  projectTypes    String[]  // Which project types this applies to
-  isActive        Boolean   @default(true)
-  
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  
-  company       Company     @relation(fields: [companyId], references: [id])
-  
-  @@index([companyId])
-  @@index([category])
 }

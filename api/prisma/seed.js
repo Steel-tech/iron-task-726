@@ -12,10 +12,10 @@ async function main() {
 
   // Create default company
   const company = await prisma.company.upsert({
-    where: { id: 'fsw-default-company' },
+    where: { id: '9ba522d5-7796-4102-970f-61170ed57803' },
     update: {},
     create: {
-      id: 'fsw-default-company',
+      id: '9ba522d5-7796-4102-970f-61170ed57803',
       name: 'Iron Task',
     },
   })
